@@ -1,75 +1,76 @@
-# React + TypeScript + Vite
+# Oregon Health - Generational Health OS
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modern health management platform built with React, TypeScript, Vite, and Supabase.
 
-Currently, two official plugins are available:
+## Tech Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **React 19** - UI library with React Compiler
+- **TypeScript** - Type safety
+- **Vite 7** - Build tool and dev server
+- **Tailwind CSS v4** - Styling with @tailwindcss/vite
+- **shadcn/ui** - Component library (New York style)
+- **Supabase** - Backend and database
+- **Jotai** - State management
+- **TanStack Query** - Server state management
+- **Lucide React** - Icons
 
-## React Compiler
+## Getting Started
 
-The React Compiler is enabled on this template. See [this documentation](https://react.dev/learn/react-compiler) for more information.
+### Prerequisites
 
-Note: This will impact Vite dev & build performances.
+- Node.js 18+ and pnpm
 
-## Expanding the ESLint configuration
+### Installation
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+1. Clone the repository:
+```bash
+git clone https://github.com/Oregon-He/web-app.git
+cd web-app
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+2. Install dependencies:
+```bash
+pnpm install
 ```
+
+3. Create `.env` with your Supabase credentials:
+```bash
+VITE_SUPABASE_URL=https://your-project-id.supabase.co
+VITE_SUPABASE_ANON_KEY=your-anon-key-here
+```
+
+Get these from [Supabase Dashboard](https://supabase.com/dashboard) → Project Settings → API
+
+4. Start the dev server:
+```bash
+pnpm dev
+```
+
+5. Open http://localhost:5173
+
+## Project Structure
+
+```
+src/
+├── shared/
+│   ├── ui/          # shadcn components
+│   ├── utils/       # Utilities (supabase client, cn helper)
+│   └── providers/   # App providers (Jotai, TanStack Query)
+├── App.tsx          # Main landing page
+└── main.tsx         # Entry point
+```
+
+## Environment Variables
+
+See [ENV_SETUP.md](./ENV_SETUP.md) for detailed documentation.
+
+## Available Scripts
+
+- `pnpm dev` - Start dev server
+- `pnpm build` - Build for production
+- `pnpm preview` - Preview production build
+- `pnpm lint` - Run ESLint
+
+## Contributing
+
+See the branch: `feature/add-supabase` for the latest development work.

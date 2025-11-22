@@ -3,100 +3,59 @@ import {
   createHealthRecordMutationAtom,
   updateHealthRecordMutationAtom,
   deleteHealthRecordMutationAtom,
-  uploadDocumentMutationAtom,
 } from "../atoms/mutation-atoms";
-import type {
-  HealthRecord,
-  CreateHealthRecordInput,
-  UpdateHealthRecordInput,
-} from "../types";
+import { useQueryClient } from "@tanstack/react-query";
 
 /**
- * Hook to create a new health record
+ * Hook for creating a health record
+ * Example of using mutation atoms with query invalidation
  */
 export function useCreateHealthRecord() {
+  const queryClient = useQueryClient();
   const mutation = useAtomValue(createHealthRecordMutationAtom);
 
-  const createRecord = async (
-    input: CreateHealthRecordInput
-  ): Promise<HealthRecord> => {
-    return mutation.mutateAsync(input);
-  };
-
   return {
-    createRecord,
-    isLoading: mutation.isPending,
-    isError: mutation.isError,
-    error: mutation.error,
-    isSuccess: mutation.isSuccess,
-    data: mutation.data,
-    reset: mutation.reset,
+    ...mutation,
+    mutate: async (...args: Parameters<typeof mutation.mutate>) => {
+      const result = await mutation.mutateAsync(...args);
+      // Invalidate queries after successful mutation
+      queryClient.invalidateQueries({ queryKey: ["health-records"] });
+      return result;
+    },
   };
 }
 
 /**
- * Hook to update an existing health record
+ * Hook for updating a health record
  */
 export function useUpdateHealthRecord() {
+  const queryClient = useQueryClient();
   const mutation = useAtomValue(updateHealthRecordMutationAtom);
 
-  const updateRecord = async (
-    input: UpdateHealthRecordInput
-  ): Promise<HealthRecord> => {
-    return mutation.mutateAsync(input);
-  };
-
   return {
-    updateRecord,
-    isLoading: mutation.isPending,
-    isError: mutation.isError,
-    error: mutation.error,
-    isSuccess: mutation.isSuccess,
-    data: mutation.data,
-    reset: mutation.reset,
+    ...mutation,
+    mutate: async (...args: Parameters<typeof mutation.mutate>) => {
+      const result = await mutation.mutateAsync(...args);
+      queryClient.invalidateQueries({ queryKey: ["health-records"] });
+      queryClient.invalidateQueries({ queryKey: ["health-record"] });
+      return result;
+    },
   };
 }
 
 /**
- * Hook to delete a health record
+ * Hook for deleting a health record
  */
 export function useDeleteHealthRecord() {
+  const queryClient = useQueryClient();
   const mutation = useAtomValue(deleteHealthRecordMutationAtom);
 
-  const deleteRecord = async (id: string): Promise<void> => {
-    return mutation.mutateAsync(id);
-  };
-
   return {
-    deleteRecord,
-    isLoading: mutation.isPending,
-    isError: mutation.isError,
-    error: mutation.error,
-    isSuccess: mutation.isSuccess,
-    reset: mutation.reset,
-  };
-}
-
-/**
- * Hook to upload and process a document
- */
-export function useUploadDocument() {
-  const mutation = useAtomValue(uploadDocumentMutationAtom);
-
-  const uploadDocument = async (
-    file: File,
-    patientId: string
-  ): Promise<HealthRecord> => {
-    return mutation.mutateAsync({ file, patientId });
-  };
-
-  return {
-    uploadDocument,
-    isLoading: mutation.isPending,
-    isError: mutation.isError,
-    error: mutation.error,
-    isSuccess: mutation.isSuccess,
-    data: mutation.data,
-    reset: mutation.reset,
+    ...mutation,
+    mutate: async (...args: Parameters<typeof mutation.mutate>) => {
+      const result = await mutation.mutateAsync(...args);
+      queryClient.invalidateQueries({ queryKey: ["health-records"] });
+      return result;
+    },
   };
 }
