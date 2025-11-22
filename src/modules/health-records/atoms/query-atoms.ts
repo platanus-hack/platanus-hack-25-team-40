@@ -36,3 +36,26 @@ export const healthRecordByIdQueryAtom = (id: string) =>
     },
     enabled: !!id,
   }));
+
+/** Signed URL for a record's file URL fragment */
+export const healthRecordSignedUrlQueryAtom = (fileUrlFragment: string | null | undefined) =>
+  atomWithQuery((get) => ({
+    queryKey: ["health-record-signed-url", fileUrlFragment],
+    queryFn: async () => {
+      const gateway = get(healthRecordsGatewayAtom);
+      if (!fileUrlFragment) return null;
+      return gateway.getSignedUrl(fileUrlFragment);
+    },
+    enabled: !!fileUrlFragment,
+  }));
+
+/** Public URL (non-expiring) for a record's file if bucket is public */
+export const healthRecordPublicUrlQueryAtom = (fileUrlFragment: string | null | undefined) =>
+  atomWithQuery((get) => ({
+    queryKey: ["health-record-public-url", fileUrlFragment],
+    queryFn: async () => {
+      const gateway = get(healthRecordsGatewayAtom);
+      return gateway.getPublicUrl(fileUrlFragment);
+    },
+    enabled: !!fileUrlFragment,
+  }));
