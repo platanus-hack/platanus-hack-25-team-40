@@ -43,3 +43,19 @@ export async function requireAuth() {
 
 	return { userId: data.session.user.id };
 }
+
+/**
+ * Lightweight guard that only checks profile completion.
+ * Assumes authentication is already handled by root route.
+ * Redirects to /complete-profile if profile is not complete.
+ */
+export async function requireCompleteProfile(userId: string) {
+	// Check if profile is complete
+	const isComplete = await ensureProfileExists(userId);
+
+	if (!isComplete) {
+		throw redirect({
+			to: "/complete-profile",
+		});
+	}
+}
