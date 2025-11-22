@@ -1,87 +1,126 @@
 # Supabase Edge Functions
 
-This directory contains Deno-based Edge Functions for the Family Health OS MVP.
+Deno-based Edge Functions for Oregon Health.
 
 ## Structure
 
 ```
 supabase/functions/
 ├── analyze-pdf/         # Main PDF analysis function
-│   └── index.ts
+│   ├── index.ts
+│   └── prompts.ts
 ├── deno.json           # Deno configuration
-├── .env.example        # Environment variables template
+├── .env                # Environment variables (not committed)
 └── README.md           # This file
+```
+
+## Prerequisites
+
+- [Supabase CLI](https://supabase.com/docs/guides/cli)
+- Deno (optional, Supabase CLI includes it)
+
+## Environment Setup
+
+Create a `.env` file in `supabase/functions/`:
+
+```env
+SUPABASE_URL=https://your-project-ref.supabase.co
+SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+ANTHROPIC_API_KEY=sk-ant-api03-...
 ```
 
 ## Local Development
 
-### Prerequisites
-
-- Install [Supabase CLI](https://supabase.com/docs/guides/cli)
-- Install [Deno](https://deno.land/) (optional, Supabase CLI includes it)
-
-### Setup
-
-1. Copy environment variables:
-   ```bash
-   cd supabase/functions
-   cp .env.example .env
-   # Edit .env with your actual keys
-   ```
-
-2. Start Supabase locally (from project root):
+1. **Start Supabase locally** (from project root):
    ```bash
    supabase start
    ```
 
-3. Serve functions locally:
+2. **Serve functions**:
    ```bash
    supabase functions serve --env-file ./supabase/functions/.env
-   ```
-
-4. Or serve a specific function:
-   ```bash
+   # Or serve specific function:
    supabase functions serve analyze-pdf --env-file ./supabase/functions/.env
    ```
 
-### Testing
+## Testing
 
-Test the function locally:
+### 1. Upload Test PDF
+
+**Via Supabase Studio UI:**
+- Open `http://localhost:54323` → Storage → `health_records` bucket
+- Create folder: `test-user-123`
+- Upload your medical PDF
+
+**Via CLI:**
+```bash
+supabase storage cp ./path/to/medical-report.pdf \
+  health_records/test-user-123/lab-results.pdf
+```
+
+### 2. Test the Function
 
 ```bash
-curl -i --location --request POST 'http://localhost:54321/functions/v1/analyze-pdf' \
-  --header 'Authorization: Bearer YOUR_ANON_KEY' \
-  --header 'Content-Type: application/json' \
-  --data '{"file_path":"health_records/test.pdf"}'
+curl -i http://localhost:54321/functions/v1/analyze-pdf \
+  -H "Authorization: Bearer YOUR_ANON_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"file_path":"test-user-123/lab-results.pdf"}'
 ```
+
+### 3. View Logs
+
+```bash
+supabase functions logs analyze-pdf --follow
+```
+
+### Expected Response
+
+**Success (200):**
+```json
+{
+  "record_type": "LAB_RESULT",
+  "specialty": "Medicina General",
+  "event_date": "2024-11-15",
+  "title": "Hemograma Completo",
+  "description_text": "Examen de sangre completo...",
+  "ai_interpretation": {
+    "interpretation": "Los resultados muestran...",
+    "worrying_metrics": [...]
+  }
+}
+```
+
+**Common Errors:**
+- `400`: Missing `file_path` in request body
+- `404`: PDF not found in storage (check path format: `user-id/filename.pdf`, no leading slash)
+- `500`: Claude API error (check PDF size <32MB, pages <100, not password-protected)
 
 ## Deployment
 
-Deploy to Supabase:
-
 ```bash
-# Deploy all functions
-supabase functions deploy
-
 # Deploy specific function
 supabase functions deploy analyze-pdf
 
-# Set environment variables (production)
-supabase secrets set ANTHROPIC_API_KEY=your-key-here
+# Set production secrets (don't commit .env!)
+supabase secrets set ANTHROPIC_API_KEY=sk-ant-api03-...
+
+# View secrets
+supabase secrets list
 ```
 
 ## Functions
 
 ### analyze-pdf
 
-**Purpose:** Download a PDF from Supabase Storage, extract text, analyze with Claude AI, and return structured medical data.
+Analyzes medical PDFs from Supabase Storage using Claude AI and returns structured data optimized for Chilean healthcare.
 
 **Endpoint:** `POST /functions/v1/analyze-pdf`
 
-**Request Body:**
+**Request:**
 ```json
 {
-  "file_path": "health_records/user-id/filename.pdf"
+  "file_path": "user-uuid/filename.pdf"
 }
 ```
 
@@ -89,36 +128,38 @@ supabase secrets set ANTHROPIC_API_KEY=your-key-here
 ```json
 {
   "record_type": "LAB_RESULT",
-  "specialty": "Cardiology",
+  "specialty": "Cardiología",
   "event_date": "2024-11-20",
-  "title": "Blood Work Nov 2024",
+  "title": "Examen de Sangre Noviembre 2024",
   "description_text": "Análisis de sangre completo...",
-  "ai_interpretation": "Interpretación detallada...",
-  "worrying_metrics": [
-    {
-      "metric": "LDL Cholesterol",
-      "value": "160 mg/dL",
-      "status": "High",
-      "risk_level": "Red"
-    }
-  ]
+  "ai_interpretation": {
+    "interpretation": "Los resultados muestran...",
+    "worrying_metrics": [
+      {
+        "metric": "Colesterol LDL",
+        "value": "160 mg/dL",
+        "status": "Alto",
+        "risk_level": "Orange"
+      }
+    ]
+  }
 }
 ```
 
-## Environment Variables
-
-| Variable | Description | Required |
-|----------|-------------|----------|
-| `SUPABASE_URL` | Your Supabase project URL | Yes |
-| `SUPABASE_ANON_KEY` | Supabase anonymous key | Yes |
-| `SUPABASE_SERVICE_ROLE_KEY` | Service role key (use carefully) | Optional |
-| `ANTHROPIC_API_KEY` | Anthropic Claude API key | Yes |
+**Record Types:**
+- `LAB_RESULT` - Exámenes de laboratorio
+- `IMAGING` - Imágenes médicas (radiografías, TAC, etc.)
+- `CONSULTATION` - Consultas médicas
+- `PRESCRIPTION` - Recetas médicas
+- `EMERGENCY_REPORT` - Informes de urgencia
+- `HOSPITALIZATION` - Epicrisis
+- `SURGERY_REPORT` - Protocolos operatorios
+- `VACCINATION` - Certificados de vacunación
+- `MEDICAL_CERTIFICATE` - Certificados/licencias médicas
+- `OTHER` - Otros documentos
 
 ## Notes
 
 - Functions run on Deno runtime
-- CORS is enabled for local development (`*` origin)
-- RLS policies are respected when using user auth context
-- For hackathon purposes, you may use service role key if needed
-
-
+- CORS enabled for local development (`*` origin)
+- RLS policies respected when using user auth context
