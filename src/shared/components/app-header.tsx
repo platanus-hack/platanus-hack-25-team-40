@@ -25,7 +25,7 @@ export function AppHeader() {
 						onClick={() => router.navigate({ to: "/dashboard" })}
 					>
 						<img
-							src="/src/assets/oregon.svg"
+							src="/oregon.svg"
 							alt="Oregon Health"
 							className="h-14 w-14 text-primary"
 						/>

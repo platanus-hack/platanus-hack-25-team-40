@@ -28,7 +28,7 @@ interface FamilyMembersDialogProps {
 }
 
 export function FamilyMembersDialog({ open, onOpenChange }: FamilyMembersDialogProps) {
-  const { data: familyMembers, isLoading, refetch } = useFamilyMembers();
+  const { data: familyMembers, isLoading } = useFamilyMembers();
   const createLink = useCreateFamilyLink();
   const deleteLink = useDeleteFamilyLink();
   const searchUserMutation = useSearchUserByEmail();
@@ -80,9 +80,6 @@ export function FamilyMembersDialog({ open, onOpenChange }: FamilyMembersDialogP
       setSearchQuery("");
       setSelectedRole(FamilyRole.OTHER);
       setSearchResult(null);
-
-      // Refetch the list
-      await refetch();
     } catch (error) {
       console.error("Failed to add family member:", error);
       const errorMessage = error instanceof Error ? error.message : "Failed to add family member. Please try again.";
@@ -97,7 +94,6 @@ export function FamilyMembersDialog({ open, onOpenChange }: FamilyMembersDialogP
 
     try {
       await deleteLink.mutateAsync(member.id);
-      await refetch();
     } catch (error) {
       console.error("Failed to delete family member:", error);
     }
