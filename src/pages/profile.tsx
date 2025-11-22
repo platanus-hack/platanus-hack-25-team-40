@@ -1,13 +1,16 @@
 import { useRouter } from "@tanstack/react-router";
 import { Button } from "@/shared/ui/button";
-import { Card } from "@/shared/ui/card";
-import { Edit, ArrowLeft, Calendar, Heart, Ruler, Weight, Droplet, User } from "lucide-react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/ui/card";
+import { Edit, ArrowLeft, Calendar, Heart, Ruler, Weight, Droplet, User, Users, Plus } from "lucide-react";
 import { useProfileQuery } from "@/modules/profile/hooks/use-profile-query";
 import { AppHeader } from "@/shared/components/app-header";
+import { FamilyMembersDialog } from "@/modules/family-members/components/family-members-dialog";
+import { useState } from "react";
 
 export default function Profile() {
 	const router = useRouter();
 	const queryResult = useProfileQuery();
+	const [isFamilyDialogOpen, setIsFamilyDialogOpen] = useState(false);
 	
 	const { data: profile, isLoading, error } = queryResult;
 
@@ -299,7 +302,38 @@ export default function Profile() {
 						)}
 					</div>
 				</div>
+
+				{/* Family Members Section */}
+				<div className="mt-8">
+					<Card>
+						<CardHeader className="flex flex-row items-center justify-between">
+							<div>
+								<CardTitle className="flex items-center gap-2">
+									<Users className="h-5 w-5" />
+									Family Members
+								</CardTitle>
+								<CardDescription className="mt-1">
+									Add family members to track their health records and share information
+								</CardDescription>
+							</div>
+							<Button 
+								variant="outline" 
+								className="gap-2"
+								onClick={() => setIsFamilyDialogOpen(true)}
+							>
+								<Plus className="h-4 w-4" />
+								Add Member
+							</Button>
+						</CardHeader>
+					</Card>
+				</div>
 			</main>
+
+			{/* Family Members Dialog */}
+			<FamilyMembersDialog 
+				open={isFamilyDialogOpen} 
+				onOpenChange={setIsFamilyDialogOpen} 
+			/>
 		</div>
 	);
 }
