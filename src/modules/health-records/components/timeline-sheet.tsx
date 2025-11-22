@@ -12,14 +12,13 @@ import { Button } from "@/shared/ui/button";
 import { useHealthRecordsQuery } from "../hooks/use-health-records-query";
 import type { HealthRecord } from "../types";
 import {
-  FileText,
-  Calendar,
-  Activity,
-  ExternalLink,
-  ChevronDown,
-  ChevronUp,
-  Stethoscope,
-  AlertCircle,
+	FileText,
+	Calendar,
+	Activity,
+	ExternalLink,
+	ChevronDown,
+	ChevronUp,
+	AlertCircle,
 } from "lucide-react";
 
 interface TimelineSheetProps {
@@ -39,7 +38,7 @@ export function TimelineSheet({ open, onOpenChange }: TimelineSheetProps) {
 
   // Group records by year and month
   const groupedRecords: GroupedRecords = (records || []).reduce((acc, record) => {
-    const date = new Date(record.event_date);
+    const date = new Date(record.date);
     const year = date.getFullYear().toString();
     const month = date.toLocaleString("default", { month: "long" });
 
@@ -76,6 +75,13 @@ export function TimelineSheet({ open, onOpenChange }: TimelineSheetProps) {
     };
     return colors[type] || "bg-gray-100 text-gray-800 border-gray-200";
   };
+
+  const formatRecordType = (type: string) => {
+		return type
+			.split("-")
+			.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+			.join(" ");
+	};
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -153,121 +159,127 @@ export function TimelineSheet({ open, onOpenChange }: TimelineSheetProps) {
                         const monthRecords = groupedRecords[year][month];
 
                         return (
-                          <div key={monthKey} className="space-y-3">
-                            {/* Month Header */}
-                            <button
-                              onClick={() => toggleMonth(monthKey)}
-                              className="flex items-center justify-between w-full text-left p-3 rounded-lg hover:bg-accent transition-colors"
-                            >
-                              <div className="flex items-center gap-3">
-                                <Calendar className="h-5 w-5 text-muted-foreground" />
-                                <span className="font-semibold">{month}</span>
-                                <Badge variant="secondary" className="text-xs">
-                                  {monthRecords.length} record
-                                  {monthRecords.length !== 1 ? "s" : ""}
-                                </Badge>
-                              </div>
-                              {isExpanded ? (
-                                <ChevronUp className="h-4 w-4" />
-                              ) : (
-                                <ChevronDown className="h-4 w-4" />
-                              )}
-                            </button>
+													<div key={monthKey} className="space-y-3">
+														{/* Month Header */}
+														<button
+															onClick={() => toggleMonth(monthKey)}
+															className="flex items-center justify-between w-full text-left p-3 rounded-lg hover:bg-accent transition-colors"
+														>
+															<div className="flex items-center gap-3">
+																<Calendar className="h-5 w-5 text-muted-foreground" />
+																<span className="font-semibold">{month}</span>
+																<Badge variant="secondary" className="text-xs">
+																	{monthRecords.length} record
+																	{monthRecords.length !== 1 ? "s" : ""}
+																</Badge>
+															</div>
+															{isExpanded ? (
+																<ChevronUp className="h-4 w-4" />
+															) : (
+																<ChevronDown className="h-4 w-4" />
+															)}
+														</button>
 
-                            {/* Records for this month */}
-                            {isExpanded && (
-                              <div className="space-y-3 pl-4 border-l-2 border-muted ml-2">
-                                {monthRecords
-                                  .sort(
-                                    (a, b) =>
-                                      new Date(b.event_date).getTime() -
-                                      new Date(a.event_date).getTime()
-                                  )
-                                  .map((record) => (
-                                    <Card
-                                      key={record.id}
-                                      className="p-4 ml-4 hover:shadow-md transition-shadow"
-                                    >
-                                      <div className="space-y-3">
-                                        {/* Header */}
-                                        <div className="flex items-start justify-between">
-                                          <div className="flex-1">
-                                            <div className="flex items-center gap-2 mb-1">
-                                              <Badge
-                                                variant="outline"
-                                                className={getRecordTypeColor(
-                                                  record.record_type
-                                                )}
-                                              >
-                                                {record.record_type}
-                                              </Badge>
-                                              {record.specialty && (
-                                                <Badge variant="secondary" className="text-xs">
-                                                  <Stethoscope className="h-3 w-3 mr-1" />
-                                                  {record.specialty}
-                                                </Badge>
-                                              )}
-                                            </div>
-                                            <h4 className="font-semibold text-base">
-                                              {record.title || "Untitled Record"}
-                                            </h4>
-                                            <p className="text-sm text-muted-foreground flex items-center gap-1">
-                                              <Calendar className="h-3 w-3" />
-                                              {formatDate(record.event_date)}
-                                            </p>
-                                          </div>
-                                        </div>
+														{/* Records for this month */}
+														{isExpanded && (
+															<div className="space-y-3 pl-4 border-l-2 border-muted ml-2">
+																{monthRecords
+																	.sort(
+																		(a, b) =>
+																			new Date(b.date).getTime() -
+																			new Date(a.date).getTime()
+																	)
+																	.map((record) => (
+																		<Card
+																			key={record.id}
+																			className="p-4 ml-4 hover:shadow-md transition-shadow"
+																		>
+																			<div className="space-y-3">
+																				{/* Header */}
+																				<div className="flex items-start justify-between">
+																					<div className="flex-1">
+																						<div className="flex items-center gap-2 mb-1">
+																							<Badge
+																								variant="outline"
+																								className={getRecordTypeColor(
+																									record.type
+																								)}
+																							>
+																								{formatRecordType(record.type)}
+																							</Badge>
+																						</div>
+																						<h4 className="font-semibold text-base">
+																							{record.title}
+																						</h4>
+																						<p className="text-sm text-muted-foreground flex items-center gap-1">
+																							<Calendar className="h-3 w-3" />
+																							{formatDate(record.date)}
+																							{record.specialty &&
+																								record.specialty.trim() && (
+																									<>
+																										<span className="mx-1">
+																											•
+																										</span>
+																										{record.specialty}
+																									</>
+																								)}
+																						</p>
+																					</div>
+																				</div>
 
-                                        {/* Description */}
-                                        {record.description_text && (
-                                          <p className="text-sm text-muted-foreground line-clamp-3">
-                                            {record.description_text}
-                                          </p>
-                                        )}
+																				{/* Description */}
+																				{record.description &&
+																					record.description.trim() && (
+																						<p className="text-sm text-muted-foreground line-clamp-3">
+																							{record.description}
+																						</p>
+																					)}
 
-                                        {/* AI Interpretation */}
-                                        {record.ai_interpretation && (
-                                          <div className="bg-blue-50 border border-blue-200 rounded-md p-3">
-                                            <div className="flex items-start gap-2">
-                                              <AlertCircle className="h-4 w-4 text-blue-600 mt-0.5 shrink-0" />
-                                              <div className="text-sm">
-                                                <p className="font-medium text-blue-900 mb-1">
-                                                  AI Summary
-                                                </p>
-                                                <p className="text-blue-800">
-                                                  {typeof record.ai_interpretation === "string"
-                                                    ? record.ai_interpretation
-                                                    : record.ai_interpretation.summary ||
-                                                      "Analysis available"}
-                                                </p>
-                                              </div>
-                                            </div>
-                                          </div>
-                                        )}
+																				{/* AI Interpretation */}
+																				{record.aiInterpretation && (
+																					<div className="bg-blue-50 border border-blue-200 rounded-md p-3">
+																						<div className="flex items-start gap-2">
+																							<AlertCircle className="h-4 w-4 text-blue-600 mt-0.5 shrink-0" />
+																							<div className="text-sm">
+																								<p className="font-medium text-blue-900 mb-1">
+																									AI Summary
+																								</p>
+																								<p className="text-blue-800">
+																									{record.aiInterpretation
+																										.summary ||
+																										"Analysis available"}
+																								</p>
+																							</div>
+																						</div>
+																					</div>
+																				)}
 
-                                        {/* File Link */}
-                                        {record.file_url && (
-                                          <div className="flex items-center gap-2 pt-2 border-t">
-                                            <Button
-                                              variant="outline"
-                                              size="sm"
-                                              className="gap-2"
-                                              onClick={() =>
-                                                window.open(record.file_url!, "_blank")
-                                              }
-                                            >
-                                              <ExternalLink className="h-3 w-3" />
-                                              View Document
-                                            </Button>
-                                          </div>
-                                        )}
-                                      </div>
-                                    </Card>
-                                  ))}
-                              </div>
-                            )}
-                          </div>
-                        );
+																				{/* File Link */}
+																				{record.fileUrl && (
+																					<div className="flex items-center gap-2 pt-2 border-t">
+																						<Button
+																							variant="outline"
+																							size="sm"
+																							className="gap-2"
+																							onClick={() =>
+																								window.open(
+																									record.fileUrl!,
+																									"_blank"
+																								)
+																							}
+																						>
+																							<ExternalLink className="h-3 w-3" />
+																							View Document
+																						</Button>
+																					</div>
+																				)}
+																			</div>
+																		</Card>
+																	))}
+															</div>
+														)}
+													</div>
+												);
                       })}
                   </div>
                 ))}
