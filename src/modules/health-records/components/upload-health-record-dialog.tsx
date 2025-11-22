@@ -26,6 +26,7 @@ import { useCreateHealthRecord } from "../hooks/use-health-records-mutations";
 import { useUser } from "@/shared/hooks/useAuth";
 import type { HealthRecordType, AIInterpretation } from "../types";
 import { FilePlus, CalendarDays, ArrowLeft, Loader2, CheckCircle2, XCircle } from "lucide-react";
+import { triggerSuggestionsGeneration } from "@/modules/suggestions/utils/trigger-suggestions";
 
 interface UploadHealthRecordDialogProps {
   open: boolean;
@@ -173,6 +174,7 @@ export function UploadHealthRecordDialog({ open, onOpenChange }: UploadHealthRec
         } as const;
         await createMutation.mutate(payload as any);
       }));
+      void triggerSuggestionsGeneration(user.id, "FILE_UPLOAD");
       setIsSaved(true);
       onOpenChange(false);
       resetAll();

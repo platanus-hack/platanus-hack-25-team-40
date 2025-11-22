@@ -1,14 +1,16 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/ui/card";
+import { Button } from "@/shared/ui/button";
 import { useSuggestionsQuery } from "../hooks/use-suggestions-query";
 import { SuggestionCard } from "./suggestion-card";
 import { Brain, Loader2 } from "lucide-react";
 import type { Suggestion } from "../types";
-import { useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/shared/utils/supabase";
 import { useQueryClient } from "@tanstack/react-query";
 import { useUser } from "@/shared/hooks/useAuth";
 
 const urgencyOrder: Array<NonNullable<Suggestion["urgencyLevel"]>> = ["critical", "high", "medium", "low"];
+const visibleCap = 6;
 
 function groupSuggestionsByUrgency(suggestions: Suggestion[]) {
   const grouped: Record<string, Suggestion[]> = {
@@ -31,13 +33,34 @@ function groupSuggestionsByUrgency(suggestions: Suggestion[]) {
   return grouped;
 }
 
+function prioritizeSuggestions(suggestions: Suggestion[]) {
+  const urgencyRank: Record<string, number> = {
+    critical: 0,
+    high: 1,
+    medium: 2,
+    low: 3,
+  };
+
+  return [...suggestions].sort((a, b) => {
+    const ackDiff = Number(Boolean(a.acknowledgedAt)) - Number(Boolean(b.acknowledgedAt));
+    if (ackDiff !== 0) return ackDiff;
+
+    const urgencyDiff =
+      (urgencyRank[a.urgencyLevel || "low"] ?? 3) - (urgencyRank[b.urgencyLevel || "low"] ?? 3);
+    if (urgencyDiff !== 0) return urgencyDiff;
+
+    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+  });
+}
+
 export function SuggestionsSection() {
   const suggestionsQuery = useSuggestionsQuery();
   const suggestions = suggestionsQuery.data || [];
   const queryClient = useQueryClient();
   const user = useUser();
+  const [showAll, setShowAll] = useState(false);
 
-  // Subscribe to realtime updates for new suggestions
+  // Subscribe to realtime updates for all suggestion changes
   useEffect(() => {
     if (!user?.id) return;
 
@@ -46,14 +69,14 @@ export function SuggestionsSection() {
       .on(
         "postgres_changes",
         {
-          event: "INSERT",
+          event: "*", // Listen to all events: INSERT, UPDATE, DELETE
           schema: "public",
           table: "suggestions",
           filter: `user_id=eq.${user.id}`,
         },
         (payload) => {
-          console.log("New AI suggestion arrived!", payload.new);
-          // Invalidate and refetch suggestions
+          console.log("Suggestion changed:", payload.eventType, payload);
+          // Invalidate and refetch suggestions for any change
           queryClient.invalidateQueries({ queryKey: ["suggestions", user.id] });
         }
       )
@@ -63,6 +86,10 @@ export function SuggestionsSection() {
       supabase.removeChannel(channel);
     };
   }, [user?.id, queryClient]);
+
+  const prioritized = useMemo(() => prioritizeSuggestions(suggestions), [suggestions]);
+  const visibleSuggestions = showAll ? prioritized : prioritized.slice(0, visibleCap);
+  const grouped = groupSuggestionsByUrgency(visibleSuggestions);
 
   if (suggestionsQuery.isLoading) {
     return (
@@ -111,18 +138,27 @@ export function SuggestionsSection() {
     );
   }
 
-  const grouped = groupSuggestionsByUrgency(suggestions);
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Brain className="h-5 w-5" />
-          AI Health Insights
-        </CardTitle>
-        <CardDescription>
-          {suggestions.length} personalized suggestion{suggestions.length !== 1 ? "s" : ""} based on your health records and family history
-        </CardDescription>
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <CardTitle className="flex items-center gap-2">
+              <Brain className="h-5 w-5" />
+              AI Health Insights
+            </CardTitle>
+            <CardDescription>
+              Showing {visibleSuggestions.length} of {suggestions.length} personalized suggestion
+              {suggestions.length !== 1 ? "s" : ""} based on your health records and family history
+            </CardDescription>
+          </div>
+          {suggestions.length > visibleCap && (
+            <Button variant="outline" size="sm" onClick={() => setShowAll((prev) => !prev)}>
+              {showAll ? "Show fewer" : "Show all"}
+            </Button>
+          )}
+        </div>
       </CardHeader>
       <CardContent>
         <div className="space-y-6">
