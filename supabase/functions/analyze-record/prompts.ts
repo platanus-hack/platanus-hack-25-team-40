@@ -80,3 +80,4 @@ Recuerda:
 - Proporciona una interpretación clara y útil para el paciente
 - Responde SOLO con el JSON, sin formato markdown`;
 
+export const AUDIO_TRANSCRIPTION_PROMPT = "Dictado médico en español de Chile. Términos: paciente, diagnóstico, tratamiento, FONASA, ISAPRE, examen, receta médica.";
