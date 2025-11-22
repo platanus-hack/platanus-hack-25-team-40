@@ -3,6 +3,7 @@ import { Button } from "@/shared/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/ui/card";
 import { Badge } from "@/shared/ui/badge";
 import { FileText, Plus, Upload, Users, Activity, LogOut, User, Settings } from "lucide-react";
+import { UploadHealthRecordCard } from "@/modules/health-records/components/upload-record-card";
 
 export default function Dashboard() {
   const user = useUser();
@@ -49,6 +50,8 @@ export default function Dashboard() {
             Manage, organize, and understand your family's medical records in one secure place.
           </p>
         </div>
+
+        <UploadHealthRecordCard />
 
         {/* Quick Actions */}
         <div className="grid gap-4 md:grid-cols-3 mb-8">
