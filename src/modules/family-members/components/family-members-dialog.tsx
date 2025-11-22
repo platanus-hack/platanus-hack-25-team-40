@@ -33,36 +33,27 @@ export function FamilyMembersDialog({ open, onOpenChange }: FamilyMembersDialogP
   const deleteLink = useDeleteFamilyLink();
   const searchUserMutation = useSearchUserByEmail();
 
-  const [searchEmail, setSearchEmail] = useState("");
-  const [memberName, setMemberName] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
   const [selectedRole, setSelectedRole] = useState<FamilyRole>(FamilyRole.OTHER);
   const [isAdding, setIsAdding] = useState(false);
   const [searchResult, setSearchResult] = useState<{ exists: boolean; userId?: string; email: string; name?: string } | null>(null);
 
   const handleSearchUser = async () => {
-    if (!searchEmail) return;
+    if (!searchQuery.trim()) return;
 
     setSearchResult(null);
     
     try {
-      const result = await searchUserMutation.mutateAsync(searchEmail);
+      const result = await searchUserMutation.mutateAsync(searchQuery.trim());
       setSearchResult(result);
-      
-      // If user exists, pre-fill their name
-      if (result?.exists && result.name) {
-        setMemberName(result.name);
-      } else if (!result?.exists) {
-        // If user doesn't exist, pre-fill name from email
-        setMemberName(searchEmail.split("@")[0]);
-      }
     } catch (error) {
       console.error("Failed to search user:", error);
-      setSearchResult({ exists: false, email: searchEmail });
+      setSearchResult({ exists: false, email: searchQuery.trim() });
     }
   };
 
   const handleAddMember = async () => {
-    if (!searchEmail || !memberName || !selectedRole) return;
+    if (!searchQuery.trim() || !selectedRole) return;
 
     // Check if user exists in our database
     if (!searchResult) {
@@ -72,7 +63,7 @@ export function FamilyMembersDialog({ open, onOpenChange }: FamilyMembersDialogP
 
     if (!searchResult.exists) {
       alert(
-        `${searchEmail} is not registered in Oregon Health yet. They must create an account before you can add them as a family member.`
+        `${searchQuery} is not registered in Oregon Health yet. They must create an account before you can add them as a family member.`
       );
       return;
     }
@@ -80,14 +71,13 @@ export function FamilyMembersDialog({ open, onOpenChange }: FamilyMembersDialogP
     setIsAdding(true);
     try {
       await createLink.mutateAsync({
-        email: searchEmail,
-        name: memberName,
+        email: searchResult.email,
+        name: searchResult.name || searchResult.email.split("@")[0],
         role: selectedRole,
       });
 
       // Reset form
-      setSearchEmail("");
-      setMemberName("");
+      setSearchQuery("");
       setSelectedRole(FamilyRole.OTHER);
       setSearchResult(null);
 
@@ -185,25 +175,30 @@ export function FamilyMembersDialog({ open, onOpenChange }: FamilyMembersDialogP
 
             <div className="space-y-3">
               <div className="space-y-2">
-                <label htmlFor="member-email" className="text-sm font-medium">
-                  Email Address
+                <label htmlFor="search-query" className="text-sm font-medium">
+                  Search by Email or Name
                 </label>
                 <div className="flex gap-2">
                   <Input
-                    id="member-email"
-                    type="email"
-                    placeholder="family.member@example.com"
-                    value={searchEmail}
+                    id="search-query"
+                    type="text"
+                    placeholder="Enter email or name..."
+                    value={searchQuery}
                     onChange={(e) => {
-                      setSearchEmail(e.target.value);
-                      setSearchResult(null); // Reset search result when email changes
+                      setSearchQuery(e.target.value);
+                      setSearchResult(null); // Reset search result when query changes
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        handleSearchUser();
+                      }
                     }}
                   />
                   <Button
                     type="button"
                     variant="outline"
                     onClick={handleSearchUser}
-                    disabled={!searchEmail || searchUserMutation.isPending}
+                    disabled={!searchQuery.trim() || searchUserMutation.isPending}
                     className="gap-2"
                   >
                     <Search className="h-4 w-4" />
@@ -212,37 +207,30 @@ export function FamilyMembersDialog({ open, onOpenChange }: FamilyMembersDialogP
                 </div>
                 
                 {searchResult && (
-                  <div className={`flex items-center gap-2 text-sm p-2 rounded-md ${
+                  <div className={`flex items-start gap-2 text-sm p-3 rounded-md ${
                     searchResult.exists 
                       ? "bg-green-50 text-green-700 border border-green-200" 
                       : "bg-amber-50 text-amber-700 border border-amber-200"
                   }`}>
                     {searchResult.exists ? (
                       <>
-                        <CheckCircle2 className="h-4 w-4" />
-                        <span>User found! You can add them to your family.</span>
+                        <CheckCircle2 className="h-4 w-4 mt-0.5 shrink-0" />
+                        <div className="flex-1">
+                          <p className="font-medium">{searchResult.name || 'User found'}</p>
+                          <p className="text-xs opacity-90">{searchResult.email}</p>
+                        </div>
                       </>
                     ) : (
                       <>
-                        <AlertCircle className="h-4 w-4" />
-                        <span>User not registered. They must create an account first.</span>
+                        <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" />
+                        <div>
+                          <p className="font-medium">User not registered</p>
+                          <p className="text-xs opacity-90">They must create an Oregon Health account first.</p>
+                        </div>
                       </>
                     )}
                   </div>
                 )}
-              </div>
-
-              <div className="space-y-2">
-                <label htmlFor="member-name" className="text-sm font-medium">
-                  Name
-                </label>
-                <Input
-                  id="member-name"
-                  type="text"
-                  placeholder="Full name"
-                  value={memberName}
-                  onChange={(e) => setMemberName(e.target.value)}
-                />
               </div>
 
               <div className="space-y-2">
@@ -265,7 +253,7 @@ export function FamilyMembersDialog({ open, onOpenChange }: FamilyMembersDialogP
 
               <Button
                 onClick={handleAddMember}
-                disabled={!searchEmail || !memberName || !selectedRole || isAdding || !searchResult}
+                disabled={!searchQuery.trim() || !selectedRole || isAdding || !searchResult?.exists}
                 className="w-full gap-2"
               >
                 <UserPlus className="h-4 w-4" />
