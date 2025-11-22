@@ -1,0 +1,15 @@
+{
+  "tasks": {
+    "serve": "deno run --allow-net --allow-env --allow-read https://deno.land/std@0.168.0/http/server.ts"
+  },
+  "compilerOptions": {
+    "lib": ["deno.window"],
+    "strict": true
+  },
+  "imports": {
+    "supabase": "https://esm.sh/@supabase/supabase-js@2",
+    "anthropic": "https://esm.sh/@anthropic-ai/sdk@0.24.3"
+  }
+}
+
+
