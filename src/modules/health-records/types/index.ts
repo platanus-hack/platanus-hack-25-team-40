@@ -1,31 +1,34 @@
 export interface HealthRecord {
   id: string;
-  patientId: string;
-  date: string;
-  type: "checkup" | "diagnosis" | "prescription" | "lab-result";
-  title: string;
-  description: string;
-  provider: string;
-  status: "active" | "archived";
-  createdAt: string;
-  updatedAt: string;
+  user_id: string;
+  record_type: string;
+  specialty: string | null;
+  event_date: string;
+  title: string | null;
+  description_text: string | null;
+  file_url: string | null;
+  ai_interpretation: Record<string, any> | null;
+  created_at: string;
 }
 
 export interface CreateHealthRecordInput {
-  patientId: string;
-  date: string;
-  type: HealthRecord["type"];
-  title: string;
-  description: string;
-  provider: string;
+  user_id: string;
+  record_type: string;
+  specialty?: string;
+  event_date: string;
+  title?: string;
+  description_text?: string;
+  file_url?: string;
+  ai_interpretation?: Record<string, any>;
 }
 
 export interface UpdateHealthRecordInput {
   id: string;
-  date?: string;
-  type?: HealthRecord["type"];
+  record_type?: string;
+  specialty?: string;
+  event_date?: string;
   title?: string;
-  description?: string;
-  provider?: string;
-  status?: HealthRecord["status"];
+  description_text?: string;
+  file_url?: string;
+  ai_interpretation?: Record<string, any>;
 }
