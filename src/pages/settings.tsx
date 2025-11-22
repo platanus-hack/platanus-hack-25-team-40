@@ -3,7 +3,8 @@ import { useRouter } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { Button } from "@/shared/ui/button";
 import { Card } from "@/shared/ui/card";
-import { Heart, Trash2, AlertTriangle, ArrowLeft } from "lucide-react";
+import { Trash2, AlertTriangle, ArrowLeft } from "lucide-react";
+import { AppHeader } from "@/shared/components/app-header";
 import {
 	Dialog,
 	DialogContent,
@@ -100,29 +101,34 @@ export default function Settings() {
 
 	return (
 		<div className="min-h-screen bg-background">
-			<div className="container max-w-4xl mx-auto p-6 space-y-6">
-				{/* Header */}
-				<div className="flex items-center gap-4">
+			<AppHeader />
+			
+			<main className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
+				<div className="mb-8">
 					<Button
 						variant="ghost"
-						size="icon"
+						size="sm"
 						onClick={() => router.navigate({ to: "/dashboard" })}
+						className="mb-4 gap-2"
 					>
-						<ArrowLeft className="h-5 w-5" />
+						<ArrowLeft className="h-4 w-4" />
+						Back to Dashboard
 					</Button>
-					<div className="flex items-center gap-2">
-						<Heart className="h-6 w-6 text-primary" />
-						<h1 className="text-2xl font-bold">Settings</h1>
-					</div>
+					<h1 className="text-3xl font-bold tracking-tight">Settings</h1>
+					<p className="text-muted-foreground mt-1">
+						Manage your account settings and preferences
+					</p>
 				</div>
 
 				{/* Account Information */}
-				<Card className="p-6">
-					<h2 className="text-xl font-semibold mb-4">Account Information</h2>
-					<div className="space-y-2">
-						<div className="flex justify-between items-center">
-							<span className="text-sm text-muted-foreground">Email</span>
-							<span className="text-sm font-medium">{userEmail}</span>
+				<Card className="p-6 space-y-6">
+					<div>
+						<h2 className="text-xl font-semibold mb-4">Account Information</h2>
+						<div className="space-y-2">
+							<div className="flex justify-between items-center py-2">
+								<span className="text-sm text-muted-foreground">Email</span>
+								<span className="text-sm font-medium">{userEmail}</span>
+							</div>
 						</div>
 					</div>
 				</Card>
@@ -145,7 +151,7 @@ export default function Settings() {
 						Delete Account
 					</Button>
 				</Card>
-			</div>
+			</main>
 
 			{/* Delete Confirmation Dialog */}
 			<Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>

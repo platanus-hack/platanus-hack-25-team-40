@@ -1,54 +1,20 @@
-import { useUser, signOut } from "@/shared/hooks/useAuth";
 import { Button } from "@/shared/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/ui/card";
 import { Badge } from "@/shared/ui/badge";
-import { FileText, Plus, Upload, Users, LogOut, User, Settings } from "lucide-react";
+import { FileText, Plus, Upload, Users } from "lucide-react";
 import { UploadHealthRecordCard } from "@/modules/health-records/components/upload-record-card";
 import { FamilyMembersDialog } from "@/modules/family-members/components/family-members-dialog";
 import { TimelineSheet } from "@/modules/health-records/components/timeline-sheet";
 import { useState } from "react";
-import { useRouter } from "@tanstack/react-router";
+import { AppHeader } from "@/shared/components/app-header";
 
 export default function Dashboard() {
-  const router = useRouter();
-  const user = useUser();
   const [isFamilyDialogOpen, setIsFamilyDialogOpen] = useState(false);
   const [isTimelineOpen, setIsTimelineOpen] = useState(false);
 
-  const handleSignOut = async () => {
-    await signOut();
-  };
-
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex h-16 items-center justify-between">
-            <div className="flex items-center">
-              <img src="src/assets/oregon.svg" alt="Oregon Health" className="h-14 w-14 text-primary" />
-              <span className="text-xl font-bold">Oregon Health</span>
-            </div>
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2 text-sm">
-                <User className="h-4 w-4" />
-                <span className="text-muted-foreground">{user?.email}</span>
-              </div>
-              <Button 
-                variant="ghost" 
-                size="icon"
-                onClick={() => router.navigate({ to: "/settings" })}
-              >
-                <Settings className="h-4 w-4" />
-              </Button>
-              <Button variant="ghost" size="sm" onClick={handleSignOut} className="gap-2">
-                <LogOut className="h-4 w-4" />
-                Sign Out
-              </Button>
-            </div>
-          </div>
-        </div>
-      </header>
+      <AppHeader />
 
       {/* Main Content */}
       <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">

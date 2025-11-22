@@ -1,15 +1,14 @@
-import { supabase } from "@/shared/utils/supabase";
 import { useRouter } from "@tanstack/react-router";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/shared/ui/button";
 import { Card } from "@/shared/ui/card";
 import { Heart } from "lucide-react";
+import { useUpsertProfile } from "@/modules/profile/hooks/use-profile-mutations";
 
 export default function CompleteProfile() {
 	const router = useRouter();
-	const [loading, setLoading] = useState(false);
+	const { mutate: upsertProfile, isPending } = useUpsertProfile();
 	const [error, setError] = useState<string | null>(null);
-	const [userId, setUserId] = useState<string | null>(null);
 	
 	const [name, setName] = useState("");
 	const [lastName, setLastName] = useState("");
@@ -19,81 +18,31 @@ export default function CompleteProfile() {
 	const [heightCm, setHeightCm] = useState("");
 	const [weightKg, setWeightKg] = useState("");
 
-	useEffect(() => {
-		supabase.auth.getSession().then(async ({ data: { session } }) => {
-			if (!session) {
-				router.navigate({ to: "/login" });
-			} else {
-				setUserId(session.user.id);
-				
-				// Check if profile exists, if not create a basic one
-				const { error: profileError } = await supabase
-					.from('patient_profiles')
-					.select('id')
-					.eq('user_id', session.user.id)
-					.single();
-				
-				if (profileError && profileError.code === 'PGRST116') {
-					// No profile found, create one
-					console.log('No profile found, creating basic profile...');
-					const { error: insertError } = await supabase
-						.from('patient_profiles')
-						.insert({
-							user_id: session.user.id,
-							name: session.user.user_metadata?.name || '',
-							last_name: session.user.user_metadata?.last_name || '',
-							birth_date: new Date().toISOString().split('T')[0],
-							biological_sex: 'not_specified',
-							is_complete: false
-						});
-					
-					if (insertError) {
-						console.error('Error creating profile:', insertError);
-						// Don't set error state here - let user try to submit the form
-						// The form submission will handle creating/updating the profile
-					}
-				}
-			}
-		});
-	}, [router]);
-
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
-		if (!userId) return;
-
-		setLoading(true);
 		setError(null);
 
-		try {
-			// Use upsert to handle both create and update cases
-			const { error: upsertError } = await supabase
-				.from('patient_profiles')
-				.upsert({
-					user_id: userId,
-					name: name,
-					last_name: lastName,
-					birth_date: birthDate,
-					biological_sex: biologicalSex,
-					blood_type: bloodType || null,
-					height_cm: heightCm ? parseInt(heightCm) : null,
-					weight_kg: weightKg ? parseFloat(weightKg) : null,
-					is_complete: true,
-				}, {
-					onConflict: 'user_id'
-				});
-
-			if (upsertError) {
-				console.error("Profile upsert error:", upsertError);
-				setError(upsertError.message);
-				setLoading(false);
-			} else {
-				router.navigate({ to: "/dashboard" });
+		upsertProfile(
+			{
+				name: name,
+				last_name: lastName,
+				birth_date: birthDate,
+				biological_sex: biologicalSex,
+				blood_type: bloodType || null,
+				height_cm: heightCm ? parseInt(heightCm) : null,
+				weight_kg: weightKg ? parseFloat(weightKg) : null,
+				is_complete: true,
+			},
+			{
+				onSuccess: () => {
+					router.navigate({ to: "/dashboard" });
+				},
+				onError: (err) => {
+					console.error("Profile upsert error:", err);
+					setError(err instanceof Error ? err.message : "An unexpected error occurred.");
+				},
 			}
-		} catch (err) {
-			console.error("Unexpected error:", err);
-			setError("An unexpected error occurred.");
-			setLoading(false);
-		}
+		);
 	};
 
 	return (
@@ -245,9 +194,9 @@ export default function CompleteProfile() {
 							type="submit"
 							className="flex-1"
 							size="lg"
-							disabled={loading}
+							disabled={isPending}
 						>
-							{loading ? "Saving..." : "Complete Profile"}
+							{isPending ? "Saving..." : "Complete Profile"}
 						</Button>
 					</div>
 

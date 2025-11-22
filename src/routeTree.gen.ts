@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as CompleteProfileRouteImport } from './routes/complete-profile'
@@ -18,6 +19,11 @@ import { Route as IndexRouteImport } from './routes/index'
 const SettingsRoute = SettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProfileRoute = ProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -46,6 +52,7 @@ export interface FileRoutesByFullPath {
   '/complete-profile': typeof CompleteProfileRoute
   '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
+  '/profile': typeof ProfileRoute
   '/settings': typeof SettingsRoute
 }
 export interface FileRoutesByTo {
@@ -53,6 +60,7 @@ export interface FileRoutesByTo {
   '/complete-profile': typeof CompleteProfileRoute
   '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
+  '/profile': typeof ProfileRoute
   '/settings': typeof SettingsRoute
 }
 export interface FileRoutesById {
@@ -61,19 +69,33 @@ export interface FileRoutesById {
   '/complete-profile': typeof CompleteProfileRoute
   '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
+  '/profile': typeof ProfileRoute
   '/settings': typeof SettingsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/complete-profile' | '/dashboard' | '/login' | '/settings'
+  fullPaths:
+    | '/'
+    | '/complete-profile'
+    | '/dashboard'
+    | '/login'
+    | '/profile'
+    | '/settings'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/complete-profile' | '/dashboard' | '/login' | '/settings'
+  to:
+    | '/'
+    | '/complete-profile'
+    | '/dashboard'
+    | '/login'
+    | '/profile'
+    | '/settings'
   id:
     | '__root__'
     | '/'
     | '/complete-profile'
     | '/dashboard'
     | '/login'
+    | '/profile'
     | '/settings'
   fileRoutesById: FileRoutesById
 }
@@ -82,6 +104,7 @@ export interface RootRouteChildren {
   CompleteProfileRoute: typeof CompleteProfileRoute
   DashboardRoute: typeof DashboardRoute
   LoginRoute: typeof LoginRoute
+  ProfileRoute: typeof ProfileRoute
   SettingsRoute: typeof SettingsRoute
 }
 
@@ -92,6 +115,13 @@ declare module '@tanstack/react-router' {
       path: '/settings'
       fullPath: '/settings'
       preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/profile': {
+      id: '/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof ProfileRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -130,6 +160,7 @@ const rootRouteChildren: RootRouteChildren = {
   CompleteProfileRoute: CompleteProfileRoute,
   DashboardRoute: DashboardRoute,
   LoginRoute: LoginRoute,
+  ProfileRoute: ProfileRoute,
   SettingsRoute: SettingsRoute,
 }
 export const routeTree = rootRouteImport
