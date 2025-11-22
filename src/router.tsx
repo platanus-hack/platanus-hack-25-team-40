@@ -1,7 +1,7 @@
 import { createRouter } from "@tanstack/react-router";
 import { routeTree } from "./routeTree.gen";
 import { QueryClientProvider } from "@tanstack/react-query";
-import { queryClient } from "./shared/providers/app-provider";
+import { queryClient } from "./shared/providers/query-client";
 import { LoadingScreen } from "@/shared/ui/loading-screen";
 
 export const router = createRouter({
@@ -14,7 +14,7 @@ export const router = createRouter({
 });
 
 declare module "@tanstack/react-router" {
-  interface Register {
-    router: typeof router;
-  }
+	interface Register {
+		router: typeof router;
+	}
 }
