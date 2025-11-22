@@ -31,7 +31,7 @@ export function useUploadHealthRecordFile() {
       if (error) throw error;
 
       setStatus("success");
-      return data.fullPath;
+      return data.path;
     } catch (error) {
       setError((error as Error).message);
       setStatus("error");
