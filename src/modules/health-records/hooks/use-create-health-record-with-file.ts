@@ -2,6 +2,7 @@ import { useState, useCallback } from "react";
 import { useCreateHealthRecord } from "./use-health-records-mutations";
 import { useUploadHealthRecordFile } from "./use-upload-health-record-file";
 import { useUser } from "@/shared/hooks/useAuth";
+import { triggerSuggestionsGeneration } from "@/modules/suggestions/utils/trigger-suggestions";
 
 interface CreateHealthRecordFormInput {
   title: string;
@@ -51,6 +52,11 @@ export function useCreateHealthRecordWithFile() {
           fileUrl,
         });
         setStatus("success");
+        
+        // Fire and forget: Trigger suggestions generation after record is created
+        // This runs in the background and doesn't block the UI
+        triggerSuggestionsGeneration(user.id, "MANUAL");
+        
         return record;
       } catch (e) {
         const message = e instanceof Error ? e.message : "Failed to create record";

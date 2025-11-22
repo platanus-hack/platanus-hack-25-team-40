@@ -6,6 +6,7 @@ import { FileText, Plus, Upload, UserCircle } from "lucide-react";
 import { UploadHealthRecordDialog } from "@/modules/health-records/components/upload-health-record-dialog";
 import { FamilyMembersDialog } from "@/modules/family-members/components/family-members-dialog";
 import { TimelineSheet } from "@/modules/health-records/components/timeline-sheet";
+import { SuggestionsSection } from "@/modules/suggestions/components/suggestions-section";
 import { useState } from "react";
 import { useRouter } from "@tanstack/react-router";
 import { AppHeader } from "@/shared/components/app-header";
@@ -139,6 +140,10 @@ export default function Dashboard() {
 							<CardTitle className="text-3xl">0</CardTitle>
 						</CardHeader>
 					</Card>
+				</div>
+				{/* AI Health Insights */}
+				<div className="mb-8">
+					<SuggestionsSection />
 				</div>
 				{/* Recent Activity */}
 				<Card>
