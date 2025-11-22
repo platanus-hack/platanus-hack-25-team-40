@@ -1,6 +1,6 @@
 import { supabase } from "@/shared/utils/supabase";
 import { useRouter } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Heart, FileText, Shield, Users } from "lucide-react";
 import { Button } from "@/shared/ui/button";
 import { Badge } from "@/shared/ui/badge";
@@ -12,24 +12,52 @@ export default function Login() {
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 	const [isSignUp, setIsSignUp] = useState(false);
+	const [emailSent, setEmailSent] = useState(false);
+
+	const checkProfileAndRedirect = useCallback(
+		async (userId: string) => {
+			const { data: profileData, error: profileError } = await supabase
+				.from("patient_profiles")
+				.select("is_complete")
+				.eq("user_id", userId)
+				.single();
+
+			// If profile doesn't exist, redirect to dashboard (profile will be created there)
+			if (profileError && profileError.code === "PGRST116") {
+				// No profile found - this shouldn't happen if signup worked correctly
+				console.error(
+					"No profile found for user, redirecting to complete profile"
+				);
+				router.navigate({ to: "/complete-profile" });
+				return;
+			}
+
+			if (profileData && !profileData.is_complete) {
+				router.navigate({ to: "/complete-profile" });
+			} else {
+				router.navigate({ to: "/dashboard" });
+			}
+		},
+		[router]
+	);
 
 	useEffect(() => {
 		supabase.auth.getSession().then(({ data: { session } }) => {
 			if (session) {
-				router.navigate({ to: "/dashboard" });
+				checkProfileAndRedirect(session.user.id);
 			}
 		});
 
 		const {
 			data: { subscription },
-		} = supabase.auth.onAuthStateChange((event, session) => {
+		} = supabase.auth.onAuthStateChange(async (event, session) => {
 			if (event === "SIGNED_IN" && session) {
-				router.navigate({ to: "/dashboard" });
+				await checkProfileAndRedirect(session.user.id);
 			}
 		});
 
 		return () => subscription.unsubscribe();
-	}, [router]);
+	}, [router, checkProfileAndRedirect]);
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
@@ -50,8 +78,9 @@ export default function Login() {
 				console.error("Auth error:", error);
 				setError(error.message);
 				setLoading(false);
-			} else if (isSignUp) {
-				setError("Check your email to confirm your account!");
+			} else if (isSignUp && data.user) {
+				// Profile will be created on first login via complete-profile page
+				setEmailSent(true);
 				setLoading(false);
 			}
 		} catch (err) {
@@ -73,7 +102,7 @@ export default function Login() {
 								<Heart className="h-8 w-8 text-primary" />
 								<span className="text-2xl font-bold">Oregon Health</span>
 							</div>
-							
+
 							<Badge variant="secondary" className="mb-6">
 								The First Family Health OS
 							</Badge>
@@ -86,7 +115,9 @@ export default function Login() {
 								</span>
 							</h1>
 							<p className="text-lg text-muted-foreground max-w-md">
-								Transform fragmented medical records into an intelligent family health timeline—powered by AI that understands, translates, and protects.
+								Transform fragmented medical records into an intelligent family
+								health timeline—powered by AI that understands, translates, and
+								protects.
 							</p>
 						</div>
 
@@ -98,7 +129,8 @@ export default function Login() {
 								<div>
 									<h3 className="font-semibold mb-1">Smart Organization</h3>
 									<p className="text-sm text-muted-foreground">
-										AI automatically categorizes and structures all medical records
+										AI automatically categorizes and structures all medical
+										records
 									</p>
 								</div>
 							</div>
@@ -141,89 +173,143 @@ export default function Login() {
 								{isSignUp ? "Create your account" : "Welcome back"}
 							</h2>
 							<p className="text-muted-foreground">
-								{isSignUp 
-									? "Start building your family health vault" 
+								{isSignUp
+									? "Start building your family health vault"
 									: "Sign in to access your family health records"}
 							</p>
 						</div>
 
 						<form onSubmit={handleSubmit} className="space-y-6">
-							<div className="space-y-4">
-								<div className="space-y-2">
-									<label
-										htmlFor="email"
-										className="text-sm font-medium"
+							{emailSent ? (
+								<div className="space-y-6">
+									<div className="rounded-lg border border-primary/50 bg-primary/10 px-6 py-8 text-center space-y-4">
+										<div className="flex justify-center">
+											<div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/20">
+												<svg
+													className="h-8 w-8 text-primary"
+													fill="none"
+													stroke="currentColor"
+													viewBox="0 0 24 24"
+												>
+													<path
+														strokeLinecap="round"
+														strokeLinejoin="round"
+														strokeWidth={2}
+														d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+													/>
+												</svg>
+											</div>
+										</div>
+										<div>
+											<h3 className="text-lg font-semibold mb-2">
+												Check your email
+											</h3>
+											<p className="text-sm text-muted-foreground">
+												We've sent a confirmation link to{" "}
+												<strong>{email}</strong>
+											</p>
+											<p className="text-sm text-muted-foreground mt-2">
+												Click the link in the email to activate your account.
+											</p>
+										</div>
+									</div>
+									<Button
+										type="button"
+										variant="outline"
+										className="w-full"
+										onClick={() => {
+											setEmailSent(false);
+											setEmail("");
+											setPassword("");
+										}}
 									>
-										Email
-									</label>
-									<input
-										id="email"
-										type="email"
-										value={email}
-										onChange={(e) => setEmail(e.target.value)}
-										required
-										className="w-full rounded-lg border border-input bg-background px-4 py-2.5 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring placeholder:text-muted-foreground"
-										placeholder="you@example.com"
-									/>
+										Back to sign up
+									</Button>
 								</div>
-								<div className="space-y-2">
-									<label
-										htmlFor="password"
-										className="text-sm font-medium"
-									>
-										Password
-									</label>
-									<input
-										id="password"
-										type="password"
-										value={password}
-										onChange={(e) => setPassword(e.target.value)}
-										required
-										minLength={6}
-										className="w-full rounded-lg border border-input bg-background px-4 py-2.5 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring placeholder:text-muted-foreground"
-										placeholder="••••••••"
-									/>
-								</div>
-							</div>
+							) : (
+								<>
+									<div className="space-y-4">
+										<div className="space-y-2">
+											<label htmlFor="email" className="text-sm font-medium">
+												Email
+											</label>
+											<input
+												id="email"
+												type="email"
+												value={email}
+												onChange={(e) => setEmail(e.target.value)}
+												required
+												className="w-full rounded-lg border border-input bg-background px-4 py-2.5 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring placeholder:text-muted-foreground"
+												placeholder="you@example.com"
+											/>
+										</div>
+										<div className="space-y-2">
+											<label htmlFor="password" className="text-sm font-medium">
+												Password
+											</label>
+											<input
+												id="password"
+												type="password"
+												value={password}
+												onChange={(e) => setPassword(e.target.value)}
+												required
+												minLength={6}
+												className="w-full rounded-lg border border-input bg-background px-4 py-2.5 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring placeholder:text-muted-foreground"
+												placeholder="••••••••"
+											/>
+										</div>
+									</div>
 
-							{error && (
-								<div className="rounded-lg border border-destructive/50 bg-destructive/10 px-4 py-3 text-sm text-destructive">
-									{error}
-								</div>
+									{error && (
+										<div className="rounded-lg border border-destructive/50 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+											{error}
+										</div>
+									)}
+
+									<Button
+										type="submit"
+										className="w-full"
+										size="lg"
+										disabled={loading}
+									>
+										{loading
+											? "Loading..."
+											: isSignUp
+											? "Create Account"
+											: "Sign In"}
+									</Button>
+
+									<div className="text-center">
+										<button
+											type="button"
+											onClick={() => {
+												setIsSignUp(!isSignUp);
+												setError(null);
+											}}
+											className="text-sm text-muted-foreground hover:text-primary transition-colors"
+										>
+											{isSignUp
+												? "Already have an account? Sign in"
+												: "Don't have an account? Sign up"}
+										</button>
+									</div>
+								</>
 							)}
-
-							<Button
-								type="submit"
-								className="w-full"
-								size="lg"
-								disabled={loading}
-							>
-								{loading ? "Loading..." : isSignUp ? "Create Account" : "Sign In"}
-							</Button>
-
-							<div className="text-center">
-								<button
-									type="button"
-									onClick={() => {
-										setIsSignUp(!isSignUp);
-										setError(null);
-									}}
-									className="text-sm text-muted-foreground hover:text-primary transition-colors"
-								>
-									{isSignUp
-										? "Already have an account? Sign in"
-										: "Don't have an account? Sign up"}
-								</button>
-							</div>
 						</form>
 
 						<p className="text-center text-xs text-muted-foreground pt-4">
 							By continuing, you agree to our{" "}
-							<a href="#" className="text-primary hover:underline underline-offset-4">
+							<a
+								href="#"
+								className="text-primary hover:underline underline-offset-4"
+							>
 								Terms of Service
 							</a>{" "}
 							and{" "}
-							<a href="#" className="text-primary hover:underline underline-offset-4">
+							<a
+								href="#"
+								className="text-primary hover:underline underline-offset-4"
+							>
 								Privacy Policy
 							</a>
 						</p>

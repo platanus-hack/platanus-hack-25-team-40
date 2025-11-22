@@ -7,8 +7,10 @@ import { UploadHealthRecordCard } from "@/modules/health-records/components/uplo
 import { FamilyMembersDialog } from "@/modules/family-members/components/family-members-dialog";
 import { TimelineSheet } from "@/modules/health-records/components/timeline-sheet";
 import { useState } from "react";
+import { useRouter } from "@tanstack/react-router";
 
 export default function Dashboard() {
+  const router = useRouter();
   const user = useUser();
   const [isFamilyDialogOpen, setIsFamilyDialogOpen] = useState(false);
   const [isTimelineOpen, setIsTimelineOpen] = useState(false);
@@ -32,7 +34,11 @@ export default function Dashboard() {
                 <User className="h-4 w-4" />
                 <span className="text-muted-foreground">{user?.email}</span>
               </div>
-              <Button variant="ghost" size="icon">
+              <Button 
+                variant="ghost" 
+                size="icon"
+                onClick={() => router.navigate({ to: "/settings" })}
+              >
                 <Settings className="h-4 w-4" />
               </Button>
               <Button variant="ghost" size="sm" onClick={handleSignOut} className="gap-2">
