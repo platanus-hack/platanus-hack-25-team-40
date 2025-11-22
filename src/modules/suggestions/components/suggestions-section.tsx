@@ -3,8 +3,12 @@ import { useSuggestionsQuery } from "../hooks/use-suggestions-query";
 import { SuggestionCard } from "./suggestion-card";
 import { Brain, Loader2 } from "lucide-react";
 import type { Suggestion } from "../types";
+import { useEffect } from "react";
+import { supabase } from "@/shared/utils/supabase";
+import { useQueryClient } from "@tanstack/react-query";
+import { useUser } from "@/shared/hooks/useAuth";
 
-const urgencyOrder: Suggestion["urgencyLevel"][] = ["critical", "high", "medium", "low"];
+const urgencyOrder: Array<NonNullable<Suggestion["urgencyLevel"]>> = ["critical", "high", "medium", "low"];
 
 function groupSuggestionsByUrgency(suggestions: Suggestion[]) {
   const grouped: Record<string, Suggestion[]> = {
@@ -17,7 +21,7 @@ function groupSuggestionsByUrgency(suggestions: Suggestion[]) {
 
   suggestions.forEach((suggestion) => {
     const level = suggestion.urgencyLevel || "unknown";
-    if (level in grouped) {
+    if (level && level in grouped) {
       grouped[level].push(suggestion);
     } else {
       grouped.unknown.push(suggestion);
@@ -30,6 +34,35 @@ function groupSuggestionsByUrgency(suggestions: Suggestion[]) {
 export function SuggestionsSection() {
   const suggestionsQuery = useSuggestionsQuery();
   const suggestions = suggestionsQuery.data || [];
+  const queryClient = useQueryClient();
+  const user = useUser();
+
+  // Subscribe to realtime updates for new suggestions
+  useEffect(() => {
+    if (!user?.id) return;
+
+    const channel = supabase
+      .channel("suggestions-changes")
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "suggestions",
+          filter: `user_id=eq.${user.id}`,
+        },
+        (payload) => {
+          console.log("New AI suggestion arrived!", payload.new);
+          // Invalidate and refetch suggestions
+          queryClient.invalidateQueries({ queryKey: ["suggestions", user.id] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user?.id, queryClient]);
 
   if (suggestionsQuery.isLoading) {
     return (
@@ -106,7 +139,7 @@ export function SuggestionsSection() {
                   {level === "low" && "💡 Low Priority"}
                 </h3>
                 <div className="space-y-3">
-                  {levelSuggestions.map((suggestion) => (
+                  {levelSuggestions.map((suggestion: Suggestion) => (
                     <SuggestionCard key={suggestion.id} suggestion={suggestion} />
                   ))}
                 </div>
@@ -119,7 +152,7 @@ export function SuggestionsSection() {
                 Other Suggestions
               </h3>
               <div className="space-y-3">
-                {grouped.unknown.map((suggestion) => (
+                {grouped.unknown.map((suggestion: Suggestion) => (
                   <SuggestionCard key={suggestion.id} suggestion={suggestion} />
                 ))}
               </div>

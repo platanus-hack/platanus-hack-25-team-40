@@ -4,9 +4,11 @@ This Edge Function analyzes user health records and family history to generate p
 
 ## Overview
 
-The function is triggered automatically via Supabase Database Webhooks when:
-- A new health record is inserted
-- A patient profile is updated
+The function is triggered in two ways:
+1. **Manually from the frontend** - After health records are created (single or batch uploads)
+2. **Automatically via database webhook** - When a patient profile is updated
+
+This approach prevents the "thundering herd" problem during batch uploads (e.g., uploading 5 files would trigger 5 AI calls instead of 1).
 
 It collects comprehensive health data (user profile, all records, family members' profiles and records) and sends it to Claude AI for analysis.
 
@@ -26,33 +28,15 @@ The function requires these environment variables (set in Supabase Dashboard →
 - `SUPABASE_SERVICE_ROLE_KEY` - Auto-provided by Supabase (required to bypass RLS and read family data)
 - `ANTHROPIC_API_KEY` - Your Anthropic API key for Claude
 
-### 3. Configure Database Webhooks
+### 3. Configure Database Webhook (Profile Updates Only)
 
-Go to Supabase Dashboard → Database → Webhooks and create two webhooks:
+**Important:** We do NOT use a webhook for `health_records` INSERT to avoid the "thundering herd" problem during batch uploads. Instead, the frontend triggers the function manually after uploads complete.
 
-#### Webhook 1: New Health Record
+Only configure a webhook for profile updates:
 
-- **Name:** `trigger_suggestions_on_new_record`
-- **Table:** `health_records`
-- **Events:** `INSERT`
-- **Type:** `HTTP Request`
-- **Method:** `POST`
-- **URL:** `https://myfznlnsgeimdouvffbe.supabase.co/functions/v1/generate_suggestions`
-- **HTTP Headers:**
-  ```
-  Authorization: Bearer [YOUR_SERVICE_ROLE_KEY]
-  Content-Type: application/json
-  ```
-- **Request Body:**
-  ```json
-  {
-    "type": "NEW_RECORD",
-    "user_id": "{{record.user_id}}",
-    "record_id": "{{record.id}}"
-  }
-  ```
+#### Webhook: Profile Update
 
-#### Webhook 2: Profile Update
+Go to Supabase Dashboard → Database → Webhooks and create:
 
 - **Name:** `trigger_suggestions_on_profile_update`
 - **Table:** `patient_profiles`
@@ -61,7 +45,28 @@ Go to Supabase Dashboard → Database → Webhooks and create two webhooks:
 - **Method:** `POST`
 - **URL:** `https://myfznlnsgeimdouvffbe.supabase.co/functions/v1/generate_suggestions`
 - **HTTP Headers:**
+  ```text
+  Authorization: Bearer [YOUR_SERVICE_ROLE_KEY]
+  Content-Type: application/json
   ```
+- **Request Body:**
+  ```json
+  {
+    "type": "PROFILE_UPDATE",
+    "user_id": "{{record.user_id}}"
+  }
+  ```
+
+**Note:** Replace `[YOUR_SERVICE_ROLE_KEY]` with your actual service role key from Supabase Dashboard → Settings → API.
+
+- **Name:** `trigger_suggestions_on_profile_update`
+- **Table:** `patient_profiles`
+- **Events:** `UPDATE`
+- **Type:** `HTTP Request`
+- **Method:** `POST`
+- **URL:** `https://myfznlnsgeimdouvffbe.supabase.co/functions/v1/generate_suggestions`
+- **HTTP Headers:**
+  ```text
   Authorization: Bearer [YOUR_SERVICE_ROLE_KEY]
   Content-Type: application/json
   ```
@@ -77,7 +82,9 @@ Go to Supabase Dashboard → Database → Webhooks and create two webhooks:
 
 ## How It Works
 
-1. **Trigger:** Webhook fires when a health record is added or profile is updated
+1. **Trigger:** 
+   - **Frontend-triggered:** After health records are created (single or batch), the frontend calls the function with `type: "MANUAL"` or `type: "BATCH_UPLOAD"`
+   - **Webhook-triggered:** When a patient profile is updated, the webhook calls with `type: "PROFILE_UPDATE"`
 2. **Data Collection:**
    - Fetches target user's profile and all health records
    - Fetches all family links
@@ -97,9 +104,20 @@ curl -X POST https://myfznlnsgeimdouvffbe.supabase.co/functions/v1/generate_sugg
   -H "Authorization: Bearer [YOUR_SERVICE_ROLE_KEY]" \
   -H "Content-Type: application/json" \
   -d '{
-    "type": "NEW_RECORD",
-    "user_id": "[USER_ID]",
-    "record_id": "[RECORD_ID]"
+    "type": "MANUAL",
+    "user_id": "[USER_ID]"
+  }'
+```
+
+Or test a batch upload scenario:
+
+```bash
+curl -X POST https://myfznlnsgeimdouvffbe.supabase.co/functions/v1/generate_suggestions \
+  -H "Authorization: Bearer [YOUR_SERVICE_ROLE_KEY]" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "type": "BATCH_UPLOAD",
+    "user_id": "[USER_ID]"
   }'
 ```
 
@@ -122,10 +140,18 @@ The function generates suggestions with the following structure:
 }
 ```
 
+## Frontend Integration
+
+The frontend automatically triggers suggestions generation after health records are created. This is handled in `use-create-health-record-with-file.ts` using the `triggerSuggestionsGeneration` utility function.
+
+The function is called in a "fire and forget" manner - it doesn't block the UI, and suggestions appear via Supabase Realtime subscriptions when they're ready.
+
 ## Notes
 
 - The function uses `SUPABASE_SERVICE_ROLE_KEY` to bypass RLS and read family members' data
 - Old suggestions are automatically deleted before inserting new ones (prevents duplicates)
 - Family records are limited to 20 per relative to prevent token explosion
-- The function is "fire and forget" - it runs asynchronously after triggers
+- The function is "fire and forget" - it runs asynchronously and doesn't block the UI
+- **No webhook on `health_records` INSERT** - This prevents the "thundering herd" problem during batch uploads
+- Frontend uses Supabase Realtime to show suggestions as they arrive (10-20 seconds after upload)
 
