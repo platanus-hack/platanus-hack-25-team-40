@@ -2,6 +2,7 @@ import { atom } from "jotai";
 import { atomWithMutation } from "jotai-tanstack-query";
 import { profileGatewayAtom } from "@/shared/atoms/gateway-atoms";
 import { sessionAtom } from "@/shared/atoms/auth-atoms";
+import { queryClient } from "@/shared/providers/query-client";
 import type { UpdatePatientProfileInput } from "../types";
 
 /**
@@ -19,6 +20,10 @@ export const updateProfileMutationAtom = atomWithMutation((get) => {
 				throw new Error("User not authenticated");
 			}
 			return gateway.update(userId, input);
+		},
+		onSuccess: () => {
+			// Invalidate profile queries to refetch updated data
+			queryClient.invalidateQueries({ queryKey: ["profile"] });
 		},
 	};
 });
@@ -38,6 +43,10 @@ export const upsertProfileMutationAtom = atomWithMutation((get) => {
 				throw new Error("User not authenticated");
 			}
 			return gateway.upsert(userId, input);
+		},
+		onSuccess: () => {
+			// Invalidate profile queries to refetch updated data
+			queryClient.invalidateQueries({ queryKey: ["profile"] });
 		},
 	};
 });
