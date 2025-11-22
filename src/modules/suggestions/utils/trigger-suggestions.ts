@@ -6,11 +6,11 @@ import { supabase } from "@/shared/utils/supabase";
  * AI-powered suggestions based on the updated health data.
  * 
  * @param userId - The user ID to generate suggestions for
- * @param type - The type of trigger (MANUAL for frontend-triggered, BATCH_UPLOAD for batch operations)
+ * @param type - The type of trigger (FILE_UPLOAD for frontend-triggered, BATCH_UPLOAD for batch operations)
  */
 export async function triggerSuggestionsGeneration(
   userId: string,
-  type: "MANUAL" | "BATCH_UPLOAD" = "MANUAL"
+  type: "FILE_UPLOAD" | "BATCH_UPLOAD" = "FILE_UPLOAD"
 ): Promise<void> {
   try {
     // Fire and forget - we don't await this to avoid blocking the UI

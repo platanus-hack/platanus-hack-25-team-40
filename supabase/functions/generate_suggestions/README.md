@@ -83,7 +83,7 @@ Go to Supabase Dashboard → Database → Webhooks and create:
 ## How It Works
 
 1. **Trigger:** 
-   - **Frontend-triggered:** After health records are created (single or batch), the frontend calls the function with `type: "MANUAL"` or `type: "BATCH_UPLOAD"`
+   - **Frontend-triggered:** After health records are created (single or batch), the frontend calls the function with `type: "FILE_UPLOAD"` or `type: "BATCH_UPLOAD"`
    - **Webhook-triggered:** When a patient profile is updated, the webhook calls with `type: "PROFILE_UPDATE"`
 2. **Data Collection:**
    - Fetches target user's profile and all health records
@@ -95,7 +95,7 @@ Go to Supabase Dashboard → Database → Webhooks and create:
 
 ## Testing
 
-### Manual Test
+### FILE_UPLOAD Test
 
 You can manually trigger the function for testing:
 
@@ -104,7 +104,7 @@ curl -X POST https://myfznlnsgeimdouvffbe.supabase.co/functions/v1/generate_sugg
   -H "Authorization: Bearer [YOUR_SERVICE_ROLE_KEY]" \
   -H "Content-Type: application/json" \
   -d '{
-    "type": "MANUAL",
+    "type": "FILE_UPLOAD",
     "user_id": "[USER_ID]"
   }'
 ```

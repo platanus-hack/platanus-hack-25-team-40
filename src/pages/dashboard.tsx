@@ -111,63 +111,12 @@ export default function Dashboard() {
 						</CardContent>
 					</Card>
 				</div>{" "}
-				{/* Stats Overview */}
-				<div className="grid gap-4 md:grid-cols-4 mb-8">
-					<Card>
-						<CardHeader className="pb-2">
-							<CardDescription>Total Records</CardDescription>
-							<CardTitle className="text-3xl">0</CardTitle>
-						</CardHeader>
-					</Card>
-
-					<Card>
-						<CardHeader className="pb-2">
-							<CardDescription>Family Members</CardDescription>
-							<CardTitle className="text-3xl">1</CardTitle>
-						</CardHeader>
-					</Card>
-
-					<Card>
-						<CardHeader className="pb-2">
-							<CardDescription>Recent Uploads</CardDescription>
-							<CardTitle className="text-3xl">0</CardTitle>
-						</CardHeader>
-					</Card>
-
-					<Card>
-						<CardHeader className="pb-2">
-							<CardDescription>Categories</CardDescription>
-							<CardTitle className="text-3xl">0</CardTitle>
-						</CardHeader>
-					</Card>
-				</div>
+	
 				{/* AI Health Insights */}
 				<div className="mb-8">
 					<SuggestionsSection />
 				</div>
-				{/* Recent Activity */}
-				<Card>
-					<CardHeader>
-						<CardTitle>Recent Activity</CardTitle>
-						<CardDescription>
-							Your latest health record interactions
-						</CardDescription>
-					</CardHeader>
-					<CardContent>
-						<div className="flex flex-col items-center justify-center py-12 text-center">
-							<FileText className="h-12 w-12 text-muted-foreground mb-4" />
-							<h3 className="font-semibold mb-2">No records yet</h3>
-							<p className="text-sm text-muted-foreground mb-4 max-w-sm">
-								Start by uploading your first medical document. Our AI will
-								automatically organize and explain it for you.
-							</p>
-							<Button className="gap-2">
-								<Upload className="h-4 w-4" />
-								Upload Your First Record
-							</Button>
-						</div>
-					</CardContent>
-				</Card>
+				
 			</main>
 
 			{/* Family Members Dialog */}
