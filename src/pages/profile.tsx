@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/sha
 import { Edit, ArrowLeft, Calendar, Heart, Ruler, Weight, Droplet, User, Users, Plus, Save, X } from "lucide-react";
 import { useProfileQuery } from "@/modules/profile/hooks/use-profile-query";
 import { AppHeader } from "@/shared/components/app-header";
+import { LoadingSpinner } from "@/shared/components/loading-spinner";
 import { FamilyMembersDialog } from "@/modules/family-members/components/family-members-dialog";
 import { useState } from "react";
 import { useUpsertProfile } from "@/modules/profile/hooks/use-profile-mutations";
@@ -14,7 +15,7 @@ export default function Profile() {
 	const [isFamilyDialogOpen, setIsFamilyDialogOpen] = useState(false);
 	const [isEditingMedical, setIsEditingMedical] = useState(false);
 	const { mutate: upsertProfile, isPending } = useUpsertProfile();
-	
+
 	const { data: profile, isLoading, error } = queryResult;
 
 	const [allergies, setAllergies] = useState("");
@@ -70,12 +71,7 @@ export default function Profile() {
 		return (
 			<div className="min-h-screen bg-background">
 				<AppHeader />
-				<div className="flex items-center justify-center py-20">
-					<div className="text-center">
-						<div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-						<p className="text-muted-foreground">Loading profile...</p>
-					</div>
-				</div>
+				<LoadingSpinner message="Loading profile..." />
 			</div>
 		);
 	}
@@ -103,7 +99,9 @@ export default function Profile() {
 				<div className="flex items-center justify-center py-20 px-4">
 					<Card className="w-full max-w-2xl p-8 text-center">
 						<p className="text-muted-foreground mb-4">Profile not found.</p>
-						<Button onClick={() => router.navigate({ to: "/complete-profile" })}>
+						<Button
+							onClick={() => router.navigate({ to: "/complete-profile" })}
+						>
 							Create Profile
 						</Button>
 					</Card>
@@ -125,7 +123,10 @@ export default function Profile() {
 		const birth = new Date(birthDate);
 		let age = today.getFullYear() - birth.getFullYear();
 		const monthDiff = today.getMonth() - birth.getMonth();
-		if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+		if (
+			monthDiff < 0 ||
+			(monthDiff === 0 && today.getDate() < birth.getDate())
+		) {
 			age--;
 		}
 		return age;
@@ -200,7 +201,9 @@ export default function Profile() {
 									<label className="text-sm font-medium text-muted-foreground block mb-1">
 										Last Name
 									</label>
-									<p className="text-lg">{profile.last_name || "Not provided"}</p>
+									<p className="text-lg">
+										{profile.last_name || "Not provided"}
+									</p>
 								</div>
 								<div>
 									<label className="text-sm font-medium text-muted-foreground mb-1 flex items-center gap-1">
@@ -225,146 +228,183 @@ export default function Profile() {
 										Biological Sex
 									</label>
 									<p className="text-lg capitalize">
-										{profile.biological_sex?.replace("_", " ") || "Not provided"}
+										{profile.biological_sex?.replace("_", " ") ||
+											"Not provided"}
 									</p>
 								</div>
 							</div>
-				</Card>
+						</Card>
 
-				{/* Medical Information */}
-				<Card className="p-6">
-					<div className="flex items-center justify-between mb-6">
-						<h2 className="text-xl font-semibold flex items-center gap-2">
-							<Heart className="h-5 w-5 text-primary" />
-							Medical Information
-						</h2>
-						{!isEditingMedical && (
-							<Button variant="outline" size="sm" onClick={handleEditMedical} className="gap-2">
-								<Edit className="h-4 w-4" />
-								Edit
-							</Button>
-						)}
-					</div>
-					
-					{isEditingMedical ? (
-						<div className="space-y-4">
-							<div className="space-y-2">
-								<label htmlFor="allergies" className="text-sm font-medium">
-									Allergies
-								</label>
-								<textarea
-									id="allergies"
-									value={allergies}
-									onChange={(e) => setAllergies(e.target.value)}
-									rows={3}
-									className="w-full rounded-lg border border-input bg-background px-4 py-2.5 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring resize-none"
-									placeholder="List any allergies (e.g., peanuts, penicillin, latex)"
-								/>
-							</div>
-
-							<div className="space-y-2">
-								<label htmlFor="medications" className="text-sm font-medium">
-									Current Medications
-								</label>
-								<textarea
-									id="medications"
-									value={medications}
-									onChange={(e) => setMedications(e.target.value)}
-									rows={3}
-									className="w-full rounded-lg border border-input bg-background px-4 py-2.5 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring resize-none"
-									placeholder="List any medications you're currently taking"
-								/>
-							</div>
-
-							<div className="space-y-2">
-								<label htmlFor="chronicDiseases" className="text-sm font-medium">
-									Chronic Conditions
-								</label>
-								<textarea
-									id="chronicDiseases"
-									value={chronicDiseases}
-									onChange={(e) => setChronicDiseases(e.target.value)}
-									rows={3}
-									className="w-full rounded-lg border border-input bg-background px-4 py-2.5 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring resize-none"
-									placeholder="List any chronic conditions (e.g., diabetes, hypertension, asthma)"
-								/>
-							</div>
-
-							<div className="space-y-2">
-								<label htmlFor="familyHistory" className="text-sm font-medium">
-									Family Medical History
-								</label>
-								<textarea
-									id="familyHistory"
-									value={familyHistory}
-									onChange={(e) => setFamilyHistory(e.target.value)}
-									rows={3}
-									className="w-full rounded-lg border border-input bg-background px-4 py-2.5 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring resize-none"
-									placeholder="List any relevant family medical history"
-								/>
-							</div>
-
-							<div className="flex gap-2 pt-2">
-								<Button onClick={handleSaveMedical} disabled={isPending} className="gap-2">
-									<Save className="h-4 w-4" />
-									{isPending ? "Saving..." : "Save"}
-								</Button>
-								<Button variant="outline" onClick={handleCancelMedical} disabled={isPending} className="gap-2">
-									<X className="h-4 w-4" />
-									Cancel
-								</Button>
-							</div>
-						</div>
-					) : (
-						<div className="space-y-4">
-							{profile.allergies || profile.medications || profile.chronic_diseases || profile.family_history ? (
-								<>
-									{profile.allergies && (
-										<div>
-											<label className="text-sm font-medium text-muted-foreground block mb-1">
-												Allergies
-											</label>
-											<p className="text-base">{profile.allergies}</p>
-										</div>
-									)}
-									{profile.medications && (
-										<div>
-											<label className="text-sm font-medium text-muted-foreground block mb-1">
-												Current Medications
-											</label>
-											<p className="text-base">{profile.medications}</p>
-										</div>
-									)}
-									{profile.chronic_diseases && (
-										<div>
-											<label className="text-sm font-medium text-muted-foreground block mb-1">
-												Chronic Conditions
-											</label>
-											<p className="text-base">{profile.chronic_diseases}</p>
-										</div>
-									)}
-									{profile.family_history && (
-										<div>
-											<label className="text-sm font-medium text-muted-foreground block mb-1">
-												Family History
-											</label>
-											<p className="text-base">{profile.family_history}</p>
-										</div>
-									)}
-								</>
-							) : (
-								<div className="text-center py-6">
-									<p className="text-sm text-muted-foreground mb-3">No medical information added yet</p>
-									<Button variant="outline" size="sm" onClick={handleEditMedical} className="gap-2">
-										<Plus className="h-4 w-4" />
-										Add Medical Information
+						{/* Medical Information */}
+						<Card className="p-6">
+							<div className="flex items-center justify-between mb-6">
+								<h2 className="text-xl font-semibold flex items-center gap-2">
+									<Heart className="h-5 w-5 text-primary" />
+									Medical Information
+								</h2>
+								{!isEditingMedical && (
+									<Button
+										variant="outline"
+										size="sm"
+										onClick={handleEditMedical}
+										className="gap-2"
+									>
+										<Edit className="h-4 w-4" />
+										Edit
 									</Button>
+								)}
+							</div>
+
+							{isEditingMedical ? (
+								<div className="space-y-4">
+									<div className="space-y-2">
+										<label htmlFor="allergies" className="text-sm font-medium">
+											Allergies
+										</label>
+										<textarea
+											id="allergies"
+											value={allergies}
+											onChange={(e) => setAllergies(e.target.value)}
+											rows={3}
+											className="w-full rounded-lg border border-input bg-background px-4 py-2.5 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring resize-none"
+											placeholder="List any allergies (e.g., peanuts, penicillin, latex)"
+										/>
+									</div>
+
+									<div className="space-y-2">
+										<label
+											htmlFor="medications"
+											className="text-sm font-medium"
+										>
+											Current Medications
+										</label>
+										<textarea
+											id="medications"
+											value={medications}
+											onChange={(e) => setMedications(e.target.value)}
+											rows={3}
+											className="w-full rounded-lg border border-input bg-background px-4 py-2.5 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring resize-none"
+											placeholder="List any medications you're currently taking"
+										/>
+									</div>
+
+									<div className="space-y-2">
+										<label
+											htmlFor="chronicDiseases"
+											className="text-sm font-medium"
+										>
+											Chronic Conditions
+										</label>
+										<textarea
+											id="chronicDiseases"
+											value={chronicDiseases}
+											onChange={(e) => setChronicDiseases(e.target.value)}
+											rows={3}
+											className="w-full rounded-lg border border-input bg-background px-4 py-2.5 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring resize-none"
+											placeholder="List any chronic conditions (e.g., diabetes, hypertension, asthma)"
+										/>
+									</div>
+
+									<div className="space-y-2">
+										<label
+											htmlFor="familyHistory"
+											className="text-sm font-medium"
+										>
+											Family Medical History
+										</label>
+										<textarea
+											id="familyHistory"
+											value={familyHistory}
+											onChange={(e) => setFamilyHistory(e.target.value)}
+											rows={3}
+											className="w-full rounded-lg border border-input bg-background px-4 py-2.5 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring resize-none"
+											placeholder="List any relevant family medical history"
+										/>
+									</div>
+
+									<div className="flex gap-2 pt-2">
+										<Button
+											onClick={handleSaveMedical}
+											disabled={isPending}
+											className="gap-2"
+										>
+											<Save className="h-4 w-4" />
+											{isPending ? "Saving..." : "Save"}
+										</Button>
+										<Button
+											variant="outline"
+											onClick={handleCancelMedical}
+											disabled={isPending}
+											className="gap-2"
+										>
+											<X className="h-4 w-4" />
+											Cancel
+										</Button>
+									</div>
+								</div>
+							) : (
+								<div className="space-y-4">
+									{profile.allergies ||
+									profile.medications ||
+									profile.chronic_diseases ||
+									profile.family_history ? (
+										<>
+											{profile.allergies && (
+												<div>
+													<label className="text-sm font-medium text-muted-foreground block mb-1">
+														Allergies
+													</label>
+													<p className="text-base">{profile.allergies}</p>
+												</div>
+											)}
+											{profile.medications && (
+												<div>
+													<label className="text-sm font-medium text-muted-foreground block mb-1">
+														Current Medications
+													</label>
+													<p className="text-base">{profile.medications}</p>
+												</div>
+											)}
+											{profile.chronic_diseases && (
+												<div>
+													<label className="text-sm font-medium text-muted-foreground block mb-1">
+														Chronic Conditions
+													</label>
+													<p className="text-base">
+														{profile.chronic_diseases}
+													</p>
+												</div>
+											)}
+											{profile.family_history && (
+												<div>
+													<label className="text-sm font-medium text-muted-foreground block mb-1">
+														Family History
+													</label>
+													<p className="text-base">{profile.family_history}</p>
+												</div>
+											)}
+										</>
+									) : (
+										<div className="text-center py-6">
+											<p className="text-sm text-muted-foreground mb-3">
+												No medical information added yet
+											</p>
+											<Button
+												variant="outline"
+												size="sm"
+												onClick={handleEditMedical}
+												className="gap-2"
+											>
+												<Plus className="h-4 w-4" />
+												Add Medical Information
+											</Button>
+										</div>
+									)}
 								</div>
 							)}
-						</div>
-					)}
-				</Card>
-			</div>					{/* Health Metrics Sidebar */}
+						</Card>
+					</div>{" "}
+					{/* Health Metrics Sidebar */}
 					<div className="space-y-6">
 						{/* Blood Type */}
 						{profile.blood_type && (
@@ -374,7 +414,9 @@ export default function Profile() {
 										<Droplet className="h-5 w-5 text-red-600" />
 									</div>
 									<div>
-										<p className="text-sm font-medium text-muted-foreground">Blood Type</p>
+										<p className="text-sm font-medium text-muted-foreground">
+											Blood Type
+										</p>
 										<p className="text-2xl font-bold">{profile.blood_type}</p>
 									</div>
 								</div>
@@ -389,7 +431,9 @@ export default function Profile() {
 										<Ruler className="h-5 w-5 text-blue-600" />
 									</div>
 									<div>
-										<p className="text-sm font-medium text-muted-foreground">Height</p>
+										<p className="text-sm font-medium text-muted-foreground">
+											Height
+										</p>
 										<p className="text-2xl font-bold">{profile.height_cm} cm</p>
 										<p className="text-sm text-muted-foreground">
 											{(profile.height_cm / 30.48).toFixed(1)} ft
@@ -407,7 +451,9 @@ export default function Profile() {
 										<Weight className="h-5 w-5 text-purple-600" />
 									</div>
 									<div>
-										<p className="text-sm font-medium text-muted-foreground">Weight</p>
+										<p className="text-sm font-medium text-muted-foreground">
+											Weight
+										</p>
 										<p className="text-2xl font-bold">{profile.weight_kg} kg</p>
 										<p className="text-sm text-muted-foreground">
 											{(profile.weight_kg * 2.20462).toFixed(1)} lbs
@@ -425,7 +471,9 @@ export default function Profile() {
 										<Heart className="h-5 w-5 text-green-600" />
 									</div>
 									<div>
-										<p className="text-sm font-medium text-muted-foreground">BMI</p>
+										<p className="text-sm font-medium text-muted-foreground">
+											BMI
+										</p>
 										<p className="text-2xl font-bold">{bmi}</p>
 										{bmiCategory && (
 											<p className={`text-sm font-medium ${bmiCategory.color}`}>
@@ -449,11 +497,12 @@ export default function Profile() {
 									Family Members
 								</CardTitle>
 								<CardDescription className="mt-1">
-									Add family members to track their health records and share information
+									Add family members to track their health records and share
+									information
 								</CardDescription>
 							</div>
-							<Button 
-								variant="outline" 
+							<Button
+								variant="outline"
 								className="gap-2"
 								onClick={() => setIsFamilyDialogOpen(true)}
 							>
@@ -466,9 +515,9 @@ export default function Profile() {
 			</main>
 
 			{/* Family Members Dialog */}
-			<FamilyMembersDialog 
-				open={isFamilyDialogOpen} 
-				onOpenChange={setIsFamilyDialogOpen} 
+			<FamilyMembersDialog
+				open={isFamilyDialogOpen}
+				onOpenChange={setIsFamilyDialogOpen}
 			/>
 		</div>
 	);

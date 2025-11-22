@@ -9,19 +9,18 @@ import {
 import { Badge } from "@/shared/ui/badge";
 import { Card } from "@/shared/ui/card";
 import { Button } from "@/shared/ui/button";
+import { LoadingSpinner } from "@/shared/components/loading-spinner";
 import { useHealthRecordsQuery } from "../hooks/use-health-records-query";
 import type { HealthRecord } from "../types";
 import {
-	FileText,
-	Calendar,
-	Activity,
-	ExternalLink,
-	ChevronDown,
-	ChevronUp,
-	AlertCircle,
-} from "lucide-react";
-
-interface TimelineSheetProps {
+  FileText,
+  Calendar,
+  Activity,
+  ExternalLink,
+  ChevronDown,
+  ChevronUp,
+  AlertCircle,
+} from "lucide-react";interface TimelineSheetProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
@@ -93,72 +92,72 @@ export function TimelineSheet({ open, onOpenChange }: TimelineSheetProps) {
   };
 
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="right" className="w-full sm:max-w-2xl overflow-y-auto">
-        <SheetHeader>
-          <SheetTitle className="flex items-center gap-2">
-            <Activity className="h-5 w-5" />
-            Health Timeline
-          </SheetTitle>
-          <SheetDescription>
-            Chronological view of all health records
-          </SheetDescription>
-        </SheetHeader>
+		<Sheet open={open} onOpenChange={onOpenChange}>
+			<SheetContent
+				side="right"
+				className="w-full sm:max-w-2xl overflow-y-auto"
+			>
+				<SheetHeader>
+					<SheetTitle className="flex items-center gap-2">
+						<Activity className="h-5 w-5" />
+						Health Timeline
+					</SheetTitle>
+					<SheetDescription>
+						Chronological view of all health records
+					</SheetDescription>
+				</SheetHeader>
 
-        <div className="mt-6">
-          {isLoading ? (
-            <div className="flex items-center justify-center py-12">
-              <div className="text-center">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-                <p className="text-sm text-muted-foreground">Loading records...</p>
-              </div>
-            </div>
-          ) : !records || records.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-12 text-center">
-              <FileText className="h-12 w-12 text-muted-foreground mb-4" />
-              <h3 className="font-semibold mb-2">No health records yet</h3>
-              <p className="text-sm text-muted-foreground max-w-sm">
-                Start by uploading your first medical document. Our AI will automatically
-                organize and explain it for you.
-              </p>
-            </div>
-          ) : (
-            <div className="space-y-8">
-              {Object.keys(groupedRecords)
-                .sort((a, b) => parseInt(b) - parseInt(a))
-                .map((year) => (
-                  <div key={year} className="space-y-4">
-                    {/* Year Header */}
-                    <div className="sticky top-0 bg-background z-10 py-2">
-                      <h3 className="text-2xl font-bold text-primary">{year}</h3>
-                      <div className="h-1 w-12 bg-primary rounded-full mt-1"></div>
-                    </div>
+			<div className="mt-6">
+				{isLoading ? (
+					<LoadingSpinner message="Loading records..." />
+				) : !records || records.length === 0 ? (
+						<div className="flex flex-col items-center justify-center py-12 text-center">
+							<FileText className="h-12 w-12 text-muted-foreground mb-4" />
+							<h3 className="font-semibold mb-2">No health records yet</h3>
+							<p className="text-sm text-muted-foreground max-w-sm">
+								Start by uploading your first medical document. Our AI will
+								automatically organize and explain it for you.
+							</p>
+						</div>
+					) : (
+						<div className="space-y-8">
+							{Object.keys(groupedRecords)
+								.sort((a, b) => parseInt(b) - parseInt(a))
+								.map((year) => (
+									<div key={year} className="space-y-4">
+										{/* Year Header */}
+										<div className="sticky top-0 bg-background z-10 py-2">
+											<h3 className="text-2xl font-bold text-primary">
+												{year}
+											</h3>
+											<div className="h-1 w-12 bg-primary rounded-full mt-1"></div>
+										</div>
 
-                    {/* Months */}
-                    {Object.keys(groupedRecords[year])
-                      .sort((a, b) => {
-                        const monthOrder = [
-                          "January",
-                          "February",
-                          "March",
-                          "April",
-                          "May",
-                          "June",
-                          "July",
-                          "August",
-                          "September",
-                          "October",
-                          "November",
-                          "December",
-                        ];
-                        return monthOrder.indexOf(b) - monthOrder.indexOf(a);
-                      })
-                      .map((month) => {
-                        const monthKey = `${year}-${month}`;
-                        const isExpanded = expandedMonths.has(monthKey);
-                        const monthRecords = groupedRecords[year][month];
+										{/* Months */}
+										{Object.keys(groupedRecords[year])
+											.sort((a, b) => {
+												const monthOrder = [
+													"January",
+													"February",
+													"March",
+													"April",
+													"May",
+													"June",
+													"July",
+													"August",
+													"September",
+													"October",
+													"November",
+													"December",
+												];
+												return monthOrder.indexOf(b) - monthOrder.indexOf(a);
+											})
+											.map((month) => {
+												const monthKey = `${year}-${month}`;
+												const isExpanded = expandedMonths.has(monthKey);
+												const monthRecords = groupedRecords[year][month];
 
-                        return (
+												return (
 													<div key={monthKey} className="space-y-3">
 														{/* Month Header */}
 														<button
@@ -280,13 +279,13 @@ export function TimelineSheet({ open, onOpenChange }: TimelineSheetProps) {
 														)}
 													</div>
 												);
-                      })}
-                  </div>
-                ))}
-            </div>
-          )}
-        </div>
-      </SheetContent>
-    </Sheet>
-  );
+											})}
+									</div>
+								))}
+						</div>
+					)}
+				</div>
+			</SheetContent>
+		</Sheet>
+	);
 }
