@@ -4,9 +4,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/sha
 import { Badge } from "@/shared/ui/badge";
 import { FileText, Plus, Upload, Users, Activity, LogOut, User, Settings } from "lucide-react";
 import { UploadHealthRecordCard } from "@/modules/health-records/components/upload-record-card";
+import { FamilyMembersDialog } from "@/modules/family-members/components/family-members-dialog";
+import { useState } from "react";
 
 export default function Dashboard() {
   const user = useUser();
+  const [isFamilyDialogOpen, setIsFamilyDialogOpen] = useState(false);
 
   const handleSignOut = async () => {
     await signOut();
@@ -83,7 +86,11 @@ export default function Dashboard() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <Button variant="outline" className="w-full gap-2">
+              <Button 
+                variant="outline" 
+                className="w-full gap-2"
+                onClick={() => setIsFamilyDialogOpen(true)}
+              >
                 <Plus className="h-4 w-4" />
                 Add Member
               </Button>
@@ -158,6 +165,12 @@ export default function Dashboard() {
           </CardContent>
         </Card>
       </main>
+
+      {/* Family Members Dialog */}
+      <FamilyMembersDialog 
+        open={isFamilyDialogOpen} 
+        onOpenChange={setIsFamilyDialogOpen} 
+      />
     </div>
   );
 }
