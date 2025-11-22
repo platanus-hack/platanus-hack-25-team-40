@@ -18,6 +18,7 @@ import {
 	Weight,
 	Droplet,
 	User,
+	Users,
 	Save,
 	X,
 	Activity,
@@ -27,6 +28,7 @@ import {
 	Settings,
 } from "lucide-react";
 import { useProfileQuery } from "@/modules/profile/hooks/use-profile-query";
+import { useFamilyMembers } from "@/modules/family-members/hooks/use-family-members-query";
 import { AppHeader } from "@/shared/components/app-header";
 import { LoadingSpinner } from "@/shared/components/loading-spinner";
 import { FamilyMembersDialog } from "@/modules/family-members/components/family-members-dialog";
@@ -36,6 +38,8 @@ import { useUpsertProfile } from "@/modules/profile/hooks/use-profile-mutations"
 export default function Profile() {
 	const router = useRouter();
 	const queryResult = useProfileQuery();
+	const { data: familyMembers, isLoading: familyMembersLoading } =
+		useFamilyMembers();
 	const [isFamilyDialogOpen, setIsFamilyDialogOpen] = useState(false);
 	const [isEditingDemographics, setIsEditingDemographics] = useState(false);
 	const [isEditingVitals, setIsEditingVitals] = useState(false);
@@ -279,504 +283,568 @@ export default function Profile() {
 						<ArrowLeft className="h-4 w-4" />
 						Back
 					</Button>
-					<div className="flex items-start justify-between">
-						<div>
-							<h1 className="text-2xl font-semibold tracking-tight">
-								Patient Information
-							</h1>
-							<p className="text-sm text-muted-foreground mt-1">
-								Medical Record ·{" "}
-								{profile.name && profile.last_name
-									? `${profile.name} ${profile.last_name}`
-									: "Patient Profile"}
-							</p>
-						</div>
-						<Button
-							variant="outline"
-							size="sm"
-							onClick={() => setIsFamilyDialogOpen(true)}
-							className="gap-2"
-						>
-							<Settings className="h-4 w-4" />
-							Manage Members
-						</Button>
+					<div>
+						<h1 className="text-2xl font-semibold tracking-tight">
+							Patient Information
+						</h1>
+						<p className="text-sm text-muted-foreground mt-1">
+							Medical Record ·{" "}
+							{profile.name && profile.last_name
+								? `${profile.name} ${profile.last_name}`
+								: "Patient Profile"}
+						</p>
 					</div>
 				</div>
 
-				{/* Demographics Card */}
-				<Card className="mb-6">
-					<div className="border-b px-6 py-4 flex items-center justify-between">
-						<h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground flex items-center gap-2">
-							<User className="h-4 w-4" />
-							Demographics
-						</h2>
-						{!isEditingDemographics && (
-							<Button
-								variant="ghost"
-								size="sm"
-								onClick={handleEditDemographics}
-								className="gap-2 h-8"
-							>
-								<Edit className="h-3.5 w-3.5" />
-								Edit
-							</Button>
-						)}
-					</div>
-					<div className="p-6">
-						{isEditingDemographics ? (
-							<div className="space-y-6">
-								<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-									<div className="space-y-2">
-										<label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-											First Name
-										</label>
-										<Input
-											value={name}
-											onChange={(e) => setName(e.target.value)}
-											placeholder="First name"
-										/>
-									</div>
-									<div className="space-y-2">
-										<label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-											Last Name
-										</label>
-										<Input
-											value={lastName}
-											onChange={(e) => setLastName(e.target.value)}
-											placeholder="Last name"
-										/>
-									</div>
-									<div className="space-y-2">
-										<label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-											Date of Birth
-										</label>
-										<Input
-											type="date"
-											value={birthDate}
-											onChange={(e) => setBirthDate(e.target.value)}
-										/>
-									</div>
-									<div className="space-y-2">
-										<label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-											Sex
-										</label>
-										<Select
-											value={biologicalSex}
-											onValueChange={setBiologicalSex}
-										>
-											<SelectTrigger>
-												<SelectValue placeholder="Select sex" />
-											</SelectTrigger>
-											<SelectContent>
-												<SelectItem value="male">Male</SelectItem>
-												<SelectItem value="female">Female</SelectItem>
-												<SelectItem value="intersex">Intersex</SelectItem>
-											</SelectContent>
-										</Select>
-									</div>
-								</div>
-								<div className="space-y-2">
-									<label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-										Blood Type
-									</label>
-									<Select value={bloodType} onValueChange={setBloodType}>
-										<SelectTrigger className="w-full md:w-48">
-											<SelectValue placeholder="Select blood type" />
-										</SelectTrigger>
-										<SelectContent>
-											<SelectItem value="A+">A+</SelectItem>
-											<SelectItem value="A-">A-</SelectItem>
-											<SelectItem value="B+">B+</SelectItem>
-											<SelectItem value="B-">B-</SelectItem>
-											<SelectItem value="AB+">AB+</SelectItem>
-											<SelectItem value="AB-">AB-</SelectItem>
-											<SelectItem value="O+">O+</SelectItem>
-											<SelectItem value="O-">O-</SelectItem>
-										</SelectContent>
-									</Select>
-								</div>
-								<div className="flex gap-2 pt-2">
+				{/* Two Column Layout */}
+				<div className="grid gap-6 lg:grid-cols-3">
+					{/* Left Column - Main Content */}
+					<div className="lg:col-span-2 space-y-6">
+						{/* Demographics Card */}
+						<Card>
+							<div className="border-b px-6 py-4 flex items-center justify-between">
+								<h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground flex items-center gap-2">
+									<User className="h-4 w-4" />
+									Demographics
+								</h2>
+								{!isEditingDemographics && (
 									<Button
-										onClick={handleSaveDemographics}
-										disabled={isPending}
+										variant="ghost"
 										size="sm"
-										className="gap-2"
+										onClick={handleEditDemographics}
+										className="gap-2 h-8"
 									>
-										<Save className="h-3.5 w-3.5" />
-										{isPending ? "Saving..." : "Save Changes"}
+										<Edit className="h-3.5 w-3.5" />
+										Edit
 									</Button>
-									<Button
-										variant="outline"
-										onClick={handleCancelDemographics}
-										disabled={isPending}
-										size="sm"
-										className="gap-2"
-									>
-										<X className="h-3.5 w-3.5" />
-										Cancel
-									</Button>
-								</div>
+								)}
 							</div>
-						) : (
-							<div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-								<div>
-									<label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-										Full Name
-									</label>
-									<p className="text-base font-medium mt-1">
-										{profile.name && profile.last_name
-											? `${profile.name} ${profile.last_name}`
-											: "—"}
-									</p>
-								</div>
-								<div>
-									<label className="text-xs font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-1">
-										<Calendar className="h-3 w-3" />
-										Date of Birth
-									</label>
-									<p className="text-base font-medium mt-1">
-										{profile.birth_date ? formatDate(profile.birth_date) : "—"}
-									</p>
-									{profile.birth_date && (
-										<p className="text-xs text-muted-foreground mt-0.5">
-											{calculateAge(profile.birth_date)} years old
-										</p>
-									)}
-								</div>
-								<div>
-									<label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-										Sex
-									</label>
-									<p className="text-base font-medium mt-1 capitalize">
-										{profile.biological_sex?.replace("_", " ") || "—"}
-									</p>
-								</div>
-								<div>
-									<label className="text-xs font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-1">
-										<Droplet className="h-3 w-3" />
-										Blood Type
-									</label>
-									<p className="text-base font-medium mt-1">
-										{profile.blood_type || "—"}
-									</p>
-								</div>
-							</div>
-						)}
-					</div>
-				</Card>
-
-				{/* Vital Signs Card */}
-				<Card className="mb-6">
-					<div className="border-b px-6 py-4 flex items-center justify-between">
-						<h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground flex items-center gap-2">
-							<Activity className="h-4 w-4" />
-							Vital Signs & Metrics
-						</h2>
-						{!isEditingVitals && (
-							<Button
-								variant="ghost"
-								size="sm"
-								onClick={handleEditVitals}
-								className="gap-2 h-8"
-							>
-								<Edit className="h-3.5 w-3.5" />
-								Edit
-							</Button>
-						)}
-					</div>
-					<div className="p-6">
-						{isEditingVitals ? (
-							<div className="space-y-6">
-								<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-									<div className="space-y-2">
-										<label className="text-xs font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-1.5">
-											<Ruler className="h-3.5 w-3.5" />
-											Height (cm)
-										</label>
-										<Input
-											type="number"
-											value={height}
-											onChange={(e) => setHeight(e.target.value)}
-											placeholder="e.g., 170"
-										/>
-									</div>
-									<div className="space-y-2">
-										<label className="text-xs font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-1.5">
-											<Weight className="h-3.5 w-3.5" />
-											Weight (kg)
-										</label>
-										<Input
-											type="number"
-											value={weight}
-											onChange={(e) => setWeight(e.target.value)}
-											placeholder="e.g., 70"
-										/>
-									</div>
-								</div>
-								<div className="flex gap-2 pt-2">
-									<Button
-										onClick={handleSaveVitals}
-										disabled={isPending}
-										size="sm"
-										className="gap-2"
-									>
-										<Save className="h-3.5 w-3.5" />
-										{isPending ? "Saving..." : "Save Changes"}
-									</Button>
-									<Button
-										variant="outline"
-										onClick={handleCancelVitals}
-										disabled={isPending}
-										size="sm"
-										className="gap-2"
-									>
-										<X className="h-3.5 w-3.5" />
-										Cancel
-									</Button>
-								</div>
-							</div>
-						) : (
-							<div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-								<div className="flex items-start gap-3">
-									<div className="p-2 bg-blue-50 rounded-md">
-										<Ruler className="h-4 w-4 text-blue-600" />
-									</div>
-									<div>
-										<label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-											Height
-										</label>
-										<p className="text-base font-medium mt-1">
-											{profile.height_cm ? `${profile.height_cm} cm` : "—"}
-										</p>
-										{profile.height_cm && (
-											<p className="text-xs text-muted-foreground mt-0.5">
-												{(profile.height_cm / 30.48).toFixed(1)} ft
-											</p>
-										)}
-									</div>
-								</div>
-								<div className="flex items-start gap-3">
-									<div className="p-2 bg-purple-50 rounded-md">
-										<Weight className="h-4 w-4 text-purple-600" />
-									</div>
-									<div>
-										<label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-											Weight
-										</label>
-										<p className="text-base font-medium mt-1">
-											{profile.weight_kg ? `${profile.weight_kg} kg` : "—"}
-										</p>
-										{profile.weight_kg && (
-											<p className="text-xs text-muted-foreground mt-0.5">
-												{(profile.weight_kg * 2.20462).toFixed(1)} lbs
-											</p>
-										)}
-									</div>
-								</div>
-								<div className="flex items-start gap-3">
-									<div className="p-2 bg-green-50 rounded-md">
-										<Heart className="h-4 w-4 text-green-600" />
-									</div>
-									<div>
-										<label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-											BMI
-										</label>
-										<p className="text-base font-medium mt-1">{bmi || "—"}</p>
-										{bmiCategory && (
-											<p
-												className={`text-xs font-medium mt-0.5 ${bmiCategory.color}`}
+							<div className="p-6">
+								{isEditingDemographics ? (
+									<div className="space-y-6">
+										<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+											<div className="space-y-2">
+												<label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+													First Name
+												</label>
+												<Input
+													value={name}
+													onChange={(e) => setName(e.target.value)}
+													placeholder="First name"
+												/>
+											</div>
+											<div className="space-y-2">
+												<label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+													Last Name
+												</label>
+												<Input
+													value={lastName}
+													onChange={(e) => setLastName(e.target.value)}
+													placeholder="Last name"
+												/>
+											</div>
+											<div className="space-y-2">
+												<label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+													Date of Birth
+												</label>
+												<Input
+													type="date"
+													value={birthDate}
+													onChange={(e) => setBirthDate(e.target.value)}
+												/>
+											</div>
+											<div className="space-y-2">
+												<label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+													Sex
+												</label>
+												<Select
+													value={biologicalSex}
+													onValueChange={setBiologicalSex}
+												>
+													<SelectTrigger>
+														<SelectValue placeholder="Select sex" />
+													</SelectTrigger>
+													<SelectContent>
+														<SelectItem value="male">Male</SelectItem>
+														<SelectItem value="female">Female</SelectItem>
+														<SelectItem value="intersex">Intersex</SelectItem>
+													</SelectContent>
+												</Select>
+											</div>
+										</div>
+										<div className="space-y-2">
+											<label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+												Blood Type
+											</label>
+											<Select value={bloodType} onValueChange={setBloodType}>
+												<SelectTrigger className="w-full md:w-48">
+													<SelectValue placeholder="Select blood type" />
+												</SelectTrigger>
+												<SelectContent>
+													<SelectItem value="A+">A+</SelectItem>
+													<SelectItem value="A-">A-</SelectItem>
+													<SelectItem value="B+">B+</SelectItem>
+													<SelectItem value="B-">B-</SelectItem>
+													<SelectItem value="AB+">AB+</SelectItem>
+													<SelectItem value="AB-">AB-</SelectItem>
+													<SelectItem value="O+">O+</SelectItem>
+													<SelectItem value="O-">O-</SelectItem>
+												</SelectContent>
+											</Select>
+										</div>
+										<div className="flex gap-2 pt-2">
+											<Button
+												onClick={handleSaveDemographics}
+												disabled={isPending}
+												size="sm"
+												className="gap-2"
 											>
-												{bmiCategory.label}
-											</p>
-										)}
+												<Save className="h-3.5 w-3.5" />
+												{isPending ? "Saving..." : "Save Changes"}
+											</Button>
+											<Button
+												variant="outline"
+												onClick={handleCancelDemographics}
+												disabled={isPending}
+												size="sm"
+												className="gap-2"
+											>
+												<X className="h-3.5 w-3.5" />
+												Cancel
+											</Button>
+										</div>
 									</div>
-								</div>
-							</div>
-						)}
-					</div>
-				</Card>
-
-				{/* Clinical Information Card */}
-				<Card className="mb-6">
-					<div className="border-b px-6 py-4 flex items-center justify-between">
-						<h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground flex items-center gap-2">
-							<FileText className="h-4 w-4" />
-							Clinical Information
-						</h2>
-						{!isEditingMedical && (
-							<Button
-								variant="ghost"
-								size="sm"
-								onClick={handleEditMedical}
-								className="gap-2 h-8"
-							>
-								<Edit className="h-3.5 w-3.5" />
-								Edit
-							</Button>
-						)}
-					</div>
-					<div className="p-6">
-						{isEditingMedical ? (
-							<div className="space-y-6">
-								<div className="space-y-2">
-									<label
-										htmlFor="allergies"
-										className="text-xs font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-1.5"
-									>
-										<AlertCircle className="h-3.5 w-3.5" />
-										Allergies
-									</label>
-									<textarea
-										id="allergies"
-										value={allergies}
-										onChange={(e) => setAllergies(e.target.value)}
-										rows={2}
-										className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring resize-none"
-										placeholder="e.g., Penicillin, Peanuts, Latex"
-									/>
-								</div>
-
-								<div className="space-y-2">
-									<label
-										htmlFor="medications"
-										className="text-xs font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-1.5"
-									>
-										<FileText className="h-3.5 w-3.5" />
-										Current Medications
-									</label>
-									<textarea
-										id="medications"
-										value={medications}
-										onChange={(e) => setMedications(e.target.value)}
-										rows={2}
-										className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring resize-none"
-										placeholder="e.g., Metformin 500mg twice daily"
-									/>
-								</div>
-
-								<div className="space-y-2">
-									<label
-										htmlFor="chronicDiseases"
-										className="text-xs font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-1.5"
-									>
-										<Heart className="h-3.5 w-3.5" />
-										Chronic Conditions
-									</label>
-									<textarea
-										id="chronicDiseases"
-										value={chronicDiseases}
-										onChange={(e) => setChronicDiseases(e.target.value)}
-										rows={2}
-										className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring resize-none"
-										placeholder="e.g., Type 2 Diabetes, Hypertension"
-									/>
-								</div>
-
-								<div className="space-y-2">
-									<label
-										htmlFor="familyHistory"
-										className="text-xs font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-1.5"
-									>
-										<History className="h-3.5 w-3.5" />
-										Family Medical History
-									</label>
-									<textarea
-										id="familyHistory"
-										value={familyHistory}
-										onChange={(e) => setFamilyHistory(e.target.value)}
-										rows={2}
-										className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring resize-none"
-										placeholder="e.g., Father: Heart Disease, Mother: Diabetes"
-									/>
-								</div>
-
-								<div className="flex gap-2 pt-2">
-									<Button
-										onClick={handleSaveMedical}
-										disabled={isPending}
-										size="sm"
-										className="gap-2"
-									>
-										<Save className="h-3.5 w-3.5" />
-										{isPending ? "Saving..." : "Save Changes"}
-									</Button>
-									<Button
-										variant="outline"
-										onClick={handleCancelMedical}
-										disabled={isPending}
-										size="sm"
-										className="gap-2"
-									>
-										<X className="h-3.5 w-3.5" />
-										Cancel
-									</Button>
-								</div>
-							</div>
-						) : (
-							<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-								{profile.allergies ||
-								profile.medications ||
-								profile.chronic_diseases ||
-								profile.family_history ? (
-									<>
+								) : (
+									<div className="grid grid-cols-1 md:grid-cols-4 gap-6">
 										<div>
-											<label className="text-xs font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-1.5 mb-2">
+											<label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+												Full Name
+											</label>
+											<p className="text-base font-medium mt-1">
+												{profile.name && profile.last_name
+													? `${profile.name} ${profile.last_name}`
+													: "—"}
+											</p>
+										</div>
+										<div>
+											<label className="text-xs font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-1">
+												<Calendar className="h-3 w-3" />
+												Date of Birth
+											</label>
+											<p className="text-base font-medium mt-1">
+												{profile.birth_date
+													? formatDate(profile.birth_date)
+													: "—"}
+											</p>
+											{profile.birth_date && (
+												<p className="text-xs text-muted-foreground mt-0.5">
+													{calculateAge(profile.birth_date)} years old
+												</p>
+											)}
+										</div>
+										<div>
+											<label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+												Sex
+											</label>
+											<p className="text-base font-medium mt-1 capitalize">
+												{profile.biological_sex?.replace("_", " ") || "—"}
+											</p>
+										</div>
+										<div>
+											<label className="text-xs font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-1">
+												<Droplet className="h-3 w-3" />
+												Blood Type
+											</label>
+											<p className="text-base font-medium mt-1">
+												{profile.blood_type || "—"}
+											</p>
+										</div>
+									</div>
+								)}
+							</div>
+						</Card>
+
+						{/* Vital Signs Card */}
+						<Card className="mb-6">
+							<div className="border-b px-6 py-4 flex items-center justify-between">
+								<h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground flex items-center gap-2">
+									<Activity className="h-4 w-4" />
+									Vital Signs & Metrics
+								</h2>
+								{!isEditingVitals && (
+									<Button
+										variant="ghost"
+										size="sm"
+										onClick={handleEditVitals}
+										className="gap-2 h-8"
+									>
+										<Edit className="h-3.5 w-3.5" />
+										Edit
+									</Button>
+								)}
+							</div>
+							<div className="p-6">
+								{isEditingVitals ? (
+									<div className="space-y-6">
+										<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+											<div className="space-y-2">
+												<label className="text-xs font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-1.5">
+													<Ruler className="h-3.5 w-3.5" />
+													Height (cm)
+												</label>
+												<Input
+													type="number"
+													value={height}
+													onChange={(e) => setHeight(e.target.value)}
+													placeholder="e.g., 170"
+												/>
+											</div>
+											<div className="space-y-2">
+												<label className="text-xs font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-1.5">
+													<Weight className="h-3.5 w-3.5" />
+													Weight (kg)
+												</label>
+												<Input
+													type="number"
+													value={weight}
+													onChange={(e) => setWeight(e.target.value)}
+													placeholder="e.g., 70"
+												/>
+											</div>
+										</div>
+										<div className="flex gap-2 pt-2">
+											<Button
+												onClick={handleSaveVitals}
+												disabled={isPending}
+												size="sm"
+												className="gap-2"
+											>
+												<Save className="h-3.5 w-3.5" />
+												{isPending ? "Saving..." : "Save Changes"}
+											</Button>
+											<Button
+												variant="outline"
+												onClick={handleCancelVitals}
+												disabled={isPending}
+												size="sm"
+												className="gap-2"
+											>
+												<X className="h-3.5 w-3.5" />
+												Cancel
+											</Button>
+										</div>
+									</div>
+								) : (
+									<div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+										<div className="flex items-start gap-3">
+											<div className="p-2 bg-blue-50 rounded-md">
+												<Ruler className="h-4 w-4 text-blue-600" />
+											</div>
+											<div>
+												<label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+													Height
+												</label>
+												<p className="text-base font-medium mt-1">
+													{profile.height_cm ? `${profile.height_cm} cm` : "—"}
+												</p>
+												{profile.height_cm && (
+													<p className="text-xs text-muted-foreground mt-0.5">
+														{(profile.height_cm / 30.48).toFixed(1)} ft
+													</p>
+												)}
+											</div>
+										</div>
+										<div className="flex items-start gap-3">
+											<div className="p-2 bg-purple-50 rounded-md">
+												<Weight className="h-4 w-4 text-purple-600" />
+											</div>
+											<div>
+												<label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+													Weight
+												</label>
+												<p className="text-base font-medium mt-1">
+													{profile.weight_kg ? `${profile.weight_kg} kg` : "—"}
+												</p>
+												{profile.weight_kg && (
+													<p className="text-xs text-muted-foreground mt-0.5">
+														{(profile.weight_kg * 2.20462).toFixed(1)} lbs
+													</p>
+												)}
+											</div>
+										</div>
+										<div className="flex items-start gap-3">
+											<div className="p-2 bg-green-50 rounded-md">
+												<Heart className="h-4 w-4 text-green-600" />
+											</div>
+											<div>
+												<label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+													BMI
+												</label>
+												<p className="text-base font-medium mt-1">
+													{bmi || "—"}
+												</p>
+												{bmiCategory && (
+													<p
+														className={`text-xs font-medium mt-0.5 ${bmiCategory.color}`}
+													>
+														{bmiCategory.label}
+													</p>
+												)}
+											</div>
+										</div>
+									</div>
+								)}
+							</div>
+						</Card>
+
+						{/* Clinical Information Card */}
+						<Card className="mb-6">
+							<div className="border-b px-6 py-4 flex items-center justify-between">
+								<h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground flex items-center gap-2">
+									<FileText className="h-4 w-4" />
+									Clinical Information
+								</h2>
+								{!isEditingMedical && (
+									<Button
+										variant="ghost"
+										size="sm"
+										onClick={handleEditMedical}
+										className="gap-2 h-8"
+									>
+										<Edit className="h-3.5 w-3.5" />
+										Edit
+									</Button>
+								)}
+							</div>
+							<div className="p-6">
+								{isEditingMedical ? (
+									<div className="space-y-6">
+										<div className="space-y-2">
+											<label
+												htmlFor="allergies"
+												className="text-xs font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-1.5"
+											>
 												<AlertCircle className="h-3.5 w-3.5" />
 												Allergies
 											</label>
-											<p className="text-sm">
-												{profile.allergies || "None reported"}
-											</p>
+											<textarea
+												id="allergies"
+												value={allergies}
+												onChange={(e) => setAllergies(e.target.value)}
+												rows={2}
+												className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring resize-none"
+												placeholder="e.g., Penicillin, Peanuts, Latex"
+											/>
 										</div>
-										<div>
-											<label className="text-xs font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-1.5 mb-2">
+
+										<div className="space-y-2">
+											<label
+												htmlFor="medications"
+												className="text-xs font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-1.5"
+											>
 												<FileText className="h-3.5 w-3.5" />
 												Current Medications
 											</label>
-											<p className="text-sm">
-												{profile.medications || "None reported"}
-											</p>
+											<textarea
+												id="medications"
+												value={medications}
+												onChange={(e) => setMedications(e.target.value)}
+												rows={2}
+												className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring resize-none"
+												placeholder="e.g., Metformin 500mg twice daily"
+											/>
 										</div>
-										<div>
-											<label className="text-xs font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-1.5 mb-2">
+
+										<div className="space-y-2">
+											<label
+												htmlFor="chronicDiseases"
+												className="text-xs font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-1.5"
+											>
 												<Heart className="h-3.5 w-3.5" />
 												Chronic Conditions
 											</label>
-											<p className="text-sm">
-												{profile.chronic_diseases || "None reported"}
-											</p>
+											<textarea
+												id="chronicDiseases"
+												value={chronicDiseases}
+												onChange={(e) => setChronicDiseases(e.target.value)}
+												rows={2}
+												className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring resize-none"
+												placeholder="e.g., Type 2 Diabetes, Hypertension"
+											/>
 										</div>
-										<div>
-											<label className="text-xs font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-1.5 mb-2">
+
+										<div className="space-y-2">
+											<label
+												htmlFor="familyHistory"
+												className="text-xs font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-1.5"
+											>
 												<History className="h-3.5 w-3.5" />
 												Family Medical History
 											</label>
-											<p className="text-sm">
-												{profile.family_history || "None reported"}
-											</p>
+											<textarea
+												id="familyHistory"
+												value={familyHistory}
+												onChange={(e) => setFamilyHistory(e.target.value)}
+												rows={2}
+												className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring resize-none"
+												placeholder="e.g., Father: Heart Disease, Mother: Diabetes"
+											/>
 										</div>
-									</>
+
+										<div className="flex gap-2 pt-2">
+											<Button
+												onClick={handleSaveMedical}
+												disabled={isPending}
+												size="sm"
+												className="gap-2"
+											>
+												<Save className="h-3.5 w-3.5" />
+												{isPending ? "Saving..." : "Save Changes"}
+											</Button>
+											<Button
+												variant="outline"
+												onClick={handleCancelMedical}
+												disabled={isPending}
+												size="sm"
+												className="gap-2"
+											>
+												<X className="h-3.5 w-3.5" />
+												Cancel
+											</Button>
+										</div>
+									</div>
 								) : (
-									<div className="col-span-2 text-center py-8">
-										<FileText className="h-8 w-8 text-muted-foreground/50 mx-auto mb-3" />
+									<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+										{profile.allergies ||
+										profile.medications ||
+										profile.chronic_diseases ||
+										profile.family_history ? (
+											<>
+												<div>
+													<label className="text-xs font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-1.5 mb-2">
+														<AlertCircle className="h-3.5 w-3.5" />
+														Allergies
+													</label>
+													<p className="text-sm">
+														{profile.allergies || "None reported"}
+													</p>
+												</div>
+												<div>
+													<label className="text-xs font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-1.5 mb-2">
+														<FileText className="h-3.5 w-3.5" />
+														Current Medications
+													</label>
+													<p className="text-sm">
+														{profile.medications || "None reported"}
+													</p>
+												</div>
+												<div>
+													<label className="text-xs font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-1.5 mb-2">
+														<Heart className="h-3.5 w-3.5" />
+														Chronic Conditions
+													</label>
+													<p className="text-sm">
+														{profile.chronic_diseases || "None reported"}
+													</p>
+												</div>
+												<div>
+													<label className="text-xs font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-1.5 mb-2">
+														<History className="h-3.5 w-3.5" />
+														Family Medical History
+													</label>
+													<p className="text-sm">
+														{profile.family_history || "None reported"}
+													</p>
+												</div>
+											</>
+										) : (
+											<div className="col-span-2 text-center py-8">
+												<FileText className="h-8 w-8 text-muted-foreground/50 mx-auto mb-3" />
+												<p className="text-sm text-muted-foreground mb-3">
+													No clinical information on file
+												</p>
+												<Button
+													variant="outline"
+													size="sm"
+													onClick={handleEditMedical}
+													className="gap-2"
+												>
+													<Edit className="h-3.5 w-3.5" />
+													Add Information
+												</Button>
+											</div>
+										)}
+									</div>
+								)}
+							</div>
+						</Card>
+					</div>
+
+					{/* Right Column - Family Members Sidebar */}
+					<div className="lg:col-span-1">
+						<Card>
+							<div className="border-b px-6 py-4 flex items-center justify-between">
+								<h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground flex items-center gap-2">
+									<Users className="h-4 w-4" />
+									Family Members
+								</h2>
+								<Button
+									variant="ghost"
+									size="sm"
+									onClick={() => setIsFamilyDialogOpen(true)}
+									className="gap-2 h-8"
+								>
+									<Settings className="h-3.5 w-3.5" />
+									Manage
+								</Button>
+							</div>
+							<div className="p-6">
+								{familyMembersLoading ? (
+									<div className="text-center py-4">
+										<div className="inline-block h-6 w-6 animate-spin rounded-full border-2 border-solid border-current border-r-transparent" />
+									</div>
+								) : familyMembers && familyMembers.length > 0 ? (
+									<div className="space-y-3">
+										{familyMembers.map((member) => (
+											<div
+												key={member.id}
+												className="flex items-center gap-3 p-3 rounded-md border bg-muted/30 hover:bg-muted/50 transition-colors"
+											>
+												<div className="p-2 bg-primary/10 rounded-full">
+													<User className="h-4 w-4 text-primary" />
+												</div>
+												<div className="flex-1 min-w-0">
+													<p className="text-sm font-medium truncate">
+														{member.name}
+													</p>
+													<p className="text-xs text-muted-foreground capitalize">
+														{member.role}
+													</p>
+												</div>
+											</div>
+										))}
+									</div>
+								) : (
+									<div className="text-center py-8">
+										<Users className="h-8 w-8 text-muted-foreground/50 mx-auto mb-3" />
 										<p className="text-sm text-muted-foreground mb-3">
-											No clinical information on file
+											No family members added
 										</p>
 										<Button
 											variant="outline"
 											size="sm"
-											onClick={handleEditMedical}
+											onClick={() => setIsFamilyDialogOpen(true)}
 											className="gap-2"
 										>
-											<Edit className="h-3.5 w-3.5" />
-											Add Information
+											<Settings className="h-3.5 w-3.5" />
+											Add Members
 										</Button>
 									</div>
 								)}
 							</div>
-						)}
+						</Card>
 					</div>
-				</Card>
+				</div>
 			</main>
 
 			{/* Family Members Dialog */}
