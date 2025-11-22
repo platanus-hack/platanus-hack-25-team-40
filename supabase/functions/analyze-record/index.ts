@@ -101,7 +101,7 @@ async function analyzeText(text: string): Promise<AnalyzeRecordResponse> {
   });
 
   const message = await anthropic.messages.create({
-    model: "claude-3-5-sonnet-20241022",
+    model: "claude-sonnet-4-5",
     max_tokens: 4096,
     messages: [
       {
@@ -205,9 +205,16 @@ Deno.serve(async (req) => {
       // PDF: Download and convert to base64 for Claude's native PDF support
       console.log(`Downloading PDF: ${file_path}`);
       const pdfData = await downloadFile(supabaseClient, file_path!);
-      const base64Pdf = btoa(
-        String.fromCharCode(...new Uint8Array(pdfData))
-      );
+      
+      // Convert ArrayBuffer to base64 in chunks to avoid call stack overflow
+      const uint8Array = new Uint8Array(pdfData);
+      let binaryString = "";
+      const chunkSize = 8192;
+      for (let i = 0; i < uint8Array.length; i += chunkSize) {
+        const chunk = uint8Array.subarray(i, i + chunkSize);
+        binaryString += String.fromCharCode(...chunk);
+      }
+      const base64Pdf = btoa(binaryString);
 
       // Send PDF directly to Claude (it supports PDF natively)
       console.log("Sending PDF to Claude for analysis...");
@@ -216,7 +223,7 @@ Deno.serve(async (req) => {
       });
 
       const message = await anthropic.messages.create({
-        model: "claude-3-5-sonnet-20241022",
+        model: "claude-sonnet-4-5",
         max_tokens: 4096,
         messages: [
           {
