@@ -20,7 +20,8 @@ import {
 
 // We switch to a file-first workflow: upload file then invoke edge function.
 // For now we use direct file upload hook and invoke analyze-record after success.
-import { useFileUploadAndAnalysis } from "../hooks/use-file-upload-and-analysis";
+// Switched to multi-file workflow supporting parallel upload & analysis.
+import { useMultiFileUploadAndAnalysis } from "../hooks/use-multi-file-upload-and-analysis";
 import { useCreateHealthRecord } from "../hooks/use-health-records-mutations";
 import { useUser } from "@/shared/hooks/useAuth";
 import type { HealthRecordType, AIInterpretation } from "../types";
@@ -32,7 +33,7 @@ interface UploadHealthRecordDialogProps {
 }
 
 export function UploadHealthRecordDialog({ open, onOpenChange }: UploadHealthRecordDialogProps) {
-  const fileFlow = useFileUploadAndAnalysis();
+  const multiFlow = useMultiFileUploadAndAnalysis();
   const user = useUser();
   const createMutation = useCreateHealthRecord();
 
@@ -46,10 +47,11 @@ export function UploadHealthRecordDialog({ open, onOpenChange }: UploadHealthRec
   const [notes, setNotes] = useState("");
   const [specialty, setSpecialty] = useState("");
 
-  // File flow derived state from hook
-  const { file, setFile, status: fileStatus, error: fileError, analysisData, isUploading, isAnalyzing, isBusy, analyze, reset: resetFileFlow } = fileFlow;
+  // Multi-file items derived from hook
+  const { items, setFiles, analyzeAll, reset: resetMultiFlow, isBusy: isBusyMulti, anyAnalyzing } = multiFlow;
 
-  // alias left for clarity; directly use isUploading in render
+  // Selected item index for validation view
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
 
   // Sub-screens inside file mode
   const [fileScreen, setFileScreen] = useState<"form" | "status" | "validate">("form");
@@ -88,20 +90,21 @@ export function UploadHealthRecordDialog({ open, onOpenChange }: UploadHealthRec
     setDate("");
     setType("checkup");
     setNotes("");
-    setFile(null);
+    resetMultiFlow();
+    setSelectedIndex(null);
     setSpecialty("");
     setMode('file');
     setFileScreen('form');
-    resetFileFlow();
+    resetMultiFlow();
     setSaveError(null);
     setIsSaving(false);
     setIsSaved(false);
   };
 
   const handleFileFlow = async () => {
-    if (!file) return;
+    if (!items.length) return;
     setFileScreen('status');
-    await analyze();
+    await analyzeAll();
   };
 
   const handleNoFileSubmit = async () => {
@@ -112,7 +115,7 @@ export function UploadHealthRecordDialog({ open, onOpenChange }: UploadHealthRec
     resetAll();
   };
 
-  const disableFileUploadButton = !file || isBusy;
+  const disableFileUploadButton = !items.length || isBusyMulti;
   const disableNoFileSubmit = !title || !date || !specialty;
 
   const normalizeType = (raw: string | undefined | null): HealthRecordType => {
@@ -148,30 +151,33 @@ export function UploadHealthRecordDialog({ open, onOpenChange }: UploadHealthRec
     };
   };
 
-  const handleSaveAnalyzed = async () => {
-    if (!analysisData || !user) return;
+  const handleSaveAll = async () => {
+    if (!user) return;
+    const successful = items.filter(i => i.analyzeStatus === 'success' && i.analysisData);
+    if (!successful.length) return;
     setIsSaving(true);
     setSaveError(null);
     try {
-      const aiInterpretation = analysisData.ai_interpretation ? buildAiInterpretation(analysisData.ai_interpretation) : null;
-      const payload = {
-        patientId: user.id,
-        date: analysisData.event_date || new Date().toISOString().slice(0, 10),
-        type: normalizeType(analysisData.record_type),
-        title: analysisData.title || (file?.name ?? "Untitled Record"),
-        description: analysisData.description_text || "",
-        specialty: analysisData.specialty || "General Medicine",
-        fileUrl: fileFlow.fullPath || null,
-        aiInterpretation,
-      } as const;
-      await createMutation.mutate(payload as any);
-      // Mark saved before closing so close handler can reset state.
+      await Promise.all(successful.map(async (item) => {
+        const data = item.analysisData;
+        const aiInterpretation = data.ai_interpretation ? buildAiInterpretation(data.ai_interpretation) : null;
+        const payload = {
+          patientId: user.id,
+          date: data.event_date || new Date().toISOString().slice(0, 10),
+          type: normalizeType(data.record_type),
+          title: data.title || item.file.name,
+          description: data.description_text || "",
+          specialty: data.specialty || "General Medicine",
+          fileUrl: item.fullPath || null,
+          aiInterpretation,
+        } as const;
+        await createMutation.mutate(payload as any);
+      }));
       setIsSaved(true);
       onOpenChange(false);
-      // Explicit reset after close to clear memory.
       resetAll();
     } catch (e) {
-      const message = e instanceof Error ? e.message : 'Failed to save record';
+      const message = e instanceof Error ? e.message : 'Failed to save records';
       setSaveError(message);
     } finally {
       setIsSaving(false);
@@ -183,12 +189,11 @@ export function UploadHealthRecordDialog({ open, onOpenChange }: UploadHealthRec
       open={open}
       onOpenChange={(o) => {
         if (!o) {
-          // Persist state across close while processing or awaiting save.
-          const processing = mode === 'file' && fileScreen === 'status' && (isUploading || isAnalyzing || fileStatus !== 'success');
-          const awaitingSave = mode === 'file' && fileScreen === 'status' && fileStatus === 'success' && !isSaved;
+          const hasProcessing = mode === 'file' && items.some(i => i.uploadStatus === 'uploading' || i.analyzeStatus === 'analyzing');
+          const hasUnsavedSuccess = mode === 'file' && items.some(i => i.analyzeStatus === 'success') && !isSaved;
           const inValidate = mode === 'file' && fileScreen === 'validate' && !isSaved;
           const noFileUnsaved = mode === 'no-file' && !isSaved && (title || date || specialty);
-          const shouldPersist = processing || awaitingSave || inValidate || noFileUnsaved;
+          const shouldPersist = hasProcessing || hasUnsavedSuccess || inValidate || noFileUnsaved;
           if (!shouldPersist) {
             resetAll();
           }
@@ -212,13 +217,17 @@ export function UploadHealthRecordDialog({ open, onOpenChange }: UploadHealthRec
             {fileScreen === 'form' && (
               <>
                 <div className="space-y-2">
-                  <label className="text-sm font-medium" htmlFor="record-file">Medical File *</label>
+                  <label className="text-sm font-medium" htmlFor="record-files">Medical Files *</label>
                   <Input
-                    id="record-file"
+                    id="record-files"
                     type="file"
+                    multiple
                     accept="application/pdf,image/*"
-                    onChange={(e) => setFile(e.target.files?.[0] || null)}
+                    onChange={(e) => setFiles(Array.from(e.target.files || []))}
                   />
+                  {items.length > 0 && (
+                    <p className="text-xs text-muted-foreground">{items.length} file(s) selected.</p>
+                  )}
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-medium" htmlFor="record-observations">Doctor Observations (Coming Soon)</label>
@@ -232,74 +241,84 @@ export function UploadHealthRecordDialog({ open, onOpenChange }: UploadHealthRec
 
             {fileScreen === 'status' && (
               <div className="space-y-3">
-                <p className="text-sm text-muted-foreground">Processing file</p>
+                <p className="text-sm text-muted-foreground">Processing files</p>
                 <div className="rounded-md border divide-y">
-                  {/* Upload Row */}
-                  <div className="flex items-center justify-between p-3">
-                    <div className="flex items-center gap-3">
-                      <div className="w-5 h-5 flex items-center justify-center">
-                        {isUploading ? <Loader2 className="h-4 w-4 animate-spin text-primary" /> : (fileStatus === 'error' ? <XCircle className="h-4 w-4 text-red-600" /> : <CheckCircle2 className="h-4 w-4 text-green-600" />)}
+                  {items.map((item, idx) => {
+                    const uploadIcon = item.uploadStatus === 'uploading'
+                      ? <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                      : item.uploadStatus === 'error'
+                        ? <XCircle className="h-4 w-4 text-red-600" />
+                        : item.uploadStatus === 'success'
+                          ? <CheckCircle2 className="h-4 w-4 text-green-600" />
+                          : <Loader2 className="h-4 w-4 text-muted-foreground" />;
+                    const analyzeIcon = item.analyzeStatus === 'analyzing'
+                      ? <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                      : item.analyzeStatus === 'error'
+                        ? <XCircle className="h-4 w-4 text-red-600" />
+                        : item.analyzeStatus === 'success'
+                          ? <CheckCircle2 className="h-4 w-4 text-green-600" />
+                          : <Loader2 className="h-4 w-4 text-muted-foreground" />;
+                    return (
+                      <div key={idx} className="flex items-start justify-between p-3 gap-3">
+                        <div className="flex-1 space-y-1">
+                          <p className="text-sm font-medium truncate" title={item.file.name}>{item.file.name}</p>
+                          <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                            <div className="flex items-center gap-1">{uploadIcon}<span>{item.uploadStatus === 'uploading' ? 'Uploading' : item.uploadStatus === 'success' ? 'Uploaded' : item.uploadStatus === 'error' ? 'Upload Error' : 'Pending Upload'}</span></div>
+                            <div className="flex items-center gap-1">{analyzeIcon}<span>{item.analyzeStatus === 'analyzing' ? 'Analyzing' : item.analyzeStatus === 'success' ? 'Analyzed' : item.analyzeStatus === 'error' ? 'Analysis Error' : 'Pending'}</span></div>
+                          </div>
+                          {item.error && <p className="text-xs text-red-600">{item.error}</p>}
+                        </div>
+                        {item.analyzeStatus === 'success' && (
+                          <Button variant="link" className="px-0" onClick={() => { setSelectedIndex(idx); setFileScreen('validate'); }}>Validate</Button>
+                        )}
                       </div>
-                      <div>
-                        <p className="text-sm font-medium">{file?.name || 'Selected file'}</p>
-                        <p className="text-xs text-muted-foreground">{isUploading ? 'Uploading...' : (fileStatus === 'error' ? 'Upload failed' : 'Uploaded')}</p>
-                      </div>
-                    </div>
-                  </div>
-                  {/* Analyze Row */}
-                  <div className="flex items-center justify-between p-3">
-                    <div className="flex items-center gap-3">
-                      <div className="w-5 h-5 flex items-center justify-center">
-                        {isAnalyzing ? <Loader2 className="h-4 w-4 animate-spin text-primary" /> : (fileStatus === 'success' ? <CheckCircle2 className="h-4 w-4 text-green-600" /> : (fileStatus === 'error' ? <XCircle className="h-4 w-4 text-red-600" /> : <Loader2 className="h-4 w-4 text-muted-foreground" />))}
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium">AI Analysis</p>
-                        <p className="text-xs text-muted-foreground">{isAnalyzing ? 'Analyzing...' : (fileStatus === 'success' ? 'Completed' : (fileStatus === 'error' ? 'Failed' : 'Pending'))}</p>
-                      </div>
-                    </div>
-                    {fileStatus === 'success' && (
-                      <Button variant="link" className="px-0" onClick={() => setFileScreen('validate')}>Validate</Button>
-                    )}
-                  </div>
+                    );
+                  })}
                 </div>
-                {fileError && <p className="text-xs text-red-600">{fileError}</p>}
+                {saveError && <p className="text-xs text-red-600">{saveError}</p>}
               </div>
             )}
 
-            {fileScreen === 'validate' && (
+            {fileScreen === 'validate' && selectedIndex !== null && (
               <div className="space-y-3">
                 <div className="flex items-center justify-between sticky top-0 bg-background py-1">
                   <p className="text-sm font-medium">Review extracted details</p>
                   <Button variant="link" className="px-0" onClick={() => setFileScreen('status')}>Back</Button>
                 </div>
-                <div className="rounded-md border divide-y max-h-[55vh] overflow-y-auto">
-                  <div className="p-3">
-                    <p className="text-xs text-muted-foreground">Record Type</p>
-                    <p className="text-sm font-medium">{analysisData?.record_type || '-'}</p>
-                  </div>
-                  <div className="p-3">
-                    <p className="text-xs text-muted-foreground">Specialty</p>
-                    <p className="text-sm font-medium">{analysisData?.specialty || '-'}</p>
-                  </div>
-                  <div className="p-3">
-                    <p className="text-xs text-muted-foreground">Event Date</p>
-                    <p className="text-sm font-medium">{analysisData?.event_date || '-'}</p>
-                  </div>
-                  <div className="p-3">
-                    <p className="text-xs text-muted-foreground">Title</p>
-                    <p className="text-sm font-medium">{analysisData?.title || (file?.name ?? '-')}</p>
-                  </div>
-                  <div className="p-3">
-                    <p className="text-xs text-muted-foreground">Description</p>
-                    <p className="text-xs whitespace-pre-wrap leading-relaxed">{analysisData?.description_text || '-'}</p>
-                  </div>
-                  {analysisData?.ai_interpretation?.summary && (
-                    <div className="p-3">
-                      <p className="text-xs text-muted-foreground">AI Summary</p>
-                      <p className="text-xs whitespace-pre-wrap leading-relaxed">{analysisData.ai_interpretation.summary}</p>
+                {(() => {
+                  const current = items[selectedIndex];
+                  const data = current?.analysisData;
+                  return (
+                    <div className="rounded-md border divide-y max-h-[55vh] overflow-y-auto">
+                      <div className="p-3">
+                        <p className="text-xs text-muted-foreground">Record Type</p>
+                        <p className="text-sm font-medium">{data?.record_type || '-'}</p>
+                      </div>
+                      <div className="p-3">
+                        <p className="text-xs text-muted-foreground">Specialty</p>
+                        <p className="text-sm font-medium">{data?.specialty || '-'}</p>
+                      </div>
+                      <div className="p-3">
+                        <p className="text-xs text-muted-foreground">Event Date</p>
+                        <p className="text-sm font-medium">{data?.event_date || '-'}</p>
+                      </div>
+                      <div className="p-3">
+                        <p className="text-xs text-muted-foreground">Title</p>
+                        <p className="text-sm font-medium">{data?.title || current?.file.name || '-'}</p>
+                      </div>
+                      <div className="p-3">
+                        <p className="text-xs text-muted-foreground">Description</p>
+                        <p className="text-xs whitespace-pre-wrap leading-relaxed">{data?.description_text || '-'}</p>
+                      </div>
+                      {data?.ai_interpretation?.summary && (
+                        <div className="p-3">
+                          <p className="text-xs text-muted-foreground">AI Summary</p>
+                          <p className="text-xs whitespace-pre-wrap leading-relaxed">{data.ai_interpretation.summary}</p>
+                        </div>
+                      )}
                     </div>
-                  )}
-                </div>
+                  );
+                })()}
                 {saveError && <p className="text-xs text-red-600">{saveError}</p>}
               </div>
             )}
@@ -375,25 +394,25 @@ export function UploadHealthRecordDialog({ open, onOpenChange }: UploadHealthRec
         {!(mode === 'file' && fileScreen === 'validate') && (
           <DialogFooter className="mt-4">
             {/* Cancel/Hide logic */}
-            {!(mode === 'file' && fileScreen === 'status' && fileStatus !== 'success') && (
+            {!(mode === 'file' && fileScreen === 'status' && items.some(i => i.uploadStatus !== 'success' || i.analyzeStatus !== 'success')) && (
               <Button
                 variant="outline"
                 onClick={() => onOpenChange(false)}
-                disabled={isBusy && fileScreen === 'form'}
+                disabled={isBusyMulti && fileScreen === 'form'}
               >
-                {mode === 'file' && fileScreen === 'status' && fileStatus === 'success' ? 'Hide' : 'Cancel'}
+                {mode === 'file' && fileScreen === 'status' && items.every(i => i.analyzeStatus === 'success') ? 'Hide' : 'Cancel'}
               </Button>
             )}
             {mode === 'file' && fileScreen === 'form' && (
               <Button onClick={handleFileFlow} disabled={disableFileUploadButton} className="gap-2">
                 <FilePlus className="h-4 w-4" />
-                {isBusy ? (isAnalyzing ? 'Analyzing...' : 'Uploading...') : 'Upload & Analyze'}
+                {isBusyMulti ? (anyAnalyzing ? 'Analyzing...' : 'Uploading...') : 'Upload & Analyze'}
               </Button>
             )}
-            {mode === 'file' && fileScreen === 'status' && fileStatus === 'success' && (
-              <Button onClick={handleSaveAnalyzed} disabled={isSaving} className="gap-2">
+            {mode === 'file' && fileScreen === 'status' && items.some(i => i.analyzeStatus === 'success') && (
+              <Button onClick={handleSaveAll} disabled={isSaving} className="gap-2">
                 {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
-                {isSaving ? 'Saving...' : 'Save'}
+                {isSaving ? 'Saving...' : 'Save All'}
               </Button>
             )}
             {mode === 'no-file' && (
