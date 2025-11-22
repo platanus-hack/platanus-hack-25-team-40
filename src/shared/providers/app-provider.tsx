@@ -2,18 +2,10 @@ import { QueryClient } from "@tanstack/react-query";
 import { Provider } from "jotai";
 import { useHydrateAtoms } from "jotai/react/utils";
 import { queryClientAtom } from "jotai-tanstack-query";
+import { AuthProvider } from "./auth-provider";
 
 // Create QueryClient instance
-export const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 5 * 60 * 1000, // 5 minutes
-      gcTime: 15 * 60 * 1000, // 15 minutes (formerly cacheTime)
-      refetchOnWindowFocus: false,
-      retry: 1,
-    },
-  },
-});
+export const queryClient = new QueryClient();
 
 // Hydrate the queryClientAtom with the QueryClient instance
 const HydrateAtoms = ({ children }: { children: React.ReactNode }) => {
@@ -29,10 +21,10 @@ export interface AppProviderProps {
 // Main App Provider
 export function AppProvider({ children }: AppProviderProps) {
   return (
-    <Provider>
-      <HydrateAtoms>
-        {children}
-      </HydrateAtoms>
-    </Provider>
-  );
+		<Provider>
+			<HydrateAtoms>
+				<AuthProvider>{children}</AuthProvider>
+			</HydrateAtoms>
+		</Provider>
+	);
 }
