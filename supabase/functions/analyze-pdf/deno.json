@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "lib": ["deno.window", "deno.ns", "esnext"],
+    "strict": true,
+    "noImplicitAny": true,
+    "types": ["https://esm.sh/@supabase/functions-js/src/edge-runtime.d.ts"]
+  },
+  "imports": {
+    "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@2.45.0",
+    "@anthropic-ai/sdk": "https://esm.sh/@anthropic-ai/sdk@0.24.3",
+    "pdf-parse": "npm:pdf-parse@1.1.1"
+  }
+}
+
