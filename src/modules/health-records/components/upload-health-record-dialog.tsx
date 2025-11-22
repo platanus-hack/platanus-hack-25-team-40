@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -10,23 +10,14 @@ import {
 import { Input } from "@/shared/ui/input";
 import { Textarea } from "@/shared/ui/textarea";
 import { Button } from "@/shared/ui/button";
-import {
-  Select,
-  SelectTrigger,
-  SelectContent,
-  SelectItem,
-  SelectValue,
-} from "@/shared/ui/select";
 
-// We switch to a file-first workflow: upload file then invoke edge function.
-// For now we use direct file upload hook and invoke analyze-record after success.
-// Switched to multi-file workflow supporting parallel upload & analysis.
 import { useMultiFileUploadAndAnalysis } from "../hooks/use-multi-file-upload-and-analysis";
 import { useCreateHealthRecord } from "../hooks/use-health-records-mutations";
 import { useUser } from "@/shared/hooks/useAuth";
 import type { HealthRecordType, AIInterpretation } from "../types";
-import { FilePlus, CalendarDays, ArrowLeft, Loader2, CheckCircle2, XCircle } from "lucide-react";
+import { FilePlus, FileText, Upload, Loader2, CheckCircle2, XCircle, Sparkles, Cross } from "lucide-react";
 import { triggerSuggestionsGeneration } from "@/modules/suggestions/utils/trigger-suggestions";
+import { supabase } from "@/shared/utils/supabase";
 
 interface UploadHealthRecordDialogProps {
   open: boolean;
@@ -38,15 +29,14 @@ export function UploadHealthRecordDialog({ open, onOpenChange }: UploadHealthRec
   const user = useUser();
   const createMutation = useCreateHealthRecord();
 
-  // Mode: 'file' (file-first simplified) | 'no-file' (legacy/full metadata without file)
-  const [mode, setMode] = useState<'file' | 'no-file'>('file');
+  // Mode: 'file' (file upload) | 'manual' (manual text entry)
+  const [mode, setMode] = useState<'file' | 'manual'>('file');
 
-  // Shared metadata states (used in no-file mode, could be prefilled from analysis in future)
-  const [title, setTitle] = useState("");
-  const [date, setDate] = useState("");
-  const [type, setType] = useState("checkup");
-  const [notes, setNotes] = useState("");
-  const [specialty, setSpecialty] = useState("");
+  // Manual entry state
+  const [manualText, setManualText] = useState("");
+  const [isAnalyzingManual, setIsAnalyzingManual] = useState(false);
+  const [manualAnalysisData, setManualAnalysisData] = useState<any>(null);
+  const [manualAnalysisError, setManualAnalysisError] = useState<string | null>(null);
 
   // Multi-file items derived from hook
   const { items, setFiles, analyzeAll, reset: resetMultiFlow, isBusy: isBusyMulti, anyAnalyzing } = multiFlow;
@@ -60,46 +50,51 @@ export function UploadHealthRecordDialog({ open, onOpenChange }: UploadHealthRec
   const [isSaving, setIsSaving] = useState(false);
   // Track whether the analyzed record has been persisted. Used to decide reset on close.
   const [isSaved, setIsSaved] = useState(false);
-
-  const SPECIALTIES = useMemo(
-    () => [
-      "Cardiology",
-      "Gynecology",
-      "Pediatrics",
-      "Oncology",
-      "Neurology",
-      "Endocrinology",
-      "Orthopedics",
-      "Dermatology",
-      "Psychiatry",
-      "Urology",
-      "Pulmonology",
-      "Immunology",
-      "Rheumatology",
-      "Ophthalmology",
-      "Otolaryngology",
-      "Radiology",
-      "General Medicine",
-    ],
-    []
-  );
-
-  // Simple dropdown only; no filtering UI
+  const [isDragging, setIsDragging] = useState(false);
 
   const resetAll = () => {
-    setTitle("");
-    setDate("");
-    setType("checkup");
-    setNotes("");
+    setManualText("");
+    setIsAnalyzingManual(false);
+    setManualAnalysisData(null);
+    setManualAnalysisError(null);
     resetMultiFlow();
     setSelectedIndex(null);
-    setSpecialty("");
     setMode('file');
     setFileScreen('form');
-    resetMultiFlow();
     setSaveError(null);
     setIsSaving(false);
     setIsSaved(false);
+    setIsDragging(false);
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+    
+    const files = Array.from(e.dataTransfer.files);
+    if (files.length > 0) {
+      setFiles(files);
+    }
+  };
+
+  const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length > 0) {
+      setFiles(files);
+    }
   };
 
   const handleFileFlow = async () => {
@@ -108,16 +103,60 @@ export function UploadHealthRecordDialog({ open, onOpenChange }: UploadHealthRec
     await analyzeAll();
   };
 
-  const handleNoFileSubmit = async () => {
-    // Placeholder: In a future iteration we'd create a record without file.
-    // For now just close dialog after basic validation.
-    if (!title || !date || !specialty) return;
-    onOpenChange(false);
-    resetAll();
+  const handleManualAnalyze = async () => {
+    if (!manualText.trim()) return;
+    setIsAnalyzingManual(true);
+    setManualAnalysisError(null);
+    try {
+      const { data, error } = await supabase.functions.invoke("analyze-record", {
+        body: {
+          type: 'text',
+          text_content: manualText,
+        },
+      });
+      if (error) throw error;
+      setManualAnalysisData(data);
+    } catch (e) {
+      const message = e instanceof Error ? e.message : 'Failed to analyze text';
+      setManualAnalysisError(message);
+    } finally {
+      setIsAnalyzingManual(false);
+    }
+  };
+
+  const handleSaveManual = async () => {
+    if (!user || !manualAnalysisData) return;
+    setIsSaving(true);
+    setSaveError(null);
+    try {
+      const data = manualAnalysisData;
+      const aiInterpretation = data.ai_interpretation ? buildAiInterpretation(data.ai_interpretation) : null;
+      const payload = {
+        patientId: user.id,
+        date: data.event_date || new Date().toISOString().slice(0, 10),
+        type: normalizeType(data.record_type),
+        title: data.title || "Manual Entry",
+        description: data.description_text || "",
+        specialty: data.specialty || "General Medicine",
+        fileUrl: null,
+        aiInterpretation,
+      } as const;
+      await createMutation.mutate(payload as any);
+      void triggerSuggestionsGeneration(user.id, "FILE_UPLOAD");
+      setIsSaved(true);
+      onOpenChange(false);
+      resetAll();
+    } catch (e) {
+      const message = e instanceof Error ? e.message : 'Failed to save record';
+      setSaveError(message);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const disableFileUploadButton = !items.length || isBusyMulti;
-  const disableNoFileSubmit = !title || !date || !specialty;
+  const disableManualAnalyze = !manualText.trim() || isAnalyzingManual;
+  const disableManualSave = !manualAnalysisData || isSaving;
 
   const normalizeType = (raw: string | undefined | null): HealthRecordType => {
     if (!raw) return "lab-result";
@@ -194,8 +233,8 @@ export function UploadHealthRecordDialog({ open, onOpenChange }: UploadHealthRec
           const hasProcessing = mode === 'file' && items.some(i => i.uploadStatus === 'uploading' || i.analyzeStatus === 'analyzing');
           const hasUnsavedSuccess = mode === 'file' && items.some(i => i.analyzeStatus === 'success') && !isSaved;
           const inValidate = mode === 'file' && fileScreen === 'validate' && !isSaved;
-          const noFileUnsaved = mode === 'no-file' && !isSaved && (title || date || specialty);
-          const shouldPersist = hasProcessing || hasUnsavedSuccess || inValidate || noFileUnsaved;
+          const manualUnsaved = mode === 'manual' && (isAnalyzingManual || (manualAnalysisData && !isSaved));
+          const shouldPersist = hasProcessing || hasUnsavedSuccess || inValidate || manualUnsaved;
           if (!shouldPersist) {
             resetAll();
           }
@@ -203,40 +242,102 @@ export function UploadHealthRecordDialog({ open, onOpenChange }: UploadHealthRec
         onOpenChange(o);
       }}
     >
-      <DialogContent className="max-w-lg max-h-[85vh] flex flex-col">
+      <DialogContent 
+        className="max-w-2xl max-h-[90vh] flex flex-col"
+        style={{
+          '--tw-enter-translate-x': '0',
+          '--tw-enter-translate-y': '0',
+          '--tw-exit-translate-x': '0',
+          '--tw-exit-translate-y': '0',
+        } as React.CSSProperties}
+      >
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            {mode === 'file' ? <FilePlus className="h-5 w-5" /> : <ArrowLeft className="h-5 w-5" />}
-            {mode === 'file' ? 'Upload & Analyze Record' : 'Add Record (No File)'}
+            <Cross className="h-5 w-5 text-primary" />
+            Add Health Record
           </DialogTitle>
           <DialogDescription>
-            {mode === 'file' ? 'Upload a medical document. We will analyze it automatically.' : 'Provide record details without a file.'}
+            Upload medical documents or manually enter consultation details for AI analysis
           </DialogDescription>
         </DialogHeader>
+
+        {/* Mode Toggle */}
+        <div className="flex gap-2 p-1 bg-muted rounded-lg">
+          <button
+            type="button"
+            onClick={() => setMode('file')}
+            className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+              mode === 'file'
+                ? 'bg-background text-foreground shadow-sm'
+                : 'text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            <Upload className="h-4 w-4" />
+            Upload Files
+          </button>
+          <button
+            type="button"
+            onClick={() => setMode('manual')}
+            className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+              mode === 'manual'
+                ? 'bg-background text-foreground shadow-sm'
+                : 'text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            <FileText className="h-4 w-4" />
+            Manual Entry
+          </button>
+        </div>
         {/* BODY */}
         {mode === 'file' && (
           <div className="space-y-4 flex-1 overflow-y-auto pr-1">
             {fileScreen === 'form' && (
               <>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium" htmlFor="record-files">Medical Files *</label>
-                  <Input
-                    id="record-files"
-                    type="file"
-                    multiple
-                    accept="application/pdf,image/*"
-                    onChange={(e) => setFiles(Array.from(e.target.files || []))}
-                  />
+                <div className="space-y-3">
+                  <div
+                    onDragOver={handleDragOver}
+                    onDragLeave={handleDragLeave}
+                    onDrop={handleDrop}
+                    onClick={() => document.getElementById('record-files')?.click()}
+                    className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors cursor-pointer ${
+                      isDragging
+                        ? 'border-primary bg-primary/5'
+                        : 'border-muted-foreground/25 hover:border-muted-foreground/50'
+                    }`}
+                  >
+                    <Upload className="h-8 w-8 mx-auto mb-3 text-muted-foreground" />
+                    <span className="text-sm font-medium text-foreground block">
+                      Click to upload or drag and drop
+                    </span>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      PDF, PNG, JPG (multiple files supported)
+                    </p>
+                    <Input
+                      id="record-files"
+                      type="file"
+                      multiple
+                      accept="application/pdf,image/*"
+                      onChange={handleFileInputChange}
+                      className="hidden"
+                      onClick={(e) => e.stopPropagation()}
+                    />
+                  </div>
                   {items.length > 0 && (
-                    <p className="text-xs text-muted-foreground">{items.length} file(s) selected.</p>
+                    <div className="space-y-2">
+                      <p className="text-sm font-medium">{items.length} file(s) selected:</p>
+                      <div className="space-y-1">
+                        {items.map((item, idx) => (
+                          <div key={idx} className="flex items-center gap-2 text-xs text-muted-foreground bg-muted px-3 py-2 rounded-md">
+                            <FilePlus className="h-3 w-3" />
+                            <span className="truncate flex-1">{item.file.name}</span>
+                            <span className="text-xs">
+                              {(item.file.size / 1024).toFixed(1)} KB
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
                   )}
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium" htmlFor="record-observations">Doctor Observations (Coming Soon)</label>
-                  <Textarea id="record-observations" placeholder="Will be enabled later" disabled />
-                </div>
-                <div className="flex justify-between items-center pt-2">
-                  <Button variant="link" type="button" onClick={() => setMode('no-file')} className="px-0">I do not have a file</Button>
                 </div>
               </>
             )}
@@ -327,72 +428,103 @@ export function UploadHealthRecordDialog({ open, onOpenChange }: UploadHealthRec
           </div>
         )}
 
-        {mode === 'no-file' && (
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <label className="text-sm font-medium" htmlFor="nf-title">Name / Title *</label>
-              <Input
-                id="nf-title"
-                placeholder="e.g. Annual Physical Exam"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium" htmlFor="nf-date">Date *</label>
-              <div className="flex items-center gap-2">
-                <Input
-                  id="nf-date"
-                  type="date"
-                  value={date}
-                  onChange={(e) => setDate(e.target.value)}
-                />
-                <CalendarDays className="h-4 w-4 text-muted-foreground" />
+        {mode === 'manual' && (
+          <div className="space-y-4 flex-1 overflow-y-auto pr-1">
+            {!manualAnalysisData ? (
+              <>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium" htmlFor="manual-text">
+                    Medical Consultation Details *
+                  </label>
+                  <Textarea
+                    id="manual-text"
+                    placeholder="Describe your medical consultation, exam results, or health observations. Include details like:&#10;• Date of consultation&#10;• Symptoms or reason for visit&#10;• Doctor's findings or diagnosis&#10;• Prescribed medications or treatments&#10;• Lab results or vital signs&#10;• Follow-up recommendations&#10;&#10;The more detail you provide, the better our AI can analyze and structure your health record."
+                    value={manualText}
+                    onChange={(e) => setManualText(e.target.value)}
+                    rows={12}
+                    className="resize-none"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    {manualText.length} characters
+                  </p>
+                </div>
+                {manualAnalysisError && (
+                  <div className="bg-red-50 border border-red-200 rounded-md p-3">
+                    <p className="text-sm text-red-800">{manualAnalysisError}</p>
+                  </div>
+                )}
+              </>
+            ) : (
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <p className="text-sm font-medium">Review Extracted Details</p>
+                  <Button
+                    variant="link"
+                    className="px-0 h-auto"
+                    onClick={() => {
+                      setManualAnalysisData(null);
+                      setManualAnalysisError(null);
+                    }}
+                  >
+                    Edit Text
+                  </Button>
+                </div>
+                <div className="rounded-md border divide-y max-h-[55vh] overflow-y-auto">
+                  <div className="p-3 bg-muted/30">
+                    <p className="text-xs text-muted-foreground">Record Type</p>
+                    <p className="text-sm font-medium">{manualAnalysisData?.record_type || '-'}</p>
+                  </div>
+                  <div className="p-3">
+                    <p className="text-xs text-muted-foreground">Specialty</p>
+                    <p className="text-sm font-medium">{manualAnalysisData?.specialty || '-'}</p>
+                  </div>
+                  <div className="p-3 bg-muted/30">
+                    <p className="text-xs text-muted-foreground">Event Date</p>
+                    <p className="text-sm font-medium">{manualAnalysisData?.event_date || '-'}</p>
+                  </div>
+                  <div className="p-3">
+                    <p className="text-xs text-muted-foreground">Title</p>
+                    <p className="text-sm font-medium">{manualAnalysisData?.title || '-'}</p>
+                  </div>
+                  <div className="p-3 bg-muted/30">
+                    <p className="text-xs text-muted-foreground">Description</p>
+                    <p className="text-xs whitespace-pre-wrap leading-relaxed">
+                      {manualAnalysisData?.description_text || '-'}
+                    </p>
+                  </div>
+                  {manualAnalysisData?.ai_interpretation?.summary && (
+                    <div className="p-3">
+                      <p className="text-xs text-muted-foreground mb-2">AI Summary</p>
+                      <p className="text-xs whitespace-pre-wrap leading-relaxed">
+                        {manualAnalysisData.ai_interpretation.summary}
+                      </p>
+                    </div>
+                  )}
+                  {manualAnalysisData?.ai_interpretation?.biomarkers?.length > 0 && (
+                    <div className="p-3 bg-muted/30">
+                      <p className="text-xs text-muted-foreground mb-2">Biomarkers Detected</p>
+                      <div className="space-y-2">
+                        {manualAnalysisData.ai_interpretation.biomarkers.map((b: any, idx: number) => (
+                          <div key={idx} className="text-xs">
+                            <span className="font-medium">{b.name}:</span> {b.value} {b.unit}
+                            <span className="ml-2 text-muted-foreground">({b.status})</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+                {saveError && (
+                  <div className="bg-red-50 border border-red-200 rounded-md p-3">
+                    <p className="text-sm text-red-800">{saveError}</p>
+                  </div>
+                )}
               </div>
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium" htmlFor="nf-type">Record Type *</label>
-              <Select value={type} onValueChange={(val) => setType(val)}>
-                <SelectTrigger id="nf-type">
-                  <SelectValue placeholder="Select type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="checkup">Checkup</SelectItem>
-                  <SelectItem value="diagnosis">Diagnosis</SelectItem>
-                  <SelectItem value="prescription">Prescription</SelectItem>
-                  <SelectItem value="lab-result">Lab Result</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium" htmlFor="nf-specialty">Specialty *</label>
-              <Select value={specialty} onValueChange={(val) => setSpecialty(val)}>
-                <SelectTrigger id="nf-specialty">
-                  <SelectValue placeholder="Select specialty" />
-                </SelectTrigger>
-                <SelectContent>
-                  {SPECIALTIES.map((s) => (
-                    <SelectItem key={s} value={s}>{s}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium" htmlFor="nf-notes">Notes (optional)</label>
-              <Textarea
-                id="nf-notes"
-                placeholder="Observations, context, anything helpful..."
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-              />
-            </div>
-            <div className="flex justify-between items-center pt-2">
-              <Button variant="link" type="button" onClick={() => setMode('file')} className="px-0">Upload file instead</Button>
-            </div>
+            )}
           </div>
         )}
 
-        {/* Footer hidden in validate screen */}
+        {/* Footer */}
         {!(mode === 'file' && fileScreen === 'validate') && (
           <DialogFooter className="mt-4">
             {/* Cancel/Hide logic */}
@@ -400,14 +532,14 @@ export function UploadHealthRecordDialog({ open, onOpenChange }: UploadHealthRec
               <Button
                 variant="outline"
                 onClick={() => onOpenChange(false)}
-                disabled={isBusyMulti && fileScreen === 'form'}
+                disabled={(isBusyMulti && fileScreen === 'form') || isAnalyzingManual}
               >
                 {mode === 'file' && fileScreen === 'status' && items.every(i => i.analyzeStatus === 'success') ? 'Hide' : 'Cancel'}
               </Button>
             )}
             {mode === 'file' && fileScreen === 'form' && (
               <Button onClick={handleFileFlow} disabled={disableFileUploadButton} className="gap-2">
-                <FilePlus className="h-4 w-4" />
+                <Sparkles className="h-4 w-4" />
                 {isBusyMulti ? (anyAnalyzing ? 'Analyzing...' : 'Uploading...') : 'Upload & Analyze'}
               </Button>
             )}
@@ -417,10 +549,34 @@ export function UploadHealthRecordDialog({ open, onOpenChange }: UploadHealthRec
                 {isSaving ? 'Saving...' : 'Save All'}
               </Button>
             )}
-            {mode === 'no-file' && (
-              <Button onClick={handleNoFileSubmit} disabled={disableNoFileSubmit} className="gap-2">
-                <FilePlus className="h-4 w-4" />
-                Save Record
+            {mode === 'manual' && !manualAnalysisData && (
+              <Button onClick={handleManualAnalyze} disabled={disableManualAnalyze} className="gap-2">
+                {isAnalyzingManual ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Analyzing...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="h-4 w-4" />
+                    Analyze with AI
+                  </>
+                )}
+              </Button>
+            )}
+            {mode === 'manual' && manualAnalysisData && (
+              <Button onClick={handleSaveManual} disabled={disableManualSave} className="gap-2">
+                {isSaving ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Saving...
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle2 className="h-4 w-4" />
+                    Save Record
+                  </>
+                )}
               </Button>
             )}
           </DialogFooter>
