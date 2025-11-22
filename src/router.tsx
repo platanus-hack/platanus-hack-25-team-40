@@ -5,12 +5,12 @@ import { queryClient } from "./shared/providers/app-provider";
 import { LoadingScreen } from "@/shared/ui/loading-screen";
 
 export const router = createRouter({
-  routeTree,
-  defaultPreload: "intent",
-  defaultPendingComponent: () => <LoadingScreen message="Loading..." />,
-  Wrap: ({ children }: { children: React.ReactNode }) => (
-    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
-  ),
+	routeTree,
+	defaultPreload: "intent",
+	defaultPendingComponent: () => <LoadingScreen message="Loading..." />,
+	Wrap: ({ children }: { children: React.ReactNode }) => (
+		<QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+	),
 });
 
 declare module "@tanstack/react-router" {
