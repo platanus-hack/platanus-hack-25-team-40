@@ -47,7 +47,7 @@ export const Route = createRootRoute({
 
 function RootComponent() {
   return (
-    <div className="animate-in fade-in duration-300">
+    <>
       <Outlet />
       {import.meta.env.DEV && (
         <>
@@ -55,6 +55,6 @@ function RootComponent() {
           <ReactQueryDevtools client={queryClient} initialIsOpen={false} />
         </>
       )}
-    </div>
+    </>
   );
 }

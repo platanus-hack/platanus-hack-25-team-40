@@ -1,8 +1,34 @@
 import { useRouter } from "@tanstack/react-router";
 import { Button } from "@/shared/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/ui/card";
-import { Edit, ArrowLeft, Calendar, Heart, Ruler, Weight, Droplet, User, Users, Plus, Save, X } from "lucide-react";
+import { Card } from "@/shared/ui/card";
+import { Input } from "@/shared/ui/input";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/shared/ui/select";
+import {
+	Edit,
+	ArrowLeft,
+	Calendar,
+	Heart,
+	Ruler,
+	Weight,
+	Droplet,
+	User,
+	Users,
+	Save,
+	X,
+	Activity,
+	FileText,
+	AlertCircle,
+	History,
+	Settings,
+} from "lucide-react";
 import { useProfileQuery } from "@/modules/profile/hooks/use-profile-query";
+import { useFamilyMembers } from "@/modules/family-members/hooks/use-family-members-query";
 import { AppHeader } from "@/shared/components/app-header";
 import { LoadingSpinner } from "@/shared/components/loading-spinner";
 import { FamilyMembersDialog } from "@/modules/family-members/components/family-members-dialog";
@@ -12,19 +38,110 @@ import { useUpsertProfile } from "@/modules/profile/hooks/use-profile-mutations"
 export default function Profile() {
 	const router = useRouter();
 	const queryResult = useProfileQuery();
+	const { data: familyMembers, isLoading: familyMembersLoading } =
+		useFamilyMembers();
 	const [isFamilyDialogOpen, setIsFamilyDialogOpen] = useState(false);
+	const [isEditingDemographics, setIsEditingDemographics] = useState(false);
+	const [isEditingVitals, setIsEditingVitals] = useState(false);
 	const [isEditingMedical, setIsEditingMedical] = useState(false);
 	const { mutate: upsertProfile, isPending } = useUpsertProfile();
 
 	const { data: profile, isLoading, error } = queryResult;
 
+	// Demographics state
+	const [name, setName] = useState("");
+	const [lastName, setLastName] = useState("");
+	const [birthDate, setBirthDate] = useState("");
+	const [biologicalSex, setBiologicalSex] = useState("");
+	const [bloodType, setBloodType] = useState("");
+
+	// Vitals state
+	const [height, setHeight] = useState("");
+	const [weight, setWeight] = useState("");
+
+	// Medical state
 	const [allergies, setAllergies] = useState("");
 	const [medications, setMedications] = useState("");
 	const [chronicDiseases, setChronicDiseases] = useState("");
 	const [familyHistory, setFamilyHistory] = useState("");
 
-	const handleEdit = () => {
-		router.navigate({ to: "/complete-profile" });
+	const handleEditDemographics = () => {
+		if (profile) {
+			setName(profile.name || "");
+			setLastName(profile.last_name || "");
+			setBirthDate(profile.birth_date || "");
+			setBiologicalSex(profile.biological_sex || "");
+			setBloodType(profile.blood_type || "");
+			setIsEditingDemographics(true);
+		}
+	};
+
+	const handleSaveDemographics = () => {
+		if (profile) {
+			upsertProfile(
+				{
+					name: name || undefined,
+					last_name: lastName || undefined,
+					birth_date: birthDate || undefined,
+					biological_sex: biologicalSex || undefined,
+					blood_type: bloodType || undefined,
+					height_cm: profile.height_cm,
+					weight_kg: profile.weight_kg,
+					allergies: profile.allergies,
+					medications: profile.medications,
+					chronic_diseases: profile.chronic_diseases,
+					family_history: profile.family_history,
+					is_complete: true,
+				},
+				{
+					onSuccess: () => {
+						setIsEditingDemographics(false);
+					},
+				}
+			);
+		}
+	};
+
+	const handleCancelDemographics = () => {
+		setIsEditingDemographics(false);
+	};
+
+	const handleEditVitals = () => {
+		if (profile) {
+			setHeight(profile.height_cm?.toString() || "");
+			setWeight(profile.weight_kg?.toString() || "");
+			setIsEditingVitals(true);
+		}
+	};
+
+	const handleSaveVitals = () => {
+		if (profile) {
+			upsertProfile(
+				{
+					name: profile.name!,
+					last_name: profile.last_name!,
+					birth_date: profile.birth_date!,
+					biological_sex: profile.biological_sex!,
+					blood_type: profile.blood_type,
+					height_cm: height ? parseFloat(height) : null,
+					weight_kg: weight ? parseFloat(weight) : null,
+					allergies: profile.allergies,
+					medications: profile.medications,
+					chronic_diseases: profile.chronic_diseases,
+					family_history: profile.family_history,
+					is_complete: true,
+				},
+				{
+					onSuccess: () => {
+						setIsEditingVitals(false);
+					},
+				}
+			);
+		}
+	};
+
+	const handleCancelVitals = () => {
+		setIsEditingVitals(false);
 	};
 
 	const handleEditMedical = () => {
@@ -154,363 +271,579 @@ export default function Profile() {
 		<div className="min-h-screen bg-background">
 			<AppHeader />
 
-			<main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-				<div className="mb-8 flex items-center justify-between">
+			<main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+				{/* Header */}
+				<div className="mb-6">
+					<Button
+						variant="ghost"
+						size="sm"
+						onClick={() => router.navigate({ to: "/dashboard" })}
+						className="mb-3 gap-2 text-muted-foreground hover:text-foreground"
+					>
+						<ArrowLeft className="h-4 w-4" />
+						Back
+					</Button>
 					<div>
-						<Button
-							variant="ghost"
-							size="sm"
-							onClick={() => router.navigate({ to: "/dashboard" })}
-							className="mb-4 gap-2"
-						>
-							<ArrowLeft className="h-4 w-4" />
-							Back to Dashboard
-						</Button>
-						<h1 className="text-3xl font-bold tracking-tight">
+						<h1 className="text-2xl font-semibold tracking-tight">
+							Patient Information
+						</h1>
+						<p className="text-sm text-muted-foreground mt-1">
+							Medical Record ·{" "}
 							{profile.name && profile.last_name
 								? `${profile.name} ${profile.last_name}`
-								: "My Profile"}
-						</h1>
-						<p className="text-muted-foreground mt-1">
-							View and manage your personal health information
+								: "Patient Profile"}
 						</p>
 					</div>
-					<Button onClick={handleEdit} className="gap-2">
-						<Edit className="h-4 w-4" />
-						Edit Profile
-					</Button>
 				</div>
 
+				{/* Two Column Layout */}
 				<div className="grid gap-6 lg:grid-cols-3">
-					{/* Main Profile Info */}
+					{/* Left Column - Main Content */}
 					<div className="lg:col-span-2 space-y-6">
-						{/* Personal Information */}
-						<Card className="p-6">
-							<h2 className="text-xl font-semibold mb-6 flex items-center gap-2">
-								<User className="h-5 w-5 text-primary" />
-								Personal Information
-							</h2>
-							<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-								<div>
-									<label className="text-sm font-medium text-muted-foreground block mb-1">
-										First Name
-									</label>
-									<p className="text-lg">{profile.name || "Not provided"}</p>
-								</div>
-								<div>
-									<label className="text-sm font-medium text-muted-foreground block mb-1">
-										Last Name
-									</label>
-									<p className="text-lg">
-										{profile.last_name || "Not provided"}
-									</p>
-								</div>
-								<div>
-									<label className="text-sm font-medium text-muted-foreground mb-1 flex items-center gap-1">
-										<Calendar className="h-3.5 w-3.5" />
-										Date of Birth
-									</label>
-									<p className="text-lg">
-										{profile.birth_date ? (
-											<>
-												{formatDate(profile.birth_date)}
-												<span className="text-sm text-muted-foreground ml-2">
-													({calculateAge(profile.birth_date)} years)
-												</span>
-											</>
-										) : (
-											"Not provided"
-										)}
-									</p>
-								</div>
-								<div>
-									<label className="text-sm font-medium text-muted-foreground block mb-1">
-										Biological Sex
-									</label>
-									<p className="text-lg capitalize">
-										{profile.biological_sex?.replace("_", " ") ||
-											"Not provided"}
-									</p>
-								</div>
-							</div>
-						</Card>
-
-						{/* Medical Information */}
-						<Card className="p-6">
-							<div className="flex items-center justify-between mb-6">
-								<h2 className="text-xl font-semibold flex items-center gap-2">
-									<Heart className="h-5 w-5 text-primary" />
-									Medical Information
+						{/* Demographics Card */}
+						<Card>
+							<div className="border-b px-6 py-4 flex items-center justify-between">
+								<h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground flex items-center gap-2">
+									<User className="h-4 w-4" />
+									Demographics
 								</h2>
-								{!isEditingMedical && (
+								{!isEditingDemographics && (
 									<Button
-										variant="outline"
+										variant="ghost"
 										size="sm"
-										onClick={handleEditMedical}
-										className="gap-2"
+										onClick={handleEditDemographics}
+										className="gap-2 h-8"
 									>
-										<Edit className="h-4 w-4" />
+										<Edit className="h-3.5 w-3.5" />
 										Edit
 									</Button>
 								)}
 							</div>
-
-							{isEditingMedical ? (
-								<div className="space-y-4">
-									<div className="space-y-2">
-										<label htmlFor="allergies" className="text-sm font-medium">
-											Allergies
-										</label>
-										<textarea
-											id="allergies"
-											value={allergies}
-											onChange={(e) => setAllergies(e.target.value)}
-											rows={3}
-											className="w-full rounded-lg border border-input bg-background px-4 py-2.5 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring resize-none"
-											placeholder="List any allergies (e.g., peanuts, penicillin, latex)"
-										/>
-									</div>
-
-									<div className="space-y-2">
-										<label
-											htmlFor="medications"
-											className="text-sm font-medium"
-										>
-											Current Medications
-										</label>
-										<textarea
-											id="medications"
-											value={medications}
-											onChange={(e) => setMedications(e.target.value)}
-											rows={3}
-											className="w-full rounded-lg border border-input bg-background px-4 py-2.5 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring resize-none"
-											placeholder="List any medications you're currently taking"
-										/>
-									</div>
-
-									<div className="space-y-2">
-										<label
-											htmlFor="chronicDiseases"
-											className="text-sm font-medium"
-										>
-											Chronic Conditions
-										</label>
-										<textarea
-											id="chronicDiseases"
-											value={chronicDiseases}
-											onChange={(e) => setChronicDiseases(e.target.value)}
-											rows={3}
-											className="w-full rounded-lg border border-input bg-background px-4 py-2.5 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring resize-none"
-											placeholder="List any chronic conditions (e.g., diabetes, hypertension, asthma)"
-										/>
-									</div>
-
-									<div className="space-y-2">
-										<label
-											htmlFor="familyHistory"
-											className="text-sm font-medium"
-										>
-											Family Medical History
-										</label>
-										<textarea
-											id="familyHistory"
-											value={familyHistory}
-											onChange={(e) => setFamilyHistory(e.target.value)}
-											rows={3}
-											className="w-full rounded-lg border border-input bg-background px-4 py-2.5 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring resize-none"
-											placeholder="List any relevant family medical history"
-										/>
-									</div>
-
-									<div className="flex gap-2 pt-2">
-										<Button
-											onClick={handleSaveMedical}
-											disabled={isPending}
-											className="gap-2"
-										>
-											<Save className="h-4 w-4" />
-											{isPending ? "Saving..." : "Save"}
-										</Button>
-										<Button
-											variant="outline"
-											onClick={handleCancelMedical}
-											disabled={isPending}
-											className="gap-2"
-										>
-											<X className="h-4 w-4" />
-											Cancel
-										</Button>
-									</div>
-								</div>
-							) : (
-								<div className="space-y-4">
-									{profile.allergies ||
-									profile.medications ||
-									profile.chronic_diseases ||
-									profile.family_history ? (
-										<>
-											{profile.allergies && (
-												<div>
-													<label className="text-sm font-medium text-muted-foreground block mb-1">
-														Allergies
-													</label>
-													<p className="text-base">{profile.allergies}</p>
-												</div>
-											)}
-											{profile.medications && (
-												<div>
-													<label className="text-sm font-medium text-muted-foreground block mb-1">
-														Current Medications
-													</label>
-													<p className="text-base">{profile.medications}</p>
-												</div>
-											)}
-											{profile.chronic_diseases && (
-												<div>
-													<label className="text-sm font-medium text-muted-foreground block mb-1">
-														Chronic Conditions
-													</label>
-													<p className="text-base">
-														{profile.chronic_diseases}
-													</p>
-												</div>
-											)}
-											{profile.family_history && (
-												<div>
-													<label className="text-sm font-medium text-muted-foreground block mb-1">
-														Family History
-													</label>
-													<p className="text-base">{profile.family_history}</p>
-												</div>
-											)}
-										</>
-									) : (
-										<div className="text-center py-6">
-											<p className="text-sm text-muted-foreground mb-3">
-												No medical information added yet
-											</p>
+							<div className="p-6">
+								{isEditingDemographics ? (
+									<div className="space-y-6">
+										<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+											<div className="space-y-2">
+												<label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+													First Name
+												</label>
+												<Input
+													value={name}
+													onChange={(e) => setName(e.target.value)}
+													placeholder="First name"
+												/>
+											</div>
+											<div className="space-y-2">
+												<label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+													Last Name
+												</label>
+												<Input
+													value={lastName}
+													onChange={(e) => setLastName(e.target.value)}
+													placeholder="Last name"
+												/>
+											</div>
+											<div className="space-y-2">
+												<label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+													Date of Birth
+												</label>
+												<Input
+													type="date"
+													value={birthDate}
+													onChange={(e) => setBirthDate(e.target.value)}
+												/>
+											</div>
+											<div className="space-y-2">
+												<label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+													Sex
+												</label>
+												<Select
+													value={biologicalSex}
+													onValueChange={setBiologicalSex}
+												>
+													<SelectTrigger>
+														<SelectValue placeholder="Select sex" />
+													</SelectTrigger>
+													<SelectContent>
+														<SelectItem value="male">Male</SelectItem>
+														<SelectItem value="female">Female</SelectItem>
+														<SelectItem value="intersex">Intersex</SelectItem>
+													</SelectContent>
+												</Select>
+											</div>
+										</div>
+										<div className="space-y-2">
+											<label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+												Blood Type
+											</label>
+											<Select value={bloodType} onValueChange={setBloodType}>
+												<SelectTrigger className="w-full md:w-48">
+													<SelectValue placeholder="Select blood type" />
+												</SelectTrigger>
+												<SelectContent>
+													<SelectItem value="A+">A+</SelectItem>
+													<SelectItem value="A-">A-</SelectItem>
+													<SelectItem value="B+">B+</SelectItem>
+													<SelectItem value="B-">B-</SelectItem>
+													<SelectItem value="AB+">AB+</SelectItem>
+													<SelectItem value="AB-">AB-</SelectItem>
+													<SelectItem value="O+">O+</SelectItem>
+													<SelectItem value="O-">O-</SelectItem>
+												</SelectContent>
+											</Select>
+										</div>
+										<div className="flex gap-2 pt-2">
 											<Button
-												variant="outline"
+												onClick={handleSaveDemographics}
+												disabled={isPending}
 												size="sm"
-												onClick={handleEditMedical}
 												className="gap-2"
 											>
-												<Plus className="h-4 w-4" />
-												Add Medical Information
+												<Save className="h-3.5 w-3.5" />
+												{isPending ? "Saving..." : "Save Changes"}
+											</Button>
+											<Button
+												variant="outline"
+												onClick={handleCancelDemographics}
+												disabled={isPending}
+												size="sm"
+												className="gap-2"
+											>
+												<X className="h-3.5 w-3.5" />
+												Cancel
 											</Button>
 										</div>
-									)}
-								</div>
-							)}
-						</Card>
-					</div>{" "}
-					{/* Health Metrics Sidebar */}
-					<div className="space-y-6">
-						{/* Blood Type */}
-						{profile.blood_type && (
-							<Card className="p-6">
-								<div className="flex items-center gap-3 mb-2">
-									<div className="p-2 bg-red-100 rounded-lg">
-										<Droplet className="h-5 w-5 text-red-600" />
 									</div>
-									<div>
-										<p className="text-sm font-medium text-muted-foreground">
-											Blood Type
-										</p>
-										<p className="text-2xl font-bold">{profile.blood_type}</p>
-									</div>
-								</div>
-							</Card>
-						)}
-
-						{/* Height */}
-						{profile.height_cm && (
-							<Card className="p-6">
-								<div className="flex items-center gap-3 mb-2">
-									<div className="p-2 bg-blue-100 rounded-lg">
-										<Ruler className="h-5 w-5 text-blue-600" />
-									</div>
-									<div>
-										<p className="text-sm font-medium text-muted-foreground">
-											Height
-										</p>
-										<p className="text-2xl font-bold">{profile.height_cm} cm</p>
-										<p className="text-sm text-muted-foreground">
-											{(profile.height_cm / 30.48).toFixed(1)} ft
-										</p>
-									</div>
-								</div>
-							</Card>
-						)}
-
-						{/* Weight */}
-						{profile.weight_kg && (
-							<Card className="p-6">
-								<div className="flex items-center gap-3 mb-2">
-									<div className="p-2 bg-purple-100 rounded-lg">
-										<Weight className="h-5 w-5 text-purple-600" />
-									</div>
-									<div>
-										<p className="text-sm font-medium text-muted-foreground">
-											Weight
-										</p>
-										<p className="text-2xl font-bold">{profile.weight_kg} kg</p>
-										<p className="text-sm text-muted-foreground">
-											{(profile.weight_kg * 2.20462).toFixed(1)} lbs
-										</p>
-									</div>
-								</div>
-							</Card>
-						)}
-
-						{/* BMI */}
-						{bmi && (
-							<Card className="p-6">
-								<div className="flex items-center gap-3 mb-2">
-									<div className="p-2 bg-green-100 rounded-lg">
-										<Heart className="h-5 w-5 text-green-600" />
-									</div>
-									<div>
-										<p className="text-sm font-medium text-muted-foreground">
-											BMI
-										</p>
-										<p className="text-2xl font-bold">{bmi}</p>
-										{bmiCategory && (
-											<p className={`text-sm font-medium ${bmiCategory.color}`}>
-												{bmiCategory.label}
+								) : (
+									<div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+										<div>
+											<label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+												Full Name
+											</label>
+											<p className="text-base font-medium mt-1">
+												{profile.name && profile.last_name
+													? `${profile.name} ${profile.last_name}`
+													: "—"}
 											</p>
+										</div>
+										<div>
+											<label className="text-xs font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-1">
+												<Calendar className="h-3 w-3" />
+												Date of Birth
+											</label>
+											<p className="text-base font-medium mt-1">
+												{profile.birth_date
+													? formatDate(profile.birth_date)
+													: "—"}
+											</p>
+											{profile.birth_date && (
+												<p className="text-xs text-muted-foreground mt-0.5">
+													{calculateAge(profile.birth_date)} years old
+												</p>
+											)}
+										</div>
+										<div>
+											<label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+												Sex
+											</label>
+											<p className="text-base font-medium mt-1 capitalize">
+												{profile.biological_sex?.replace("_", " ") || "—"}
+											</p>
+										</div>
+										<div>
+											<label className="text-xs font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-1">
+												<Droplet className="h-3 w-3" />
+												Blood Type
+											</label>
+											<p className="text-base font-medium mt-1">
+												{profile.blood_type || "—"}
+											</p>
+										</div>
+									</div>
+								)}
+							</div>
+						</Card>
+
+						{/* Vital Signs Card */}
+						<Card className="mb-6">
+							<div className="border-b px-6 py-4 flex items-center justify-between">
+								<h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground flex items-center gap-2">
+									<Activity className="h-4 w-4" />
+									Vital Signs & Metrics
+								</h2>
+								{!isEditingVitals && (
+									<Button
+										variant="ghost"
+										size="sm"
+										onClick={handleEditVitals}
+										className="gap-2 h-8"
+									>
+										<Edit className="h-3.5 w-3.5" />
+										Edit
+									</Button>
+								)}
+							</div>
+							<div className="p-6">
+								{isEditingVitals ? (
+									<div className="space-y-6">
+										<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+											<div className="space-y-2">
+												<label className="text-xs font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-1.5">
+													<Ruler className="h-3.5 w-3.5" />
+													Height (cm)
+												</label>
+												<Input
+													type="number"
+													value={height}
+													onChange={(e) => setHeight(e.target.value)}
+													placeholder="e.g., 170"
+												/>
+											</div>
+											<div className="space-y-2">
+												<label className="text-xs font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-1.5">
+													<Weight className="h-3.5 w-3.5" />
+													Weight (kg)
+												</label>
+												<Input
+													type="number"
+													value={weight}
+													onChange={(e) => setWeight(e.target.value)}
+													placeholder="e.g., 70"
+												/>
+											</div>
+										</div>
+										<div className="flex gap-2 pt-2">
+											<Button
+												onClick={handleSaveVitals}
+												disabled={isPending}
+												size="sm"
+												className="gap-2"
+											>
+												<Save className="h-3.5 w-3.5" />
+												{isPending ? "Saving..." : "Save Changes"}
+											</Button>
+											<Button
+												variant="outline"
+												onClick={handleCancelVitals}
+												disabled={isPending}
+												size="sm"
+												className="gap-2"
+											>
+												<X className="h-3.5 w-3.5" />
+												Cancel
+											</Button>
+										</div>
+									</div>
+								) : (
+									<div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+										<div className="flex items-start gap-3">
+											<div className="p-2 bg-blue-50 rounded-md">
+												<Ruler className="h-4 w-4 text-blue-600" />
+											</div>
+											<div>
+												<label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+													Height
+												</label>
+												<p className="text-base font-medium mt-1">
+													{profile.height_cm ? `${profile.height_cm} cm` : "—"}
+												</p>
+												{profile.height_cm && (
+													<p className="text-xs text-muted-foreground mt-0.5">
+														{(profile.height_cm / 30.48).toFixed(1)} ft
+													</p>
+												)}
+											</div>
+										</div>
+										<div className="flex items-start gap-3">
+											<div className="p-2 bg-purple-50 rounded-md">
+												<Weight className="h-4 w-4 text-purple-600" />
+											</div>
+											<div>
+												<label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+													Weight
+												</label>
+												<p className="text-base font-medium mt-1">
+													{profile.weight_kg ? `${profile.weight_kg} kg` : "—"}
+												</p>
+												{profile.weight_kg && (
+													<p className="text-xs text-muted-foreground mt-0.5">
+														{(profile.weight_kg * 2.20462).toFixed(1)} lbs
+													</p>
+												)}
+											</div>
+										</div>
+										<div className="flex items-start gap-3">
+											<div className="p-2 bg-green-50 rounded-md">
+												<Heart className="h-4 w-4 text-green-600" />
+											</div>
+											<div>
+												<label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+													BMI
+												</label>
+												<p className="text-base font-medium mt-1">
+													{bmi || "—"}
+												</p>
+												{bmiCategory && (
+													<p
+														className={`text-xs font-medium mt-0.5 ${bmiCategory.color}`}
+													>
+														{bmiCategory.label}
+													</p>
+												)}
+											</div>
+										</div>
+									</div>
+								)}
+							</div>
+						</Card>
+
+						{/* Clinical Information Card */}
+						<Card className="mb-6">
+							<div className="border-b px-6 py-4 flex items-center justify-between">
+								<h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground flex items-center gap-2">
+									<FileText className="h-4 w-4" />
+									Clinical Information
+								</h2>
+								{!isEditingMedical && (
+									<Button
+										variant="ghost"
+										size="sm"
+										onClick={handleEditMedical}
+										className="gap-2 h-8"
+									>
+										<Edit className="h-3.5 w-3.5" />
+										Edit
+									</Button>
+								)}
+							</div>
+							<div className="p-6">
+								{isEditingMedical ? (
+									<div className="space-y-6">
+										<div className="space-y-2">
+											<label
+												htmlFor="allergies"
+												className="text-xs font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-1.5"
+											>
+												<AlertCircle className="h-3.5 w-3.5" />
+												Allergies
+											</label>
+											<textarea
+												id="allergies"
+												value={allergies}
+												onChange={(e) => setAllergies(e.target.value)}
+												rows={2}
+												className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring resize-none"
+												placeholder="e.g., Penicillin, Peanuts, Latex"
+											/>
+										</div>
+
+										<div className="space-y-2">
+											<label
+												htmlFor="medications"
+												className="text-xs font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-1.5"
+											>
+												<FileText className="h-3.5 w-3.5" />
+												Current Medications
+											</label>
+											<textarea
+												id="medications"
+												value={medications}
+												onChange={(e) => setMedications(e.target.value)}
+												rows={2}
+												className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring resize-none"
+												placeholder="e.g., Metformin 500mg twice daily"
+											/>
+										</div>
+
+										<div className="space-y-2">
+											<label
+												htmlFor="chronicDiseases"
+												className="text-xs font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-1.5"
+											>
+												<Heart className="h-3.5 w-3.5" />
+												Chronic Conditions
+											</label>
+											<textarea
+												id="chronicDiseases"
+												value={chronicDiseases}
+												onChange={(e) => setChronicDiseases(e.target.value)}
+												rows={2}
+												className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring resize-none"
+												placeholder="e.g., Type 2 Diabetes, Hypertension"
+											/>
+										</div>
+
+										<div className="space-y-2">
+											<label
+												htmlFor="familyHistory"
+												className="text-xs font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-1.5"
+											>
+												<History className="h-3.5 w-3.5" />
+												Family Medical History
+											</label>
+											<textarea
+												id="familyHistory"
+												value={familyHistory}
+												onChange={(e) => setFamilyHistory(e.target.value)}
+												rows={2}
+												className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring resize-none"
+												placeholder="e.g., Father: Heart Disease, Mother: Diabetes"
+											/>
+										</div>
+
+										<div className="flex gap-2 pt-2">
+											<Button
+												onClick={handleSaveMedical}
+												disabled={isPending}
+												size="sm"
+												className="gap-2"
+											>
+												<Save className="h-3.5 w-3.5" />
+												{isPending ? "Saving..." : "Save Changes"}
+											</Button>
+											<Button
+												variant="outline"
+												onClick={handleCancelMedical}
+												disabled={isPending}
+												size="sm"
+												className="gap-2"
+											>
+												<X className="h-3.5 w-3.5" />
+												Cancel
+											</Button>
+										</div>
+									</div>
+								) : (
+									<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+										{profile.allergies ||
+										profile.medications ||
+										profile.chronic_diseases ||
+										profile.family_history ? (
+											<>
+												<div>
+													<label className="text-xs font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-1.5 mb-2">
+														<AlertCircle className="h-3.5 w-3.5" />
+														Allergies
+													</label>
+													<p className="text-sm">
+														{profile.allergies || "None reported"}
+													</p>
+												</div>
+												<div>
+													<label className="text-xs font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-1.5 mb-2">
+														<FileText className="h-3.5 w-3.5" />
+														Current Medications
+													</label>
+													<p className="text-sm">
+														{profile.medications || "None reported"}
+													</p>
+												</div>
+												<div>
+													<label className="text-xs font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-1.5 mb-2">
+														<Heart className="h-3.5 w-3.5" />
+														Chronic Conditions
+													</label>
+													<p className="text-sm">
+														{profile.chronic_diseases || "None reported"}
+													</p>
+												</div>
+												<div>
+													<label className="text-xs font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-1.5 mb-2">
+														<History className="h-3.5 w-3.5" />
+														Family Medical History
+													</label>
+													<p className="text-sm">
+														{profile.family_history || "None reported"}
+													</p>
+												</div>
+											</>
+										) : (
+											<div className="col-span-2 text-center py-8">
+												<FileText className="h-8 w-8 text-muted-foreground/50 mx-auto mb-3" />
+												<p className="text-sm text-muted-foreground mb-3">
+													No clinical information on file
+												</p>
+												<Button
+													variant="outline"
+													size="sm"
+													onClick={handleEditMedical}
+													className="gap-2"
+												>
+													<Edit className="h-3.5 w-3.5" />
+													Add Information
+												</Button>
+											</div>
 										)}
 									</div>
-								</div>
-							</Card>
-						)}
-					</div>
-				</div>
-
-				{/* Family Members Section */}
-				<div className="mt-8">
-					<Card>
-						<CardHeader className="flex flex-row items-center justify-between">
-							<div>
-								<CardTitle className="flex items-center gap-2">
-									<Users className="h-5 w-5" />
-									Family Members
-								</CardTitle>
-								<CardDescription className="mt-1">
-									Add family members to track their health records and share
-									information
-								</CardDescription>
+								)}
 							</div>
-							<Button
-								variant="outline"
-								className="gap-2"
-								onClick={() => setIsFamilyDialogOpen(true)}
-							>
-								<Plus className="h-4 w-4" />
-								Add Member
-							</Button>
-						</CardHeader>
-					</Card>
+						</Card>
+					</div>
+
+					{/* Right Column - Family Members Sidebar */}
+					<div className="lg:col-span-1">
+						<Card>
+							<div className="border-b px-6 py-4 flex items-center justify-between">
+								<h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground flex items-center gap-2">
+									<Users className="h-4 w-4" />
+									Family Members
+								</h2>
+								<Button
+									variant="ghost"
+									size="sm"
+									onClick={() => setIsFamilyDialogOpen(true)}
+									className="gap-2 h-8"
+								>
+									<Settings className="h-3.5 w-3.5" />
+									Manage
+								</Button>
+							</div>
+							<div className="p-6">
+								{familyMembersLoading ? (
+									<div className="text-center py-4">
+										<div className="inline-block h-6 w-6 animate-spin rounded-full border-2 border-solid border-current border-r-transparent" />
+									</div>
+								) : familyMembers && familyMembers.length > 0 ? (
+									<div className="space-y-3">
+										{familyMembers.map((member) => (
+											<div
+												key={member.id}
+												className="flex items-center gap-3 p-3 rounded-md border bg-muted/30 hover:bg-muted/50 transition-colors"
+											>
+												<div className="p-2 bg-primary/10 rounded-full">
+													<User className="h-4 w-4 text-primary" />
+												</div>
+												<div className="flex-1 min-w-0">
+													<p className="text-sm font-medium truncate">
+														{member.name}
+													</p>
+													<p className="text-xs text-muted-foreground capitalize">
+														{member.role}
+													</p>
+												</div>
+											</div>
+										))}
+									</div>
+								) : (
+									<div className="text-center py-8">
+										<Users className="h-8 w-8 text-muted-foreground/50 mx-auto mb-3" />
+										<p className="text-sm text-muted-foreground mb-3">
+											No family members added
+										</p>
+										<Button
+											variant="outline"
+											size="sm"
+											onClick={() => setIsFamilyDialogOpen(true)}
+											className="gap-2"
+										>
+											<Settings className="h-3.5 w-3.5" />
+											Add Members
+										</Button>
+									</div>
+								)}
+							</div>
+						</Card>
+					</div>
 				</div>
 			</main>
 
