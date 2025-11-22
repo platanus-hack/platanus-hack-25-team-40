@@ -34,89 +34,90 @@ export default function Dashboard() {
 						one secure place.
 					</p>
 				</div>
-
-			{/* Quick Actions */}
-			<div className="grid gap-4 md:grid-cols-3 mb-8">
-				<Card
-					className="cursor-pointer hover:border-primary transition-colors"
-					onClick={() => router.navigate({ to: "/profile" })}
-				>
-					<CardHeader>
-						<div className="flex items-center justify-between">
-							<UserCircle className="h-8 w-8 text-primary" />
-						</div>
-						<CardTitle className="mt-4">My Profile</CardTitle>
-						<CardDescription>
-							View and manage your personal health information
-						</CardDescription>
-					</CardHeader>
-					<CardContent>
-						<div className="space-y-2">
-							{profile && (
-								<div className="text-sm">
-									<p className="font-medium">
-										{profile.name} {profile.last_name}
-									</p>
-									{profile.blood_type && (
-										<p className="text-muted-foreground">
-											Blood Type: {profile.blood_type}
-										</p>
-									)}
-								</div>
-							)}
-							<Button variant="outline" className="w-full">
-								View Profile
-							</Button>
-						</div>
-					</CardContent>
-				</Card>
-				<Card className="cursor-pointer hover:border-primary transition-colors">
-					<CardHeader>
-						<div className="flex items-center justify-between">
-							<Upload className="h-8 w-8 text-primary" />
-							<Badge variant="secondary">New</Badge>
-						</div>
-						<CardTitle className="mt-4">Upload Records</CardTitle>
-						<CardDescription>
-							Drop PDFs, photos, or scans of medical documents
-						</CardDescription>
-					</CardHeader>
-					<CardContent>
-						<Button className="w-full gap-2" onClick={() => setIsUploadDialogOpen(true)}>
-							<Plus className="h-4 w-4" />
-							Upload Files
-						</Button>
-					</CardContent>
-				</Card>
-
-			<Card className="cursor-pointer hover:border-primary transition-colors">
-				<CardHeader>
-					<FileText className="h-8 w-8 text-primary" />
-					<CardTitle className="mt-4">View Timeline</CardTitle>
-					<CardDescription>
-						Browse your family's health history chronologically
-					</CardDescription>
-				</CardHeader>
-				<CardContent>
-					<Button
-						variant="outline"
-						className="w-full"
-						onClick={() => setIsTimelineOpen(true)}
+				{/* Quick Actions */}
+				<div className="grid gap-4 md:grid-cols-3 mb-8">
+					<Card
+						className="cursor-pointer hover:border-primary transition-colors"
+						onClick={() => router.navigate({ to: "/profile" })}
 					>
-						Open Timeline
-					</Button>
-				</CardContent>
-			</Card>
-			</div>
+						<CardHeader>
+							<div className="flex items-center justify-between">
+								<UserCircle className="h-8 w-8 text-primary" />
+							</div>
+							<CardTitle className="mt-4">My Profile</CardTitle>
+							<CardDescription>
+								View and manage your personal health information
+							</CardDescription>
+						</CardHeader>
+						<CardContent>
+							<div className="space-y-2">
+								{profile && (
+									<div className="text-sm">
+										<p className="font-medium">
+											{profile.name} {profile.last_name}
+										</p>
+										{profile.blood_type && (
+											<p className="text-muted-foreground">
+												Blood Type: {profile.blood_type}
+											</p>
+										)}
+									</div>
+								)}
+								<Button variant="outline" className="w-full">
+									View Profile
+								</Button>
+							</div>
+						</CardContent>
+					</Card>
+					<Card className="cursor-pointer hover:border-primary transition-colors flex flex-col">
+						<CardHeader className="flex-1">
+							<div className="flex items-center justify-between">
+								<Upload className="h-8 w-8 text-primary" />
+								<Badge variant="secondary">New</Badge>
+							</div>
+							<CardTitle className="mt-4">Upload Records</CardTitle>
+							<CardDescription>
+								Drop PDFs, photos, or scans of medical documents
+							</CardDescription>
+						</CardHeader>
+						<CardContent>
+							<Button
+								className="w-full gap-2"
+								onClick={() => setIsUploadDialogOpen(true)}
+							>
+								<Plus className="h-4 w-4" />
+								Upload Files
+							</Button>
+						</CardContent>
+					</Card>
 
-			{/* Stats Overview */}
-			<div className="grid gap-4 md:grid-cols-4 mb-8">
-				<Card>
-					<CardHeader className="pb-2">
-						<CardDescription>Total Records</CardDescription>
-						<CardTitle className="text-3xl">0</CardTitle>
-					</CardHeader>
-				</Card>
+					<Card className="cursor-pointer hover:border-primary transition-colors flex flex-col">
+						<CardHeader className="flex-1">
+							<FileText className="h-8 w-8 text-primary" />
+							<CardTitle className="mt-4">View Timeline</CardTitle>
+							<CardDescription>
+								Browse your family's health history chronologically
+							</CardDescription>
+						</CardHeader>
+						<CardContent>
+							<Button
+								variant="outline"
+								className="w-full"
+								onClick={() => setIsTimelineOpen(true)}
+							>
+								Open Timeline
+							</Button>
+						</CardContent>
+					</Card>
+				</div>{" "}
+				{/* Stats Overview */}
+				<div className="grid gap-4 md:grid-cols-4 mb-8">
+					<Card>
+						<CardHeader className="pb-2">
+							<CardDescription>Total Records</CardDescription>
+							<CardTitle className="text-3xl">0</CardTitle>
+						</CardHeader>
+					</Card>
 
 					<Card>
 						<CardHeader className="pb-2">
@@ -139,7 +140,6 @@ export default function Dashboard() {
 						</CardHeader>
 					</Card>
 				</div>
-
 				{/* Recent Activity */}
 				<Card>
 					<CardHeader>
@@ -163,20 +163,20 @@ export default function Dashboard() {
 						</div>
 					</CardContent>
 				</Card>
-		</main>
+			</main>
 
-		{/* Family Members Dialog */}
-		<FamilyMembersDialog
-			open={isFamilyDialogOpen}
-			onOpenChange={setIsFamilyDialogOpen}
-		/>
-		<UploadHealthRecordDialog
-			open={isUploadDialogOpen}
-			onOpenChange={setIsUploadDialogOpen}
-		/>
+			{/* Family Members Dialog */}
+			<FamilyMembersDialog
+				open={isFamilyDialogOpen}
+				onOpenChange={setIsFamilyDialogOpen}
+			/>
+			<UploadHealthRecordDialog
+				open={isUploadDialogOpen}
+				onOpenChange={setIsUploadDialogOpen}
+			/>
 
-		{/* Timeline Sheet */}
-		<TimelineSheet open={isTimelineOpen} onOpenChange={setIsTimelineOpen} />
-	</div>
-);
+			{/* Timeline Sheet */}
+			<TimelineSheet open={isTimelineOpen} onOpenChange={setIsTimelineOpen} />
+		</div>
+	);
 }
