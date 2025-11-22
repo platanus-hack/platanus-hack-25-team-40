@@ -1,12 +1,16 @@
+export type HealthRecordType = "checkup" | "diagnosis" | "prescription" | "lab-result";
+export type HealthRecordStatus = "active" | "archived";
+
 export interface HealthRecord {
   id: string;
   patientId: string;
   date: string;
-  type: "checkup" | "diagnosis" | "prescription" | "lab-result";
+  type: HealthRecordType;
   title: string;
   description: string;
-  provider: string;
-  status: "active" | "archived";
+  specialty: string;
+  fileUrl?: string | null;
+  status: HealthRecordStatus;
   createdAt: string;
   updatedAt: string;
 }
@@ -14,18 +18,20 @@ export interface HealthRecord {
 export interface CreateHealthRecordInput {
   patientId: string;
   date: string;
-  type: HealthRecord["type"];
+  type: HealthRecordType;
   title: string;
   description: string;
-  provider: string;
+  specialty: string;
+  fileUrl?: string | null;
 }
 
 export interface UpdateHealthRecordInput {
   id: string;
   date?: string;
-  type?: HealthRecord["type"];
+  type?: HealthRecordType;
   title?: string;
   description?: string;
-  provider?: string;
-  status?: HealthRecord["status"];
+  specialty?: string;
+  fileUrl?: string | null;
+  status?: HealthRecordStatus
 }

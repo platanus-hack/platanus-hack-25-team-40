@@ -1,7 +1,7 @@
 import { Outlet, createRootRoute } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/router-devtools";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import { queryClient } from "@/shared/providers/app-provider";
+import { queryClient } from "@/shared/providers/query-client";
 
 export const Route = createRootRoute({
   component: RootComponent,

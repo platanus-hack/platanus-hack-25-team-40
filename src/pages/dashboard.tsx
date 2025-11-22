@@ -2,14 +2,15 @@ import { useUser, signOut } from "@/shared/hooks/useAuth";
 import { Button } from "@/shared/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/ui/card";
 import { Badge } from "@/shared/ui/badge";
-import { FileText, Plus, Upload, Users, Activity, LogOut, User, Settings } from "lucide-react";
-import { UploadHealthRecordCard } from "@/modules/health-records/components/upload-record-card";
+import { FileText, Plus, Upload, Users, LogOut, User, Settings } from "lucide-react";
+import { UploadHealthRecordDialog } from "@/modules/health-records/components/upload-health-record-dialog";
 import { FamilyMembersDialog } from "@/modules/family-members/components/family-members-dialog";
 import { useState } from "react";
 
 export default function Dashboard() {
   const user = useUser();
   const [isFamilyDialogOpen, setIsFamilyDialogOpen] = useState(false);
+  const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
 
   const handleSignOut = async () => {
     await signOut();
@@ -54,7 +55,7 @@ export default function Dashboard() {
           </p>
         </div>
 
-        <UploadHealthRecordCard />
+        {/* Upload dialog trigger handled by card below */}
 
         {/* Quick Actions */}
         <div className="grid gap-4 md:grid-cols-3 mb-8">
@@ -70,7 +71,7 @@ export default function Dashboard() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <Button className="w-full gap-2">
+              <Button className="w-full gap-2" onClick={() => setIsUploadDialogOpen(true)}>
                 <Plus className="h-4 w-4" />
                 Upload Files
               </Button>
@@ -86,8 +87,8 @@ export default function Dashboard() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 className="w-full gap-2"
                 onClick={() => setIsFamilyDialogOpen(true)}
               >
@@ -167,9 +168,13 @@ export default function Dashboard() {
       </main>
 
       {/* Family Members Dialog */}
-      <FamilyMembersDialog 
-        open={isFamilyDialogOpen} 
-        onOpenChange={setIsFamilyDialogOpen} 
+      <FamilyMembersDialog
+        open={isFamilyDialogOpen}
+        onOpenChange={setIsFamilyDialogOpen}
+      />
+      <UploadHealthRecordDialog
+        open={isUploadDialogOpen}
+        onOpenChange={setIsUploadDialogOpen}
       />
     </div>
   );
