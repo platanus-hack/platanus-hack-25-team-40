@@ -8,7 +8,6 @@ import { supabase } from "@/shared/utils/supabase";
 
 /**
  * Gateway for health records data access
- * This is a mock implementation - replace with Supabase calls
  */
 export class HealthRecordsGateway {
 	async list(userId?: string): Promise<HealthRecord[]> {

@@ -5,12 +5,14 @@ import { Badge } from "@/shared/ui/badge";
 import { FileText, Plus, Upload, Users, LogOut, User, Settings } from "lucide-react";
 import { UploadHealthRecordDialog } from "@/modules/health-records/components/upload-health-record-dialog";
 import { FamilyMembersDialog } from "@/modules/family-members/components/family-members-dialog";
+import { TimelineSheet } from "@/modules/health-records/components/timeline-sheet";
 import { useState } from "react";
 
 export default function Dashboard() {
   const user = useUser();
   const [isFamilyDialogOpen, setIsFamilyDialogOpen] = useState(false);
   const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
+  const [isTimelineOpen, setIsTimelineOpen] = useState(false);
 
   const handleSignOut = async () => {
     await signOut();
@@ -107,7 +109,11 @@ export default function Dashboard() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <Button variant="outline" className="w-full">
+              <Button 
+                variant="outline" 
+                className="w-full"
+                onClick={() => setIsTimelineOpen(true)}
+              >
                 Open Timeline
               </Button>
             </CardContent>
@@ -175,6 +181,12 @@ export default function Dashboard() {
       <UploadHealthRecordDialog
         open={isUploadDialogOpen}
         onOpenChange={setIsUploadDialogOpen}
+      />
+
+      {/* Timeline Sheet */}
+      <TimelineSheet 
+        open={isTimelineOpen} 
+        onOpenChange={setIsTimelineOpen} 
       />
     </div>
   );
