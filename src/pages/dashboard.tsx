@@ -18,8 +18,8 @@ export default function Dashboard() {
       <header className="border-b">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex h-16 items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Activity className="h-6 w-6 text-primary" />
+            <div className="flex items-center">
+              <img src="src/assets/oregon.svg" alt="Oregon Health" className="h-14 w-14 text-primary" />
               <span className="text-xl font-bold">Oregon Health</span>
             </div>
             <div className="flex items-center gap-4">
