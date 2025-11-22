@@ -1,49 +1,28 @@
-import { atom } from "jotai";
 import { atomWithQuery } from "jotai-tanstack-query";
 import { healthRecordsGatewayAtom } from "@/shared/atoms/gateway-atoms";
-import type { HealthRecord, ListHealthRecordsParams } from "../types";
 
 /**
- * Query parameter atoms
+ * Query atom for fetching all health records
+ * Example usage of atomWithQuery with gateway pattern
  */
-export const healthRecordIdAtom = atom<string | null>(null);
-export const listParamsAtom = atom<ListHealthRecordsParams | null>(null);
+export const healthRecordsQueryAtom = atomWithQuery((get) => ({
+  queryKey: ["health-records"],
+  queryFn: async () => {
+    const gateway = get(healthRecordsGatewayAtom);
+    return gateway.list();
+  },
+}));
 
 /**
- * List all health records
+ * Query atom for fetching a single health record by ID
+ * Example of parameterized query atom
  */
-export const healthRecordsListQueryAtom = atomWithQuery((get) => {
-  const gateway = get(healthRecordsGatewayAtom);
-  const params = get(listParamsAtom);
-
-  return {
-    queryKey: ["health-records", "list", params],
-    queryFn: async (): Promise<HealthRecord[]> => {
-      if (!gateway) throw new Error("Gateway not available");
-      return gateway.list(params ?? undefined);
+export const healthRecordByIdQueryAtom = (id: string) =>
+  atomWithQuery((get) => ({
+    queryKey: ["health-record", id],
+    queryFn: async () => {
+      const gateway = get(healthRecordsGatewayAtom);
+      return gateway.getById(id);
     },
-    enabled: !!gateway,
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    gcTime: 15 * 60 * 1000, // 15 minutes
-  };
-});
-
-/**
- * Get a single health record by ID
- */
-export const healthRecordQueryAtom = atomWithQuery((get) => {
-  const gateway = get(healthRecordsGatewayAtom);
-  const id = get(healthRecordIdAtom);
-
-  return {
-    queryKey: ["health-records", "detail", id],
-    queryFn: async (): Promise<HealthRecord> => {
-      if (!gateway) throw new Error("Gateway not available");
-      if (!id) throw new Error("Record ID not available");
-      return gateway.get(id);
-    },
-    enabled: !!gateway && !!id,
-    staleTime: 5 * 60 * 1000,
-    gcTime: 15 * 60 * 1000,
-  };
-});
+    enabled: !!id,
+  }));

@@ -1,44 +1,31 @@
-// Health Record Types
-
 export interface HealthRecord {
   id: string;
   patientId: string;
-  category: "Cardiology" | "Blood Work" | "Oncology" | "General" | "Other";
+  date: string;
+  type: "checkup" | "diagnosis" | "prescription" | "lab-result";
   title: string;
-  date: Date;
-  doctor?: string;
-  hospital?: string;
-  fileUrl?: string;
-  summary?: string;
-  aiTranslation?: string;
-  createdAt: Date;
-  updatedAt: Date;
+  description: string;
+  provider: string;
+  status: "active" | "archived";
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface CreateHealthRecordInput {
   patientId: string;
-  category: HealthRecord["category"];
+  date: string;
+  type: HealthRecord["type"];
   title: string;
-  date: Date;
-  doctor?: string;
-  hospital?: string;
-  fileUrl?: string;
+  description: string;
+  provider: string;
 }
 
 export interface UpdateHealthRecordInput {
   id: string;
+  date?: string;
+  type?: HealthRecord["type"];
   title?: string;
-  category?: HealthRecord["category"];
-  date?: Date;
-  doctor?: string;
-  hospital?: string;
-  summary?: string;
-  aiTranslation?: string;
-}
-
-export interface ListHealthRecordsParams {
-  patientId?: string;
-  category?: HealthRecord["category"];
-  startDate?: Date;
-  endDate?: Date;
+  description?: string;
+  provider?: string;
+  status?: HealthRecord["status"];
 }

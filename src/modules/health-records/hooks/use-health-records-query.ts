@@ -1,49 +1,20 @@
-import { useAtomValue, useSetAtom } from "jotai";
-import { useEffect } from "react";
+import { useAtomValue } from "jotai";
 import {
-  healthRecordsListQueryAtom,
-  healthRecordQueryAtom,
-  healthRecordIdAtom,
-  listParamsAtom,
+  healthRecordsQueryAtom,
+  healthRecordByIdQueryAtom,
 } from "../atoms/query-atoms";
-import type { ListHealthRecordsParams } from "../types";
 
 /**
- * Hook to list all health records with optional filters
+ * Hook for accessing all health records query
+ * Example of using query atoms in components
  */
-export function useHealthRecordsList(params?: ListHealthRecordsParams) {
-  const setParams = useSetAtom(listParamsAtom);
-  const query = useAtomValue(healthRecordsListQueryAtom);
-
-  useEffect(() => {
-    setParams(params ?? null);
-  }, [params, setParams]);
-
-  return {
-    data: query.data ?? [],
-    isLoading: query.isLoading,
-    isError: query.isError,
-    error: query.error,
-    refetch: query.refetch,
-  };
+export function useHealthRecordsQuery() {
+  return useAtomValue(healthRecordsQueryAtom);
 }
 
 /**
- * Hook to get a single health record by ID
+ * Hook for accessing a single health record by ID
  */
-export function useHealthRecord(id: string) {
-  const setId = useSetAtom(healthRecordIdAtom);
-  const query = useAtomValue(healthRecordQueryAtom);
-
-  useEffect(() => {
-    setId(id);
-  }, [id, setId]);
-
-  return {
-    data: query.data,
-    isLoading: query.isLoading,
-    isError: query.isError,
-    error: query.error,
-    refetch: query.refetch,
-  };
+export function useHealthRecordByIdQuery(id: string) {
+  return useAtomValue(healthRecordByIdQueryAtom(id));
 }

@@ -1,155 +1,100 @@
 import type {
-  HealthRecord,
-  CreateHealthRecordInput,
-  UpdateHealthRecordInput,
-  ListHealthRecordsParams,
+	HealthRecord,
+	CreateHealthRecordInput,
+	UpdateHealthRecordInput,
 } from "../types";
 
 /**
- * Gateway for Health Records
- * This is your data access layer - replace with actual API calls
+ * Gateway for health records data access
+ * This is a mock implementation - replace with Supabase calls
  */
 export class HealthRecordsGateway {
-  private baseUrl: string;
+	async list(): Promise<HealthRecord[]> {
+		// TODO: Replace with Supabase query
+		// const { data, error } = await supabase
+		//   .from('health_records')
+		//   .select('*')
+		//   .order('date', { ascending: false });
 
-  constructor(baseUrl: string = "/api/health-records") {
-    this.baseUrl = baseUrl;
-  }
+		// Mock data for example
+		await new Promise((resolve) => setTimeout(resolve, 500));
+		return [
+			{
+				id: "1",
+				patientId: "patient-1",
+				date: "2024-01-15",
+				type: "checkup",
+				title: "Annual Physical Exam",
+				description: "Routine checkup with blood work",
+				provider: "Dr. Smith",
+				status: "active",
+				createdAt: "2024-01-15T10:00:00Z",
+				updatedAt: "2024-01-15T10:00:00Z",
+			},
+		];
+	}
 
-  /**
-   * List all health records with optional filters
-   */
-  async list(params?: ListHealthRecordsParams): Promise<HealthRecord[]> {
-    // Mock data for now - replace with actual API call
-    // const response = await fetch(`${this.baseUrl}?${new URLSearchParams(params)}`);
-    // return response.json();
+	async getById(id: string): Promise<HealthRecord | null> {
+		// TODO: Replace with Supabase query
+		// const { data, error } = await supabase
+		//   .from('health_records')
+		//   .select('*')
+		//   .eq('id', id)
+		//   .single();
 
-    // Mock response
-    return [
-      {
-        id: "1",
-        patientId: "patient-1",
-        category: "Cardiology",
-        title: "Annual Checkup",
-        date: new Date("2024-11-21"),
-        doctor: "Dr. House",
-        hospital: "City Hospital",
-        summary: "Regular cardiovascular checkup",
-        aiTranslation: "Everything looks normal. Blood pressure is good.",
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-      {
-        id: "2",
-        patientId: "patient-1",
-        category: "Blood Work",
-        title: "Metabolic Panel",
-        date: new Date("2024-11-15"),
-        doctor: "Dr. Wilson",
-        hospital: "City Hospital",
-        summary: "Standard metabolic panel results",
-        aiTranslation:
-          "All values are within normal range except Vitamin D which is slightly low. Common in winter months.",
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-    ];
-  }
+		await new Promise((resolve) => setTimeout(resolve, 300));
+		const records = await this.list();
+		return records.find((r) => r.id === id) || null;
+	}
 
-  /**
-   * Get a single health record by ID
-   */
-  async get(id: string): Promise<HealthRecord> {
-    // Mock implementation
-    // const response = await fetch(`${this.baseUrl}/${id}`);
-    // return response.json();
+	async create(input: CreateHealthRecordInput): Promise<HealthRecord> {
+		// TODO: Replace with Supabase insert
+		// const { data, error } = await supabase
+		//   .from('health_records')
+		//   .insert(input)
+		//   .select()
+		//   .single();
 
-    const records = await this.list();
-    const record = records.find((r) => r.id === id);
-    if (!record) {
-      throw new Error(`Health record ${id} not found`);
-    }
-    return record;
-  }
+		await new Promise((resolve) => setTimeout(resolve, 500));
+		const now = new Date().toISOString();
+		return {
+			id: Math.random().toString(36).substr(2, 9),
+			...input,
+			status: "active",
+			createdAt: now,
+			updatedAt: now,
+		};
+	}
 
-  /**
-   * Create a new health record
-   */
-  async create(input: CreateHealthRecordInput): Promise<HealthRecord> {
-    // Mock implementation
-    // const response = await fetch(this.baseUrl, {
-    //   method: 'POST',
-    //   headers: { 'Content-Type': 'application/json' },
-    //   body: JSON.stringify(input),
-    // });
-    // return response.json();
+	async update(input: UpdateHealthRecordInput): Promise<HealthRecord> {
+		// TODO: Replace with Supabase update
+		// const { data, error } = await supabase
+		//   .from('health_records')
+		//   .update(input)
+		//   .eq('id', input.id)
+		//   .select()
+		//   .single();
 
-    return {
-      id: `record-${Date.now()}`,
-      ...input,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
-  }
+		await new Promise((resolve) => setTimeout(resolve, 500));
+		const existing = await this.getById(input.id);
+		if (!existing) {
+			throw new Error(`Health record ${input.id} not found`);
+		}
+		return {
+			...existing,
+			...input,
+			updatedAt: new Date().toISOString(),
+		};
+	}
 
-  /**
-   * Update an existing health record
-   */
-  async update(input: UpdateHealthRecordInput): Promise<HealthRecord> {
-    // Mock implementation
-    // const response = await fetch(`${this.baseUrl}/${input.id}`, {
-    //   method: 'PATCH',
-    //   headers: { 'Content-Type': 'application/json' },
-    //   body: JSON.stringify(input),
-    // });
-    // return response.json();
+	async delete(id: string): Promise<void> {
+		// TODO: Replace with Supabase delete
+		// const { error } = await supabase
+		//   .from('health_records')
+		//   .delete()
+		//   .eq('id', id);
 
-    const record = await this.get(input.id);
-    return {
-      ...record,
-      ...input,
-      updatedAt: new Date(),
-    };
-  }
-
-  /**
-   * Delete a health record
-   */
-  async delete(id: string): Promise<void> {
-    // Mock implementation
-    // await fetch(`${this.baseUrl}/${id}`, { method: 'DELETE' });
-    console.log(`Deleted health record ${id}`);
-  }
-
-  /**
-   * Upload and process a document (AI processing)
-   */
-  async uploadDocument(
-    file: File,
-    patientId: string
-  ): Promise<HealthRecord> {
-    // This would call your AI processing endpoint
-    // const formData = new FormData();
-    // formData.append('file', file);
-    // formData.append('patientId', patientId);
-    // const response = await fetch(`${this.baseUrl}/upload`, {
-    //   method: 'POST',
-    //   body: formData,
-    // });
-    // return response.json();
-
-    // Mock AI processing result
-    return {
-      id: `record-${Date.now()}`,
-      patientId,
-      category: "General",
-      title: file.name,
-      date: new Date(),
-      fileUrl: URL.createObjectURL(file),
-      summary: "AI-extracted summary from document",
-      aiTranslation: "This appears to be a medical report...",
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
-  }
+		await new Promise((resolve) => setTimeout(resolve, 500));
+		console.log(`Deleted health record ${id}`);
+	}
 }
