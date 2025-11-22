@@ -3,98 +3,108 @@ import type {
 	CreateHealthRecordInput,
 	UpdateHealthRecordInput,
 } from "../types";
+import { supabase } from "@/shared/utils/supabase";
 
 /**
  * Gateway for health records data access
- * This is a mock implementation - replace with Supabase calls
  */
 export class HealthRecordsGateway {
-	async list(): Promise<HealthRecord[]> {
-		// TODO: Replace with Supabase query
-		// const { data, error } = await supabase
-		//   .from('health_records')
-		//   .select('*')
-		//   .order('date', { ascending: false });
+	async list(userId: string): Promise<HealthRecord[]> {
+		try {
+			const { data, error } = await supabase
+				.from('health_records')
+				.select('*')
+				.eq('user_id', userId)
+				.order('event_date', { ascending: false });
 
-		// Mock data for example
-		await new Promise((resolve) => setTimeout(resolve, 500));
-		return [
-			{
-				id: "1",
-				patientId: "patient-1",
-				date: "2024-01-15",
-				type: "checkup",
-				title: "Annual Physical Exam",
-				description: "Routine checkup with blood work",
-				provider: "Dr. Smith",
-				status: "active",
-				createdAt: "2024-01-15T10:00:00Z",
-				updatedAt: "2024-01-15T10:00:00Z",
-			},
-		];
+			if (error) {
+				console.error('Error fetching health records:', error);
+				return [];
+			}
+
+			return data || [];
+		} catch (error) {
+			console.error('Error in list:', error);
+			return [];
+		}
 	}
 
 	async getById(id: string): Promise<HealthRecord | null> {
-		// TODO: Replace with Supabase query
-		// const { data, error } = await supabase
-		//   .from('health_records')
-		//   .select('*')
-		//   .eq('id', id)
-		//   .single();
+		try {
+			const { data, error } = await supabase
+				.from('health_records')
+				.select('*')
+				.eq('id', id)
+				.single();
 
-		await new Promise((resolve) => setTimeout(resolve, 300));
-		const records = await this.list();
-		return records.find((r) => r.id === id) || null;
+			if (error) {
+				console.error('Error fetching health record:', error);
+				return null;
+			}
+
+			return data;
+		} catch (error) {
+			console.error('Error in getById:', error);
+			return null;
+		}
 	}
 
 	async create(input: CreateHealthRecordInput): Promise<HealthRecord> {
-		// TODO: Replace with Supabase insert
-		// const { data, error } = await supabase
-		//   .from('health_records')
-		//   .insert(input)
-		//   .select()
-		//   .single();
+		try {
+			const { data, error } = await supabase
+				.from('health_records')
+				.insert(input)
+				.select()
+				.single();
 
-		await new Promise((resolve) => setTimeout(resolve, 500));
-		const now = new Date().toISOString();
-		return {
-			id: Math.random().toString(36).substr(2, 9),
-			...input,
-			status: "active",
-			createdAt: now,
-			updatedAt: now,
-		};
+			if (error) {
+				console.error('Error creating health record:', error);
+				throw error;
+			}
+
+			return data;
+		} catch (error) {
+			console.error('Error in create:', error);
+			throw error;
+		}
 	}
 
 	async update(input: UpdateHealthRecordInput): Promise<HealthRecord> {
-		// TODO: Replace with Supabase update
-		// const { data, error } = await supabase
-		//   .from('health_records')
-		//   .update(input)
-		//   .eq('id', input.id)
-		//   .select()
-		//   .single();
+		try {
+			const { id, ...updateData } = input;
+			const { data, error } = await supabase
+				.from('health_records')
+				.update(updateData)
+				.eq('id', id)
+				.select()
+				.single();
 
-		await new Promise((resolve) => setTimeout(resolve, 500));
-		const existing = await this.getById(input.id);
-		if (!existing) {
-			throw new Error(`Health record ${input.id} not found`);
+			if (error) {
+				console.error('Error updating health record:', error);
+				throw error;
+			}
+
+			return data;
+		} catch (error) {
+			console.error('Error in update:', error);
+			throw error;
 		}
-		return {
-			...existing,
-			...input,
-			updatedAt: new Date().toISOString(),
-		};
 	}
 
 	async delete(id: string): Promise<void> {
-		// TODO: Replace with Supabase delete
-		// const { error } = await supabase
-		//   .from('health_records')
-		//   .delete()
-		//   .eq('id', id);
+		try {
+			const { error } = await supabase
+				.from('health_records')
+				.delete()
+				.eq('id', id);
 
-		await new Promise((resolve) => setTimeout(resolve, 500));
-		console.log(`Deleted health record ${id}`);
+			if (error) {
+				console.error('Error deleting health record:', error);
+				throw error;
+			}
+		} catch (error) {
+			console.error('Error in delete:', error);
+			throw error;
+		}
 	}
 }
