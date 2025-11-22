@@ -10,12 +10,26 @@ export const useUser = () => {
   return session?.user ?? null;
 };
 
+// Get the current site URL (works in both dev and production)
+const getSiteUrl = () => {
+  if (typeof window !== 'undefined') {
+    return window.location.origin;
+  }
+  return 'http://localhost:5173'; // Fallback for SSR
+};
+
 export async function signInWithEmail(email: string, password: string) {
   return await supabase.auth.signInWithPassword({ email, password });
 }
 
 export async function signUpWithEmail(email: string, password: string) {
-  return await supabase.auth.signUp({ email, password });
+  return await supabase.auth.signUp({ 
+    email, 
+    password,
+    options: {
+      emailRedirectTo: getSiteUrl(),
+    }
+  });
 }
 
 export async function signOut() {
@@ -23,5 +37,7 @@ export async function signOut() {
 }
 
 export async function resetPassword(email: string) {
-  return await supabase.auth.resetPasswordForEmail(email);
+  return await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: getSiteUrl(),
+  });
 }

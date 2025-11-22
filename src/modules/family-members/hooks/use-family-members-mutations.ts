@@ -1,4 +1,4 @@
-import { useAtom } from "jotai";
+import { useAtomValue } from "jotai";
 import {
   createFamilyLinkAtom,
   updateFamilyLinkAtom,
@@ -10,30 +10,26 @@ import {
  * Hook for creating a new family link
  */
 export function useCreateFamilyLink() {
-  const [mutation] = useAtom(createFamilyLinkAtom);
-  return mutation;
+  return useAtomValue(createFamilyLinkAtom);
 }
 
 /**
  * Hook for updating a family link
  */
 export function useUpdateFamilyLink() {
-  const [mutation] = useAtom(updateFamilyLinkAtom);
-  return mutation;
+  return useAtomValue(updateFamilyLinkAtom);
 }
 
 /**
  * Hook for deleting a family link
  */
 export function useDeleteFamilyLink() {
-  const [mutation] = useAtom(deleteFamilyLinkAtom);
-  return mutation;
+  return useAtomValue(deleteFamilyLinkAtom);
 }
 
 /**
  * Hook for searching a user by email
  */
 export function useSearchUserByEmail() {
-  const [mutation] = useAtom(searchUserByEmailAtom);
-  return mutation;
+  return useAtomValue(searchUserByEmailAtom);
 }

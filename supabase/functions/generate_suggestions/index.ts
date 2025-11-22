@@ -14,18 +14,55 @@ const corsHeaders = {
 };
 
 interface TriggerPayload {
-  type: "NEW_RECORD" | "PROFILE_UPDATE" | "BATCH_UPLOAD" | "MANUAL";
+  type: "NEW_RECORD" | "PROFILE_UPDATE" | "BATCH_UPLOAD" | "FILE_UPLOAD";
   user_id: string;
   record_id?: string;
+}
+
+type UrgencyLevel = "low" | "medium" | "high" | "critical";
+
+interface SuggestionSource {
+  record_id?: string | null;
+  label?: string;
+  relation?: string;
 }
 
 interface Suggestion {
   title: string;
   reason: string;
   action_type: string;
-  urgency_level: "low" | "medium" | "high" | "critical";
+  urgency_level: UrgencyLevel;
   category: "screening" | "medication" | "lifestyle" | "follow_up";
   validity_end_date?: string;
+  sources?: SuggestionSource[];
+}
+
+const URGENCY_PRIORITY: Record<UrgencyLevel, number> = {
+  critical: 0,
+  high: 1,
+  medium: 2,
+  low: 3,
+};
+
+function dedupeAndRankSuggestions(suggestions: Suggestion[]): Suggestion[] {
+  const seen = new Set<string>();
+  return suggestions
+    .filter((suggestion) => suggestion?.title && suggestion?.reason)
+    .filter((suggestion) => {
+      const key = `${suggestion.title.toLowerCase()}::${suggestion.category ?? "general"}`;
+      if (seen.has(key)) {
+        return false;
+      }
+      seen.add(key);
+      return true;
+    })
+    .sort((a, b) => {
+      const urgencyDiff =
+        (URGENCY_PRIORITY[a.urgency_level] ?? URGENCY_PRIORITY.low) -
+        (URGENCY_PRIORITY[b.urgency_level] ?? URGENCY_PRIORITY.low);
+      if (urgencyDiff !== 0) return urgencyDiff;
+      return (b.validity_end_date ?? "").localeCompare(a.validity_end_date ?? "");
+    });
 }
 
 /**
@@ -52,7 +89,7 @@ async function generateHolisticSuggestions(user_id: string) {
   // Fetch all user health records (optimized: only necessary columns)
   const { data: userRecords, error: recordsError } = await supabase
     .from("health_records")
-    .select("event_date, specialty, record_type, title, ai_interpretation")
+    .select("id, event_date, specialty, record_type, title, ai_interpretation")
     .eq("user_id", user_id)
     .order("event_date", { ascending: false });
 
@@ -86,7 +123,7 @@ async function generateHolisticSuggestions(user_id: string) {
       // Fetch Relative's Health Records (The "Deep Dive" - limit 20 per relative)
       const { data: relativeRecords } = await supabase
         .from("health_records")
-        .select("event_date, record_type, ai_interpretation")
+        .select("id, event_date, record_type, ai_interpretation")
         .eq("user_id", link.relative_user_id)
         .order("event_date", { ascending: false })
         .limit(20); // Safety cap to prevent token explosion
@@ -155,11 +192,30 @@ async function generateHolisticSuggestions(user_id: string) {
   }
 
   const cleanJson = JSON.parse(contentText.slice(jsonStart, jsonEnd)) as Suggestion[];
+  const finalSuggestions = dedupeAndRankSuggestions(cleanJson).map((suggestion) => ({
+    ...suggestion,
+    sources: Array.isArray(suggestion.sources)
+      ? suggestion.sources
+          .filter(
+            (source) =>
+              source !== null &&
+              source !== undefined &&
+              (source.record_id ||
+                source.label ||
+                source.relation)
+          )
+          .map((source) => ({
+            record_id: source?.record_id ?? null,
+            label: source?.label?.trim() || "Unknown source",
+            relation: source?.relation ?? "self",
+          }))
+      : [],
+  }));
 
-  console.log(`Generated ${cleanJson.length} suggestions`);
+  console.log(`Generated ${finalSuggestions.length} curated suggestions`);
 
   // 5. Save to Database
-  if (cleanJson.length > 0) {
+  if (finalSuggestions.length > 0) {
     // Delete all non-dismissed suggestions before inserting new ones (prevent duplicates)
     await supabase
       .from("suggestions")
@@ -168,7 +224,7 @@ async function generateHolisticSuggestions(user_id: string) {
       .eq("is_dismissed", false);
 
     // Map to DB schema
-    const dbRows = cleanJson.map((s: Suggestion) => ({
+    const dbRows = finalSuggestions.map((s: Suggestion) => ({
       user_id: user_id,
       title: s.title,
       reason: s.reason,
@@ -177,6 +233,7 @@ async function generateHolisticSuggestions(user_id: string) {
       category: s.category,
       validity_end_date: s.validity_end_date || null,
       source_family_id: null, // Could be enhanced to track which family member triggered this
+      source_records: s.sources || [],
     }));
 
     // Insert new suggestions
@@ -192,7 +249,7 @@ async function generateHolisticSuggestions(user_id: string) {
     console.log(`Successfully inserted ${dbRows.length} suggestions`);
   }
 
-  return cleanJson.length;
+  return finalSuggestions.length;
 }
 
 Deno.serve(async (req) => {

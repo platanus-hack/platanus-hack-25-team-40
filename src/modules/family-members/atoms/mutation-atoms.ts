@@ -1,6 +1,7 @@
 import { atomWithMutation } from "jotai-tanstack-query";
 import { gatewayFamilyMembersAtom } from "@/shared/atoms/gateway-atoms";
 import { sessionAtom } from "@/shared/atoms/auth-atoms";
+import { queryClient } from "@/shared/providers/query-client";
 import type {
   CreateFamilyLinkInput,
   UpdateFamilyLinkInput,
@@ -22,6 +23,10 @@ export const createFamilyLinkAtom = atomWithMutation((get) => {
       }
       return gateway.create(userId, input);
     },
+    onSuccess: () => {
+      // Invalidate family members queries to refetch updated data
+      queryClient.invalidateQueries({ queryKey: ["family-members"] });
+    },
   };
 });
 
@@ -35,6 +40,10 @@ export const updateFamilyLinkAtom = atomWithMutation((get) => {
     mutationFn: async (input: UpdateFamilyLinkInput) => {
       return gateway.update(input);
     },
+    onSuccess: () => {
+      // Invalidate family members queries to refetch updated data
+      queryClient.invalidateQueries({ queryKey: ["family-members"] });
+    },
   };
 });
 
@@ -47,6 +56,10 @@ export const deleteFamilyLinkAtom = atomWithMutation((get) => {
     mutationKey: ["delete-family-link"],
     mutationFn: async (id: string) => {
       return gateway.delete(id);
+    },
+    onSuccess: () => {
+      // Invalidate family members queries to refetch updated data
+      queryClient.invalidateQueries({ queryKey: ["family-members"] });
     },
   };
 });

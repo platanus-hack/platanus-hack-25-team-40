@@ -189,15 +189,15 @@ export class FamilyMembersGateway {
     }
   }
 
-  async searchByEmail(email: string): Promise<{ exists: boolean; userId?: string; email: string; name?: string } | null> {
+  async searchByEmail(query: string): Promise<{ exists: boolean; userId?: string; email: string; name?: string } | null> {
     try {
-      // Use the database function to search for users
+      // Use the database function to search for users by email or name
       const { data, error } = await supabase
-        .rpc('search_user_by_email', { search_email: email });
+        .rpc('search_user_by_email', { search_email: query });
 
       if (error) {
         console.error('Error searching for user:', error);
-        return { exists: false, email };
+        return { exists: false, email: query };
       }
 
       if (data && data.length > 0) {
@@ -210,7 +210,7 @@ export class FamilyMembersGateway {
         };
       }
 
-      return { exists: false, email };
+      return { exists: false, email: query };
     } catch (error) {
       console.error('Error in searchByEmail:', error);
       return null;

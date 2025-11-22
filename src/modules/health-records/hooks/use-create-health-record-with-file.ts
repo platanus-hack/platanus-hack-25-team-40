@@ -55,7 +55,7 @@ export function useCreateHealthRecordWithFile() {
         
         // Fire and forget: Trigger suggestions generation after record is created
         // This runs in the background and doesn't block the UI
-        triggerSuggestionsGeneration(user.id, "MANUAL");
+        triggerSuggestionsGeneration(user.id, "FILE_UPLOAD");
         
         return record;
       } catch (e) {
