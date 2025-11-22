@@ -102,7 +102,7 @@ async function analyzeText(text: string): Promise<AnalyzeRecordResponse> {
 
   const message = await anthropic.messages.create({
     model: "claude-sonnet-4-5",
-    max_tokens: 4096,
+    max_tokens: 8192, // Increased for large documents with many biomarkers
     messages: [
       {
         role: "user",
@@ -122,15 +122,35 @@ async function analyzeText(text: string): Promise<AnalyzeRecordResponse> {
     throw new Error("No text response from Claude");
   }
 
-  // Clean potential markdown formatting
+  // Clean potential markdown formatting and extract JSON
   let jsonText = textContent.text.trim();
+  
+  // Remove markdown code blocks
   if (jsonText.startsWith("```json")) {
     jsonText = jsonText.replace(/```json\n?/g, "").replace(/```\n?/g, "");
   } else if (jsonText.startsWith("```")) {
     jsonText = jsonText.replace(/```\n?/g, "");
   }
-
-  return JSON.parse(jsonText) as AnalyzeRecordResponse;
+  
+  // Try to extract JSON object if there's extra text around it
+  const jsonStart = jsonText.indexOf("{");
+  const jsonEnd = jsonText.lastIndexOf("}") + 1;
+  
+  if (jsonStart !== -1 && jsonEnd > jsonStart) {
+    jsonText = jsonText.slice(jsonStart, jsonEnd);
+  }
+  
+  // Log the JSON text for debugging (first 500 chars)
+  console.log("Attempting to parse JSON (first 500 chars):", jsonText.substring(0, 500));
+  
+  try {
+    return JSON.parse(jsonText) as AnalyzeRecordResponse;
+  } catch (parseError) {
+    console.error("JSON parse error:", parseError);
+    console.error("JSON text length:", jsonText.length);
+    console.error("JSON text around error position:", jsonText.substring(Math.max(0, 11100), Math.min(jsonText.length, 11200)));
+    throw new Error(`Failed to parse Claude's JSON response: ${parseError.message}. Response length: ${jsonText.length} chars. This might indicate the response was truncated due to token limits.`);
+  }
 }
 
 Deno.serve(async (req) => {
@@ -224,7 +244,7 @@ Deno.serve(async (req) => {
 
       const message = await anthropic.messages.create({
         model: "claude-sonnet-4-5",
-        max_tokens: 4096,
+        max_tokens: 8192, // Increased for large documents with many biomarkers
         messages: [
           {
             role: "user",
@@ -252,15 +272,36 @@ Deno.serve(async (req) => {
         throw new Error("No text response from Claude");
       }
 
-      // Clean potential markdown formatting
+      // Clean potential markdown formatting and extract JSON
       let jsonText = textContent.text.trim();
+      
+      // Remove markdown code blocks
       if (jsonText.startsWith("```json")) {
         jsonText = jsonText.replace(/```json\n?/g, "").replace(/```\n?/g, "");
       } else if (jsonText.startsWith("```")) {
         jsonText = jsonText.replace(/```\n?/g, "");
       }
-
-      const analysis: AnalyzeRecordResponse = JSON.parse(jsonText);
+      
+      // Try to extract JSON object if there's extra text around it
+      const jsonStart = jsonText.indexOf("{");
+      const jsonEnd = jsonText.lastIndexOf("}") + 1;
+      
+      if (jsonStart !== -1 && jsonEnd > jsonStart) {
+        jsonText = jsonText.slice(jsonStart, jsonEnd);
+      }
+      
+      // Log the JSON text for debugging (first 500 chars)
+      console.log("Attempting to parse JSON (first 500 chars):", jsonText.substring(0, 500));
+      
+      let analysis: AnalyzeRecordResponse;
+      try {
+        analysis = JSON.parse(jsonText) as AnalyzeRecordResponse;
+      } catch (parseError) {
+        console.error("JSON parse error:", parseError);
+        console.error("JSON text length:", jsonText.length);
+        console.error("JSON text around error position:", jsonText.substring(Math.max(0, 11100), Math.min(jsonText.length, 11200)));
+        throw new Error(`Failed to parse Claude's JSON response: ${parseError.message}. Response length: ${jsonText.length} chars. This might indicate the response was truncated due to token limits.`);
+      }
       console.log("Analysis complete");
       return new Response(JSON.stringify(analysis), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
