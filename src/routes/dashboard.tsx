@@ -1,15 +1,8 @@
-import { createFileRoute, redirect } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import Dashboard from "@/pages/dashboard";
-import { supabase } from "@/shared/utils/supabase";
+import { requireAuthAndCompleteProfile } from "@/shared/utils/route-guards";
 
 export const Route = createFileRoute("/dashboard")({
-  beforeLoad: async () => {
-    const { data } = await supabase.auth.getSession();
-    if (!data.session) {
-      throw redirect({
-        to: "/login",
-      });
-    }
-  },
-  component: Dashboard,
+	beforeLoad: requireAuthAndCompleteProfile,
+	component: Dashboard,
 });
