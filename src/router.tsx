@@ -8,7 +8,7 @@ export const router = createRouter({
   routeTree,
   defaultPreload: "intent",
   defaultPendingComponent: () => <LoadingScreen message="Loading..." />,
-  Wrap: ({ children }) => (
+  Wrap: ({ children }: { children: React.ReactNode }) => (
     <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
   ),
 });
