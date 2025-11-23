@@ -159,7 +159,6 @@ export function TimelineView() {
                                         </h4>
                                         <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1.5 flex-wrap">
                                           <span className="flex items-center gap-1 shrink-0">
-                                            <Calendar className="h-3 w-3" />
                                             {formatDate(record.date)}
                                           </span>
                                           {record.specialty &&

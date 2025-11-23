@@ -7,7 +7,8 @@ import {
 } from "@/shared/ui/dialog";
 import { Badge } from "@/shared/ui/badge";
 import { Button } from "@/shared/ui/button";
-import { Calendar, ExternalLink, AlertCircle } from "lucide-react";
+import { Calendar, AlertCircle } from "lucide-react";
+import { useNavigate } from "@tanstack/react-router";
 import type { HealthRecord } from "../types";
 
 interface TimelineRecordModalProps {
@@ -50,6 +51,7 @@ export function TimelineRecordModal({
   onOpenChange,
 }: TimelineRecordModalProps) {
   if (!record) return null;
+  const navigate = useNavigate();
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -109,14 +111,15 @@ export function TimelineRecordModal({
 
           {/* File Link */}
           {record.fileUrl && (
-            <div className="flex items-center justify-end pt-4 border-t">
+            <div className="flex items-center justify-end pt-4 border-t gap-2 flex-wrap">
               <Button
                 variant="outline"
                 className="gap-2 w-full sm:w-auto"
-                onClick={() => window.open(record.fileUrl!, "_blank")}
+                onClick={() =>
+                  navigate({ to: "/documents", search: { recordId: record.id } })
+                }
               >
-                <ExternalLink className="h-4 w-4" />
-                View Document
+                Go To Document
               </Button>
             </div>
           )}
