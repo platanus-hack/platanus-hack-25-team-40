@@ -1,5 +1,6 @@
 import { useAtomValue } from "jotai";
 import { useEffect, useMemo, useState } from "react";
+import { useSearch } from "@tanstack/react-router";
 import { healthRecordPublicUrlQueryAtom } from "@/modules/health-records/atoms/query-atoms";
 import { Button } from "@/shared/ui/button";
 import { Card } from "@/shared/ui/card";
@@ -21,19 +22,34 @@ const typeLabels: Record<string, string> = {
 export default function Documents() {
   const { data: records = [] } = useHealthRecordsQuery();
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const { recordId } = useSearch({ from: "/documents" });
 
   const documentRecords = useMemo(
     () => (records as HealthRecord[]).filter((r) => !!r.fileUrl),
     [records]
   );
 
-  // Auto-select first record having a file
-  // Depend only on documentRecords.length to avoid effect re-running on array identity changes
+  // If a recordId search param is present, prioritize it
   useEffect(() => {
-    if (!selectedId && documentRecords.length > 0) {
+    if (recordId) {
+      setSelectedId(recordId);
+    }
+  }, [recordId]);
+
+  // Fallback: auto-select first document if nothing selected
+  useEffect(() => {
+    if (!recordId && !selectedId && documentRecords.length > 0) {
       setSelectedId(documentRecords[0].id);
     }
-  }, [documentRecords.length, selectedId]);
+  }, [documentRecords.length, recordId, selectedId]);
+
+  // Scroll selected document into view in the list
+  useEffect(() => {
+    if (selectedId) {
+      const el = document.getElementById(`record-${selectedId}`);
+      el?.scrollIntoView({ block: "nearest" });
+    }
+  }, [selectedId]);
 
   const selectedRecord = useMemo(
     () => documentRecords.find((r: HealthRecord) => r.id === selectedId) || null,
@@ -70,9 +86,11 @@ export default function Documents() {
                 {documentRecords.map((rec: HealthRecord) => (
                   <button
                     key={rec.id}
+                    id={`record-${rec.id}`}
                     onClick={() => setSelectedId(rec.id)}
-                    className={`w-full text-left p-3 hover:bg-muted transition flex flex-col gap-1 ${rec.id === selectedId ? "bg-muted" : ""
-                      }`}
+                    className={`w-full text-left p-3 hover:bg-muted transition flex flex-col gap-1 ${
+                      rec.id === selectedId ? "bg-muted" : ""
+                    }`}
                   >
                     <div className="flex items-center justify-between">
                       <span className="font-medium line-clamp-1">{rec.title}</span>
