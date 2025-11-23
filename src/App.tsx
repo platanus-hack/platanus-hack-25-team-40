@@ -29,11 +29,22 @@ import {
 	SelectValue,
 } from "@/shared/ui/select";
 import { useTranslation } from "react-i18next";
+import { useEffect } from "react";
+import { detectBrowserLanguage } from "@/shared/i18n";
 
 function App() {
-	const { t } = useTranslation(["landing", "common"]);
+	const { t, i18n } = useTranslation(["landing", "common"]);
 	const [language, setLanguage] = useAtom(languageAtom);
 	const availableLanguages = useAtomValue(availableLanguagesAtom);
+
+	// Sync language changes to i18next
+	useEffect(() => {
+		const targetLang =
+			language === "system" ? detectBrowserLanguage() : language;
+		if (i18n.language !== targetLang) {
+			i18n.changeLanguage(targetLang);
+		}
+	}, [language, i18n]);
 
 	return (
 		<div className="min-h-screen bg-background">

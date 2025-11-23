@@ -14,9 +14,10 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/shared/ui/select";
+import { detectBrowserLanguage } from "@/shared/i18n";
 
 export default function Login() {
-	const { t } = useTranslation(["auth", "common"]);
+	const { t, i18n } = useTranslation(["auth", "common"]);
 	const [language, setLanguage] = useAtom(languageAtom);
 	const availableLanguages = useAtomValue(availableLanguagesAtom);
 	const router = useRouter();
@@ -26,6 +27,15 @@ export default function Login() {
 	const [error, setError] = useState<string | null>(null);
 	const [isSignUp, setIsSignUp] = useState(false);
 	const [emailSent, setEmailSent] = useState(false);
+
+	// Sync language changes to i18next
+	useEffect(() => {
+		const targetLang =
+			language === "system" ? detectBrowserLanguage() : language;
+		if (i18n.language !== targetLang) {
+			i18n.changeLanguage(targetLang);
+		}
+	}, [language, i18n]);
 
 	const checkProfileAndRedirect = useCallback(
 		async (userId: string) => {
