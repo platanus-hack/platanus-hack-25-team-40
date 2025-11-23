@@ -59,16 +59,16 @@ export default function CompleteProfile() {
 
 				<div className="space-y-2 text-center mb-8">
 					<h2 className="text-3xl font-bold tracking-tight">
-						{t("onboarding.title")}
+						{t("title")}
 					</h2>
-					<p className="text-muted-foreground">{t("onboarding.description")}</p>
+					<p className="text-muted-foreground">{t("description")}</p>
 				</div>
 
 				<form onSubmit={handleSubmit} className="space-y-6">
 					<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 						<div className="space-y-2">
 							<label htmlFor="name" className="text-sm font-medium">
-								{t("onboarding.fields.firstName")}{" "}
+								{t("fields.firstName")}{" "}
 								<span className="text-destructive">*</span>
 							</label>
 							<input
@@ -78,13 +78,13 @@ export default function CompleteProfile() {
 								onChange={(e) => setName(e.target.value)}
 								required
 								className="w-full rounded-lg border border-input bg-background px-4 py-2.5 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-								placeholder={t("onboarding.placeholders.firstName")}
+								placeholder={t("placeholders.firstName")}
 							/>
 						</div>
 
 						<div className="space-y-2">
 							<label htmlFor="lastName" className="text-sm font-medium">
-								{t("onboarding.fields.lastName")}{" "}
+								{t("fields.lastName")}{" "}
 								<span className="text-destructive">*</span>
 							</label>
 							<input
@@ -94,13 +94,13 @@ export default function CompleteProfile() {
 								onChange={(e) => setLastName(e.target.value)}
 								required
 								className="w-full rounded-lg border border-input bg-background px-4 py-2.5 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-								placeholder={t("onboarding.placeholders.lastName")}
+								placeholder={t("placeholders.lastName")}
 							/>
 						</div>
 
 						<div className="space-y-2">
 							<label htmlFor="birthDate" className="text-sm font-medium">
-								{t("onboarding.fields.dateOfBirth")}{" "}
+								{t("fields.dateOfBirth")}{" "}
 								<span className="text-destructive">*</span>
 							</label>
 							<input
@@ -116,7 +116,7 @@ export default function CompleteProfile() {
 
 						<div className="space-y-2">
 							<label htmlFor="biologicalSex" className="text-sm font-medium">
-								{t("onboarding.fields.biologicalSex")}{" "}
+								{t("fields.biologicalSex")}{" "}
 								<span className="text-destructive">*</span>
 							</label>
 							<select
@@ -126,22 +126,22 @@ export default function CompleteProfile() {
 								required
 								className="w-full rounded-lg border border-input bg-background px-4 py-2.5 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
 							>
-								<option value="">{t("onboarding.selectOptions.select")}</option>
+								<option value="">{t("selectOptions.select")}</option>
 								<option value="male">
-									{t("onboarding.selectOptions.male")}
+									{t("selectOptions.male")}
 								</option>
 								<option value="female">
-									{t("onboarding.selectOptions.female")}
+									{t("selectOptions.female")}
 								</option>
 								<option value="other">
-									{t("onboarding.selectOptions.other")}
+									{t("selectOptions.other")}
 								</option>
 							</select>
 						</div>
 
 						<div className="space-y-2">
 							<label htmlFor="bloodType" className="text-sm font-medium">
-								{t("onboarding.fields.bloodType")}
+								{t("fields.bloodType")}
 							</label>
 							<select
 								id="bloodType"
@@ -149,7 +149,7 @@ export default function CompleteProfile() {
 								onChange={(e) => setBloodType(e.target.value)}
 								className="w-full rounded-lg border border-input bg-background px-4 py-2.5 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
 							>
-								<option value="">{t("onboarding.selectOptions.select")}</option>
+								<option value="">{t("selectOptions.select")}</option>
 								<option value="A+">A+</option>
 								<option value="A-">A-</option>
 								<option value="B+">B+</option>
@@ -163,7 +163,7 @@ export default function CompleteProfile() {
 
 						<div className="space-y-2">
 							<label htmlFor="heightCm" className="text-sm font-medium">
-								{t("onboarding.fields.height")}
+								{t("fields.height")}
 							</label>
 							<input
 								id="heightCm"
@@ -173,13 +173,13 @@ export default function CompleteProfile() {
 								min="50"
 								max="300"
 								className="w-full rounded-lg border border-input bg-background px-4 py-2.5 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-								placeholder={t("onboarding.placeholders.height")}
+								placeholder={t("placeholders.height")}
 							/>
 						</div>
 
 						<div className="space-y-2 md:col-span-2">
 							<label htmlFor="weightKg" className="text-sm font-medium">
-								{t("onboarding.fields.weight")}
+								{t("fields.weight")}
 							</label>
 							<input
 								id="weightKg"
@@ -190,7 +190,7 @@ export default function CompleteProfile() {
 								max="500"
 								step="0.1"
 								className="w-full rounded-lg border border-input bg-background px-4 py-2.5 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-								placeholder={t("onboarding.placeholders.weight")}
+								placeholder={t("placeholders.weight")}
 							/>
 						</div>
 					</div>
@@ -208,12 +208,12 @@ export default function CompleteProfile() {
 							size="lg"
 							disabled={isPending}
 						>
-							{isPending ? t("common.actions.saving") : t("onboarding.button")}
+							{isPending ? t("common:actions.saving") : t("button")}
 						</Button>
 					</div>
 
 					<p className="text-center text-xs text-muted-foreground">
-						{t("onboarding.requiredNote")}
+						{t("requiredNote")}
 					</p>
 				</form>
 			</Card>

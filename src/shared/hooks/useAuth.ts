@@ -33,7 +33,25 @@ export async function signUpWithEmail(email: string, password: string) {
 }
 
 export async function signOut() {
-  return await supabase.auth.signOut();
+  // Sign out from Supabase
+  const { error } = await supabase.auth.signOut();
+  
+  if (error) {
+    console.error("Sign out error:", error);
+  }
+  
+  // Clear any cached data from localStorage that might persist
+  try {
+    // Clear Supabase auth tokens
+    const keysToRemove = Object.keys(localStorage).filter(
+      key => key.startsWith('sb-') || key.includes('supabase')
+    );
+    keysToRemove.forEach(key => localStorage.removeItem(key));
+  } catch (e) {
+    console.error("Error clearing localStorage:", e);
+  }
+  
+  return { error };
 }
 
 export async function resetPassword(email: string) {

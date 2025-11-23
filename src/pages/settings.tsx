@@ -92,7 +92,8 @@ export default function Settings() {
 			// This would need to be done via a server-side function or manually by an admin
 			alert(t("deleteDialog.successMessage"));
 			
-			router.navigate({ to: "/login" });
+			// Force a hard redirect to login page
+			window.location.href = "/login";
 		} catch (err) {
 			console.error("Unexpected error:", err);
 			alert("An error occurred while deleting your account. Please try again.");
