@@ -72,7 +72,7 @@ supabase secrets list
 
 ### analyze-record
 
-Analyzes medical records (PDFs, Audio recordings, or Text notes) using Claude AI (and Groq for audio transcription) to return structured data optimized for Chilean healthcare.
+Analyzes medical records (PDFs, Images, Audio recordings, or Text notes) using Claude AI (and Groq for audio transcription) to return structured data optimized for Chilean healthcare.
 
 **See:** [`analyze-record/README.md`](./analyze-record/README.md) for full documentation.
 

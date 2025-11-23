@@ -1,11 +1,12 @@
 # analyze-record Edge Function
 
-Analyzes medical records (PDFs, Audio recordings, or Text notes) using Claude AI (and Groq for audio transcription) to return structured data optimized for Chilean healthcare.
+Analyzes medical records (PDFs, Images, Audio recordings, or Text notes) using Claude AI (and Groq for audio transcription) to return structured data optimized for Chilean healthcare.
 
 ## Overview
 
-This function processes medical documents in three formats:
+This function processes medical documents in four formats:
 - **PDF**: Direct analysis using Claude's native PDF support
+- **Image**: Direct analysis using Claude's native image support (JPEG, PNG, WebP, GIF)
 - **Audio**: Transcription via Groq Whisper API, then analysis by Claude
 - **Text**: Direct analysis of text input
 
@@ -17,8 +18,8 @@ This function processes medical documents in three formats:
 
 ```typescript
 interface AnalyzeRecordRequest {
-  type: 'pdf' | 'audio' | 'text';
-  file_path?: string; // Required for 'pdf' and 'audio'. Path in storage (e.g., "user-id/file.pdf")
+  type: 'pdf' | 'image' | 'audio' | 'text';
+  file_path?: string; // Required for 'pdf', 'image', and 'audio'. Path in storage (e.g., "user-id/file.pdf")
   text_content?: string; // Required for 'text'. Direct text input.
 }
 ```
@@ -32,6 +33,16 @@ interface AnalyzeRecordRequest {
   "file_path": "user-123/exam.pdf"
 }
 ```
+
+### Image Analysis
+```json
+{
+  "type": "image",
+  "file_path": "user-123/prescription-photo.jpg"
+}
+```
+
+**Supported image formats:** JPEG, PNG, WebP, GIF (max 5MB recommended)
 
 ### Audio Analysis
 ```json
@@ -163,13 +174,13 @@ interface AnalyzeRecordResponse {
 Missing required fields:
 ```json
 {
-  "error": "type is required (pdf, audio, or text)"
+  "error": "type is required (pdf, image, audio, or text)"
 }
 ```
 or
 ```json
 {
-  "error": "file_path is required for pdf and audio types"
+  "error": "file_path is required for pdf, image, and audio types"
 }
 ```
 
@@ -198,12 +209,15 @@ Processing error:
 **Via Supabase Studio UI:**
 - Open `http://localhost:54323` → Storage → `health_records` bucket
 - Create folder: `test-user-123`
-- Upload your medical PDF or Audio file
+- Upload your medical PDF, Image, or Audio file
 
 **Via CLI:**
 ```bash
 supabase storage cp ./path/to/medical-report.pdf \
   health_records/test-user-123/lab-results.pdf
+
+supabase storage cp ./path/to/prescription-photo.jpg \
+  health_records/test-user-123/prescription-photo.jpg
 ```
 
 ### 2. Test the Function
@@ -216,6 +230,17 @@ curl -i http://localhost:54321/functions/v1/analyze-record \
   -d '{
     "type": "pdf",
     "file_path": "test-user-123/lab-results.pdf"
+  }'
+```
+
+**Test Image Analysis:**
+```bash
+curl -i http://localhost:54321/functions/v1/analyze-record \
+  -H "Authorization: Bearer YOUR_ANON_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "type": "image",
+    "file_path": "test-user-123/prescription-photo.jpg"
   }'
 ```
 
@@ -262,6 +287,14 @@ const { data, error } = await supabase.functions.invoke('analyze-record', {
   }
 });
 
+// Example: Analyze an image (after uploading to storage)
+const { data, error } = await supabase.functions.invoke('analyze-record', {
+  body: {
+    type: 'image',
+    file_path: 'user-123/prescription-photo.jpg'
+  }
+});
+
 // Example: Analyze text directly
 const { data, error } = await supabase.functions.invoke('analyze-record', {
   body: {
@@ -283,7 +316,9 @@ const { data, error } = await supabase.functions.invoke('analyze-record', {
 
 - Audio files are transcribed using Groq's Whisper API before analysis
 - PDFs are analyzed directly by Claude (native PDF support)
+- Images (JPEG, PNG, WebP, GIF) are analyzed directly by Claude (native image support)
 - Text input is analyzed directly by Claude
+- Image files should be under 5MB for optimal performance
 - Functions run on Deno runtime
 - CORS enabled for local development (`*` origin)
 - RLS policies respected when using user auth context

@@ -15,8 +15,8 @@ const corsHeaders = {
 };
 
 interface AnalyzeRecordRequest {
-  type: 'pdf' | 'audio' | 'text';
-  file_path?: string; // For PDF or Audio
+  type: 'pdf' | 'audio' | 'text' | 'image';
+  file_path?: string; // For PDF, Audio, or Image
   text_content?: string; // For direct text notes
 }
 
@@ -93,6 +93,21 @@ async function downloadFile(
 }
 
 /**
+ * Get image media type from file path
+ */
+function getImageMediaType(filePath: string): string {
+  const ext = filePath.split('.').pop()?.toLowerCase();
+  const mediaTypes: Record<string, string> = {
+    'jpg': 'image/jpeg',
+    'jpeg': 'image/jpeg',
+    'png': 'image/png',
+    'webp': 'image/webp',
+    'gif': 'image/gif',
+  };
+  return mediaTypes[ext || ''] || 'image/jpeg';
+}
+
+/**
  * Analyze text content using Claude
  */
 async function analyzeText(text: string): Promise<AnalyzeRecordResponse> {
@@ -165,7 +180,7 @@ Deno.serve(async (req) => {
 
     if (!type) {
       return new Response(
-        JSON.stringify({ error: "type is required (pdf, audio, or text)" }),
+        JSON.stringify({ error: "type is required (pdf, audio, text, or image)" }),
         {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
           status: 400,
@@ -174,9 +189,9 @@ Deno.serve(async (req) => {
     }
 
     // Validate request based on type
-    if ((type === 'pdf' || type === 'audio') && !file_path) {
+    if ((type === 'pdf' || type === 'audio' || type === 'image') && !file_path) {
       return new Response(
-        JSON.stringify({ error: "file_path is required for pdf and audio types" }),
+        JSON.stringify({ error: "file_path is required for pdf, audio, and image types" }),
         {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
           status: 400,
@@ -221,6 +236,93 @@ Deno.serve(async (req) => {
       const fileName = file_path!.split('/').pop() || "audio.webm";
       textToAnalyze = await transcribeAudio(audioData, fileName);
       console.log("Transcription complete");
+    } else if (type === 'image') {
+      // Image: Download and convert to base64 for Claude's native image support
+      console.log(`Downloading image: ${file_path}`);
+      const imageData = await downloadFile(supabaseClient, file_path!);
+      
+      // Convert ArrayBuffer to base64 in chunks to avoid call stack overflow
+      const uint8Array = new Uint8Array(imageData);
+      let binaryString = "";
+      const chunkSize = 8192;
+      for (let i = 0; i < uint8Array.length; i += chunkSize) {
+        const chunk = uint8Array.subarray(i, i + chunkSize);
+        binaryString += String.fromCharCode(...chunk);
+      }
+      const base64Image = btoa(binaryString);
+      const mediaType = getImageMediaType(file_path!);
+
+      // Send image directly to Claude (it supports images natively)
+      console.log("Sending image to Claude for analysis...");
+      const anthropic = new Anthropic({
+        apiKey: Deno.env.get("ANTHROPIC_API_KEY") ?? "",
+      });
+
+      const message = await anthropic.messages.create({
+        model: "claude-sonnet-4-5",
+        max_tokens: 8192,
+        messages: [
+          {
+            role: "user",
+            content: [
+              {
+                type: "image",
+                source: {
+                  type: "base64",
+                  media_type: mediaType,
+                  data: base64Image,
+                },
+              },
+              {
+                type: "text",
+                text: MEDICAL_ANALYSIS_USER_PROMPT,
+              },
+            ],
+          },
+        ],
+        system: MEDICAL_ANALYSIS_SYSTEM_PROMPT,
+      });
+
+      const textContent = message.content.find((block) => block.type === "text");
+      if (!textContent || textContent.type !== "text") {
+        throw new Error("No text response from Claude");
+      }
+
+      // Clean potential markdown formatting and extract JSON
+      let jsonText = textContent.text.trim();
+      
+      // Remove markdown code blocks
+      if (jsonText.startsWith("```json")) {
+        jsonText = jsonText.replace(/```json\n?/g, "").replace(/```\n?/g, "");
+      } else if (jsonText.startsWith("```")) {
+        jsonText = jsonText.replace(/```\n?/g, "");
+      }
+      
+      // Try to extract JSON object if there's extra text around it
+      const jsonStart = jsonText.indexOf("{");
+      const jsonEnd = jsonText.lastIndexOf("}") + 1;
+      
+      if (jsonStart !== -1 && jsonEnd > jsonStart) {
+        jsonText = jsonText.slice(jsonStart, jsonEnd);
+      }
+      
+      // Log the JSON text for debugging (first 500 chars)
+      console.log("Attempting to parse JSON (first 500 chars):", jsonText.substring(0, 500));
+      
+      let analysis: AnalyzeRecordResponse;
+      try {
+        analysis = JSON.parse(jsonText) as AnalyzeRecordResponse;
+      } catch (parseError) {
+        console.error("JSON parse error:", parseError);
+        console.error("JSON text length:", jsonText.length);
+        console.error("JSON text around error position:", jsonText.substring(Math.max(0, 11100), Math.min(jsonText.length, 11200)));
+        throw new Error(`Failed to parse Claude's JSON response: ${parseError.message}. Response length: ${jsonText.length} chars. This might indicate the response was truncated due to token limits.`);
+      }
+      console.log("Analysis complete");
+      return new Response(JSON.stringify(analysis), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 200,
+      });
     } else {
       // PDF: Download and convert to base64 for Claude's native PDF support
       console.log(`Downloading PDF: ${file_path}`);

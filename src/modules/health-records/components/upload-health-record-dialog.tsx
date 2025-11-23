@@ -110,14 +110,45 @@ export function UploadHealthRecordDialog({ open, onOpenChange }: UploadHealthRec
     setIsAnalyzingManual(true);
     setManualAnalysisError(null);
     try {
-      const { data, error } = await supabase.functions.invoke("analyze-record", {
+      const response = await supabase.functions.invoke("analyze-record", {
         body: {
           type: 'text',
           text_content: manualText,
         },
       });
-      if (error) throw error;
-      setManualAnalysisData(data);
+      
+      // Better error handling with clear messages
+      if (response.error) {
+        let errorMessage = "Failed to analyze text";
+        
+        // Extract meaningful error message
+        if (response.error.message) {
+          errorMessage = response.error.message;
+        }
+        
+        if (response.error.context) {
+          const ctx = response.error.context;
+          if (ctx.message) errorMessage = ctx.message;
+          if (ctx.error) errorMessage = ctx.error;
+        }
+        
+        // Make common errors more user-friendly
+        if (errorMessage.includes("No text response from Claude")) {
+          errorMessage = "AI analysis failed. Please try rephrasing your text.";
+        } else if (errorMessage.includes("Failed to parse")) {
+          errorMessage = "AI returned invalid data. Your text might be too complex.";
+        } else if (errorMessage.includes("token limit")) {
+          errorMessage = "Text is too long. Please shorten it and try again.";
+        } else if (errorMessage.includes("ANTHROPIC_API_KEY")) {
+          errorMessage = "AI service is not configured. Contact support.";
+        } else if (errorMessage.includes("text_content is required")) {
+          errorMessage = "Please enter some text before analyzing.";
+        }
+        
+        throw new Error(errorMessage);
+      }
+      
+      setManualAnalysisData(response.data);
     } catch (e) {
       const message = e instanceof Error ? e.message : 'Failed to analyze text';
       setManualAnalysisError(message);

@@ -18,15 +18,24 @@ export function useMultiFileUploadAndAnalysis() {
   const [batchError, setBatchError] = useState<string | null>(null);
 
   const setFiles = useCallback((files: File[]) => {
+    // Validate file sizes (5MB limit for images)
+    const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB in bytes
+    
     setItems(
-      files.map((f) => ({
-        file: f,
-        uploadStatus: "idle",
-        analyzeStatus: "idle",
-        fullPath: null,
-        analysisData: null,
-        error: null,
-      }))
+      files.map((f) => {
+        const ext = f.name.split(".").pop()?.toLowerCase();
+        const isImage = ["png", "jpg", "jpeg", "webp", "gif"].includes(ext || "");
+        const isTooBig = isImage && f.size > MAX_IMAGE_SIZE;
+        
+        return {
+          file: f,
+          uploadStatus: isTooBig ? "error" : "idle",
+          analyzeStatus: isTooBig ? "error" : "idle",
+          fullPath: null,
+          analysisData: null,
+          error: isTooBig ? `Image file too large (max 5MB). Current size: ${(f.size / 1024 / 1024).toFixed(1)}MB` : null,
+        };
+      })
     );
     setBatchError(null);
   }, []);
@@ -55,26 +64,74 @@ export function useMultiFileUploadAndAnalysis() {
             i === index ? { ...p, uploadStatus: "success", fullPath: uploadedPath } : p
           )
         );
-        // Derive simple type for edge function
+        // Derive type for edge function based on file extension
         const ext = item.file.name.split(".").pop()?.toLowerCase();
         const typeMap: Record<string, string> = {
           pdf: "pdf",
           png: "image",
           jpg: "image",
           jpeg: "image",
+          webp: "image",
+          gif: "image",
         };
         const derivedType = typeMap[ext || ""] || "pdf";
         // Analyze
         setItems((prev) =>
           prev.map((p, i) => (i === index ? { ...p, analyzeStatus: "analyzing" } : p))
         );
-        const { data: fnData, error: fnError } = await supabase.functions.invoke("analyze-record", {
+        const response = await supabase.functions.invoke("analyze-record", {
           body: {
             type: derivedType,
             file_path: uploadedPath,
           },
         });
-        if (fnError) throw fnError;
+        
+        // Better error handling with clear messages
+        if (response.error) {
+          // Log the full error for debugging
+          console.error("Edge function error:", response.error);
+          
+          // Extract meaningful error message from edge function
+          let errorMessage = "Failed to analyze document";
+          
+          // Check if error has a message property
+          if (response.error.message) {
+            errorMessage = response.error.message;
+          }
+          
+          // Try to extract more details from context
+          if (response.error.context) {
+            const ctx = response.error.context;
+            if (ctx.message) errorMessage = ctx.message;
+            if (ctx.error) errorMessage = ctx.error;
+          }
+          
+          // If the response.data contains error details, extract them
+          if (response.data && typeof response.data === 'object') {
+            if (response.data.error) errorMessage = response.data.error;
+            if (response.data.message) errorMessage = response.data.message;
+          }
+          
+          // Make common errors more user-friendly
+          if (errorMessage.includes("Failed to download file")) {
+            errorMessage = "Could not access the uploaded file. Please try again.";
+          } else if (errorMessage.includes("No text response from Claude")) {
+            errorMessage = "AI analysis failed. The document might be unreadable.";
+          } else if (errorMessage.includes("Failed to parse")) {
+            errorMessage = "AI returned invalid data. The document might be too complex.";
+          } else if (errorMessage.includes("token limit")) {
+            errorMessage = "Document is too large or complex to analyze.";
+          } else if (errorMessage.includes("ANTHROPIC_API_KEY")) {
+            errorMessage = "AI service is not configured. Contact support.";
+          } else if (errorMessage.includes("non-2xx")) {
+            // Generic Supabase error - try to be more helpful
+            errorMessage = "Analysis service error. Please check your internet connection and try again.";
+          }
+          
+          throw new Error(errorMessage);
+        }
+        
+        const fnData = response.data;
         setItems((prev) =>
           prev.map((p, i) =>
             i === index
