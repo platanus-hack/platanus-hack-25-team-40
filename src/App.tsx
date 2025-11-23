@@ -218,9 +218,7 @@ function App() {
 								</div>
 								<div>
 									<h3 className="font-semibold mb-2">
-										<span className="bg-gradient-to-b from-[#E6A85C] via-[#D9803F] to-[#D06B36] bg-clip-text text-transparent">
 											{t("landing:solution.steps.insights.title")}
-										</span>
 									</h3>
 									<p className="text-muted-foreground">
 										{t("landing:solution.steps.insights.description")}
