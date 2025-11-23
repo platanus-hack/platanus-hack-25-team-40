@@ -290,33 +290,41 @@ export function UploadHealthRecordDialog({ open, onOpenChange }: UploadHealthRec
 					<DialogDescription>{t("uploadDialog.description")}</DialogDescription>
 				</DialogHeader>
 
-				{/* Mode Toggle */}
-				<div className="flex gap-2 p-1 bg-muted rounded-lg">
-					<button
-						type="button"
-						onClick={() => setMode("file")}
-						className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-							mode === "file"
-								? "bg-background text-foreground shadow-sm"
-								: "text-muted-foreground hover:text-foreground"
-						}`}
-					>
-						<Upload className="h-4 w-4" />
-						{t("uploadDialog.uploadFiles")}
-					</button>
-					<button
-						type="button"
-						onClick={() => setMode("manual")}
-						className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-							mode === "manual"
-								? "bg-background text-foreground shadow-sm"
-								: "text-muted-foreground hover:text-foreground"
-						}`}
-					>
-						<FileText className="h-4 w-4" />
-						{t("uploadDialog.manualEntry")}
-					</button>
-				</div>
+				{/* Conditional Mode Toggle (hidden once any processing starts or after analysis) */}
+				{(() => {
+					const initialFileState = mode === 'file' && fileScreen === 'form' && items.length === 0 && !isBusyMulti;
+					const initialManualState = mode === 'manual' && !isAnalyzingManual && !manualAnalysisData;
+					const showModeToggle = initialFileState || initialManualState;
+					if (!showModeToggle) return null;
+					return (
+						<div className="flex gap-2 p-1 bg-muted rounded-lg">
+							<button
+								type="button"
+								onClick={() => setMode("file")}
+								className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+									mode === "file"
+										? "bg-background text-foreground shadow-sm"
+										: "text-muted-foreground hover:text-foreground"
+								}`}
+							>
+								<Upload className="h-4 w-4" />
+								{t("uploadDialog.uploadFiles")}
+							</button>
+							<button
+								type="button"
+								onClick={() => setMode("manual")}
+								className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+									mode === "manual"
+										? "bg-background text-foreground shadow-sm"
+										: "text-muted-foreground hover:text-foreground"
+								}`}
+							>
+								<FileText className="h-4 w-4" />
+								{t("uploadDialog.manualEntry")}
+							</button>
+						</div>
+					);
+				})()}
 				{/* BODY */}
 				{mode === "file" && (
 					<div className="space-y-4 flex-1 overflow-y-auto pr-1">
@@ -557,31 +565,55 @@ export function UploadHealthRecordDialog({ open, onOpenChange }: UploadHealthRec
 				{mode === "manual" && (
 					<div className="space-y-4 flex-1 overflow-y-auto pr-1">
 						{!manualAnalysisData ? (
-							<>
-								<div className="space-y-2">
-									<label className="text-sm font-medium" htmlFor="manual-text">
-										Medical Consultation Details *
-									</label>
-									<Textarea
-										id="manual-text"
-										placeholder={t("uploadDialog.consultationPlaceholder")}
-										value={manualText}
-										onChange={(e) => setManualText(e.target.value)}
-										rows={12}
-										className="resize-none"
-									/>
-									<p className="text-xs text-muted-foreground">
-										{t("uploadDialog.characters", { count: manualText.length })}
-									</p>
+							isAnalyzingManual ? (
+								<div className="space-y-3">
+									<p className="text-sm text-muted-foreground">{t('uploadDialog.processingText') || 'Procesando texto'}</p>
+									<div className="rounded-md border divide-y">
+										<div className="flex items-start justify-between p-3 gap-3">
+											<div className="flex-1 space-y-1">
+												<p className="text-sm font-medium truncate" title="Texto de usuario">Texto de usuario</p>
+												<div className="flex items-center gap-4 text-xs text-muted-foreground">
+													<div className="flex items-center gap-1">
+														<Loader2 className="h-4 w-4 animate-spin text-primary" />
+														<span>{t('uploadDialog.analyzing') || 'Analizando'}</span>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+									{manualAnalysisError && (
+										<div className="bg-red-50 border border-red-200 rounded-md p-3">
+											<p className="text-sm text-red-800">{manualAnalysisError}</p>
+										</div>
+									)}
 								</div>
-								{manualAnalysisError && (
-									<div className="bg-red-50 border border-red-200 rounded-md p-3">
-										<p className="text-sm text-red-800">
-											{manualAnalysisError}
+							) : (
+								<>
+									<div className="space-y-2">
+										<label className="text-sm font-medium" htmlFor="manual-text">
+											Medical Consultation Details *
+										</label>
+										<Textarea
+											id="manual-text"
+											placeholder={t("uploadDialog.consultationPlaceholder")}
+											value={manualText}
+											onChange={(e) => setManualText(e.target.value)}
+											rows={12}
+											className="resize-none"
+										/>
+										<p className="text-xs text-muted-foreground">
+											{t("uploadDialog.characters", { count: manualText.length })}
 										</p>
 									</div>
-								)}
-							</>
+									{manualAnalysisError && (
+										<div className="bg-red-50 border border-red-200 rounded-md p-3">
+											<p className="text-sm text-red-800">
+												{manualAnalysisError}
+											</p>
+										</div>
+									)}
+								</>
+							)
 						) : (
 							<div className="space-y-3">
 								<div className="flex items-center justify-between">
@@ -650,24 +682,18 @@ export function UploadHealthRecordDialog({ open, onOpenChange }: UploadHealthRec
 											</p>
 										</div>
 									)}
-									{manualAnalysisData?.ai_interpretation?.biomarkers?.length >
-										0 && (
+									{manualAnalysisData?.ai_interpretation?.biomarkers?.length > 0 && (
 										<div className="p-3 bg-muted/30">
 											<p className="text-xs text-muted-foreground mb-2">
 												{t("uploadDialog.biomarkersDetected")}
 											</p>
 											<div className="space-y-2">
-												{manualAnalysisData.ai_interpretation.biomarkers.map(
-													(b: any, idx: number) => (
-														<div key={idx} className="text-xs">
-															<span className="font-medium">{b.name}:</span>{" "}
-															{b.value} {b.unit}
-															<span className="ml-2 text-muted-foreground">
-																({b.status})
-															</span>
-														</div>
-													)
-												)}
+												{manualAnalysisData.ai_interpretation.biomarkers.map((b: any, idx: number) => (
+													<div key={idx} className="text-xs">
+														<span className="font-medium">{b.name}:</span> {b.value} {b.unit}
+														<span className="ml-2 text-muted-foreground">({b.status})</span>
+													</div>
+												))}
 											</div>
 										</div>
 									)}
@@ -722,24 +748,20 @@ export function UploadHealthRecordDialog({ open, onOpenChange }: UploadHealthRec
 									: t("uploadDialog.uploadAnalyze")}
 							</Button>
 						)}
-						{mode === "file" &&
-							fileScreen === "status" &&
-							items.some((i) => i.analyzeStatus === "success") && (
-								<Button
-									onClick={handleSaveAll}
-									disabled={isSaving}
-									className="gap-2"
-								>
-									{isSaving ? (
-										<Loader2 className="h-4 w-4 animate-spin" />
-									) : (
-										<CheckCircle2 className="h-4 w-4" />
-									)}
-									{isSaving
-										? t("uploadDialog.saving")
-										: t("uploadDialog.saveAll")}
-								</Button>
-							)}
+						{mode === "file" && fileScreen === "status" && items.length > 0 && items.every(i => ['success','error'].includes(i.uploadStatus) && ['success','error'].includes(i.analyzeStatus)) && (
+							<Button
+								onClick={handleSaveAll}
+								disabled={isSaving || !items.some(i => i.analyzeStatus === 'success')}
+								className="gap-2"
+							>
+								{isSaving ? (
+									<Loader2 className="h-4 w-4 animate-spin" />
+								) : (
+									<CheckCircle2 className="h-4 w-4" />
+								)}
+								{isSaving ? t("uploadDialog.saving") : t("uploadDialog.saveAll")}
+							</Button>
+						)}
 						{mode === "manual" && !manualAnalysisData && (
 							<Button
 								onClick={handleManualAnalyze}
