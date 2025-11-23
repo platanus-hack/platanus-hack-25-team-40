@@ -22,6 +22,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       } else {
         setAuthLoadingState("unauthenticated");
       }
+
+      // Handle sign out event explicitly
+      if (event === "SIGNED_OUT") {
+        console.log("User signed out, clearing state");
+        setSession(null);
+        setAuthLoadingState("unauthenticated");
+      }
     });
 
     return () => subscription.unsubscribe();

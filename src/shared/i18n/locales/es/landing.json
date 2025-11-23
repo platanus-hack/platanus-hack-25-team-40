@@ -1,0 +1,98 @@
+{
+	"badge": "Digitalizando Registros de Salud Heredados con IA",
+	"hero": {
+		"title": "Tu Bóveda Personal de Salud",
+		"subtitle": "Potenciada por Información Familiar",
+		"description": "Almacena, comprende y obtén información de tus registros médicos y la información de salud compartida de tu familia—todo impulsado por IA.",
+		"cta": {
+			"start": "Comienza tu Bóveda de Salud",
+			"demo": "Ver Demo"
+		}
+	},
+	"problem": {
+		"badge": "El Desafío de lo Heredado",
+		"title": "Tu Historial de Salud está Perdido en Papel y PDFs",
+		"description": "Los registros médicos siguen siendo el último gran legado sin digitalizar. Archivos de papel, escritura ilegible, PDFs dispersos entre proveedores—fragmentados e inaccesibles cuando más los necesitas.",
+		"cards": {
+			"fragmented": {
+				"title": "Registros Fragmentados",
+				"description": "Informes en papel, fotos, PDFs en múltiples proveedores. Ninguna fuente única de verdad."
+			},
+			"jargon": {
+				"title": "Jerga Médica",
+				"description": "Terminología densa que crea confusión en lugar de claridad para ti y tu familia."
+			},
+			"context": {
+				"title": "Sin Contexto Familiar",
+				"description": "Patrones hereditarios ignorados. El historial de salud de tu familia podría informar tu cuidado preventivo."
+			}
+		}
+	},
+	"solution": {
+		"badge": "La Solución",
+		"title": "Transforma Registros Heredados en Inteligencia Digital",
+		"description": "Usamos IA para digitalizar y organizar documentos heredados desordenados—fotos de papel, notas escritas a mano, PDFs antiguos—transformándolos en una línea de tiempo de salud clara y buscable con información en lenguaje sencillo.",
+		"steps": {
+			"upload": {
+				"title": "Subir y Organizar",
+				"description": "Sube tus documentos médicos—PDFs, fotos, escáneres. La IA categoriza automáticamente por tipo, extrae fechas y organiza todo."
+			},
+			"translate": {
+				"title": "Explicaciones Claras",
+				"description": "Ve tu documento médico en un lado, con una explicación en lenguaje sencillo en el otro. No más ansiedad por jerga médica."
+			},
+			"insights": {
+				"title": "Información Personal y Familiar",
+				"description": "Obtén información de tu propia línea de tiempo de salud y patrones de salud familiares opcionales para un mejor cuidado preventivo."
+			}
+		},
+		"before": "Antes",
+		"after": "Después"
+	},
+	"features": {
+		"title": "Construido para Ti y Tu Familia",
+		"cards": {
+			"vault": {
+				"badge": "Bóveda Inteligente",
+				"title": "Tu Línea de Tiempo de Salud",
+				"description": "Un sistema inteligente que organiza tu historial médico cronológicamente y aprende tus patrones de salud con el tiempo."
+			},
+			"translator": {
+				"badge": "Traductor IA",
+				"title": "Convierte Confusión en Claridad",
+				"description": "Vista dividida: documento médico a la izquierda, explicación en lenguaje sencillo a la derecha. Comprensión instantánea."
+			},
+			"family": {
+				"badge": "Vínculo Familiar",
+				"title": "Información de Salud Compartida",
+				"description": "Conexiones familiares opcionales proporcionan contexto para patrones hereditarios. Prevención a través del conocimiento compartido."
+			},
+			"privacy": {
+				"badge": "Privacidad Primero",
+				"title": "Tus Datos, Tu Control",
+				"description": "Cifrado de extremo a extremo. Cumplimiento HIPAA. Comparte en tus términos con familia o proveedores de salud."
+			},
+			"timeline": {
+				"badge": "Vista de Línea de Tiempo",
+				"title": "Tu Historia de Salud",
+				"description": "Visualización cronológica de cada prueba, diagnóstico y tratamiento a lo largo de tu viaje de salud."
+			},
+			"ai": {
+				"badge": "IA Multimodal",
+				"title": "Entiende Todo",
+				"description": "Fotos, escritura a mano, PDFs, resultados de laboratorio. Si está relacionado con la salud, podemos procesarlo y explicarlo."
+			}
+		}
+	},
+	"cta": {
+		"title": "Comienza a Construir tu Bóveda de Salud",
+		"description": "Toma control de tus datos de salud. Gratis para comenzar. No se requiere tarjeta de crédito.",
+		"buttons": {
+			"start": "Comenzar Gratis",
+			"contact": "Habla con Nosotros"
+		}
+	},
+	"footer": {
+		"subtitle": "Tu bóveda personal de salud, potenciada por información familiar"
+	}
+}

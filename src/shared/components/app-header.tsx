@@ -12,8 +12,15 @@ export function AppHeader() {
 	const { data: profile } = useProfileQuery();
 
 	const handleSignOut = async () => {
-		await signOut();
-		router.navigate({ to: "/login" });
+		try {
+			await signOut();
+			// Force a hard redirect to login page to ensure session is cleared
+			window.location.href = "/login";
+		} catch (error) {
+			console.error("Sign out error:", error);
+			// Navigate anyway in case of error
+			window.location.href = "/login";
+		}
 	};
 
 	const displayName = profile?.name || user?.email || "User";

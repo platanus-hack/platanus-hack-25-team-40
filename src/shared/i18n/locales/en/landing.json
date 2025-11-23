@@ -1,0 +1,98 @@
+{
+	"badge": "Digitizing Legacy Health Records with AI",
+	"hero": {
+		"title": "Your Personal Health Vault",
+		"subtitle": "Enhanced by Family Insights",
+		"description": "Store, understand, and gain insights from your medical records and your family's shared health information—all powered by AI.",
+		"cta": {
+			"start": "Start Your Health Vault",
+			"demo": "Watch Demo"
+		}
+	},
+	"problem": {
+		"badge": "The Legacy Challenge",
+		"title": "Your Health History is Lost in Paper and PDFs",
+		"description": "Medical records remain the last great un-digitized legacy. Paper files, illegible handwriting, scattered PDFs across providers—fragmented and inaccessible when you need them most.",
+		"cards": {
+			"fragmented": {
+				"title": "Fragmented Records",
+				"description": "Paper reports, photos, PDFs across multiple providers. No single source of truth."
+			},
+			"jargon": {
+				"title": "Medical Jargon",
+				"description": "Dense terminology that creates confusion instead of clarity for you and your family."
+			},
+			"context": {
+				"title": "No Family Context",
+				"description": "Hereditary patterns ignored. Your family's health history could inform your preventive care."
+			}
+		}
+	},
+	"solution": {
+		"badge": "The Solution",
+		"title": "Transform Legacy Records into Digital Intelligence",
+		"description": "We use AI to digitize and organize messy legacy documents—photos of paper, handwritten notes, old PDFs—transforming them into a clear, searchable health timeline with plain-English insights.",
+		"steps": {
+			"upload": {
+				"title": "Upload & Organize",
+				"description": "Drop your medical documents—PDFs, photos, scans. AI automatically categorizes by type, extracts dates, and organizes everything."
+			},
+			"translate": {
+				"title": "Clear Explanations",
+				"description": "View your medical document on one side, with a plain-English explanation on the other. No more medical jargon anxiety."
+			},
+			"insights": {
+				"title": "Personal & Family Insights",
+				"description": "Get insights from your own health timeline and optional family health patterns for better preventive care."
+			}
+		},
+		"before": "Before",
+		"after": "After"
+	},
+	"features": {
+		"title": "Built for You and Your Family",
+		"cards": {
+			"vault": {
+				"badge": "Smart Vault",
+				"title": "Your Health Timeline",
+				"description": "An intelligent system that organizes your medical history chronologically and learns your health patterns over time."
+			},
+			"translator": {
+				"badge": "AI Translator",
+				"title": "Turn Confusion into Clarity",
+				"description": "Split-screen view: medical document on the left, plain-English explanation on the right. Instant understanding."
+			},
+			"family": {
+				"badge": "Family Link",
+				"title": "Shared Health Insights",
+				"description": "Optional family connections provide context for hereditary patterns. Prevention through shared knowledge."
+			},
+			"privacy": {
+				"badge": "Privacy First",
+				"title": "Your Data, Your Control",
+				"description": "End-to-end encryption. HIPAA-compliant. Share on your terms with family or healthcare providers."
+			},
+			"timeline": {
+				"badge": "Timeline View",
+				"title": "Your Health Story",
+				"description": "Chronological visualization of every test, diagnosis, and treatment across your health journey."
+			},
+			"ai": {
+				"badge": "Multimodal AI",
+				"title": "Understands Everything",
+				"description": "Photos, handwriting, PDFs, lab results. If it's health-related, we can process and explain it."
+			}
+		}
+	},
+	"cta": {
+		"title": "Start Building Your Health Vault",
+		"description": "Take control of your health data. Free to start. No credit card required.",
+		"buttons": {
+			"start": "Get Started Free",
+			"contact": "Talk to Us"
+		}
+	},
+	"footer": {
+		"subtitle": "Your personal health vault, enhanced by family insights"
+	}
+}

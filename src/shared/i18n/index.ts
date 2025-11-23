@@ -10,6 +10,7 @@ import enSettings from "./locales/en/settings.json";
 import enHealthRecords from "./locales/en/health-records.json";
 import enFamily from "./locales/en/family.json";
 import enSuggestions from "./locales/en/suggestions.json";
+import enLanding from "./locales/en/landing.json";
 
 import esCommon from "./locales/es/common.json";
 import esAuth from "./locales/es/auth.json";
@@ -20,6 +21,7 @@ import esSettings from "./locales/es/settings.json";
 import esHealthRecords from "./locales/es/health-records.json";
 import esFamily from "./locales/es/family.json";
 import esSuggestions from "./locales/es/suggestions.json";
+import esLanding from "./locales/es/landing.json";
 
 export const SUPPORTED_LANGUAGES = {
 	en: { name: "English", nativeName: "English" },
@@ -51,6 +53,7 @@ i18n.use(initReactI18next).init({
 			healthRecords: enHealthRecords,
 			family: enFamily,
 			suggestions: enSuggestions,
+			landing: enLanding,
 		},
 		es: {
 			common: esCommon,
@@ -62,6 +65,7 @@ i18n.use(initReactI18next).init({
 			healthRecords: esHealthRecords,
 			family: esFamily,
 			suggestions: esSuggestions,
+			landing: esLanding,
 		},
 	},
 	lng: "en",
@@ -77,6 +81,7 @@ i18n.use(initReactI18next).init({
 		"healthRecords",
 		"family",
 		"suggestions",
+		"landing",
 	],
 	interpolation: {
 		escapeValue: false,
