@@ -1,0 +1,26 @@
+{
+	"title": "Dashboard",
+	"welcome": "Welcome to Your Personal Health Vault",
+	"description": "Manage your health information and gain insights from your personal history and your family's shared medical records.",
+	"quickActions": "Quick Actions",
+	"cards": {
+		"myProfile": {
+			"title": "My Profile",
+			"description": "View and manage your personal health information",
+			"button": "View Profile",
+			"bloodType": "Blood Type"
+		},
+		"uploadRecords": {
+			"title": "Upload Records",
+			"description": "Drop PDFs, photos, or scans of medical documents",
+			"button": "Upload Files",
+			"badge": "New"
+		},
+		"viewTimeline": {
+			"title": "View Timeline",
+			"description": "Browse your personal and family health history chronologically",
+			"button": "Open Timeline"
+		}
+	},
+	"aiInsights": "AI Health Insights"
+}

@@ -1,0 +1,27 @@
+{
+  "title": "Complete Your Profile",
+  "description": "Help us personalize your health experience with a few more details",
+  "fields": {
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "dateOfBirth": "Date of Birth",
+    "biologicalSex": "Biological Sex",
+    "bloodType": "Blood Type",
+    "height": "Height (cm)",
+    "weight": "Weight (kg)"
+  },
+  "placeholders": {
+    "firstName": "John",
+    "lastName": "Doe",
+    "height": "170",
+    "weight": "70.5"
+  },
+  "selectOptions": {
+    "select": "Select...",
+    "male": "Male",
+    "female": "Female",
+    "other": "Other"
+  },
+  "button": "Complete Profile",
+  "requiredNote": "Fields marked with * are required"
+}

@@ -1,0 +1,55 @@
+{
+  "title": "Family Members",
+  "description": "Manage your family members and their health records",
+  "addMember": "Add Family Member",
+  "editMember": "Edit Family Member",
+  "dialog": {
+    "description": "Manage your family members and their roles in your health vault.",
+    "currentMembers": "Current Members",
+    "loading": "Loading family members...",
+    "noMembers": "No family members yet. Add your first member below.",
+    "addNew": "Add New Member",
+    "searchLabel": "Search by Email or Name",
+    "searchPlaceholder": "Enter email or name...",
+    "searchButton": "Search",
+    "searching": "Searching...",
+    "adding": "Adding...",
+    "userFound": "User found",
+    "userNotRegistered": "User not registered",
+    "mustRegister": "They must create an Oregon Health account first.",
+    "selectRelationship": "Select a relationship",
+    "searchFirst": "Please search for the user first by clicking the search button.",
+    "notRegisteredAlert": "{{email}} is not registered in Oregon Health yet. They must create an account before you can add them as a family member.",
+    "confirmDelete": "Are you sure you want to remove {{name}}?"
+  },
+  "fields": {
+    "name": "Name",
+    "relationship": "Relationship",
+    "dateOfBirth": "Date of Birth",
+    "biologicalSex": "Biological Sex",
+    "bloodType": "Blood Type"
+  },
+  "placeholders": {
+    "name": "Enter name",
+    "selectRelationship": "Select relationship",
+    "selectSex": "Select sex",
+    "selectBloodType": "Select blood type"
+  },
+  "relationships": {
+    "parent": "Parent",
+    "child": "Child",
+    "spouse": "Spouse",
+    "sibling": "Sibling",
+    "grandparent": "Grandparent",
+    "grandchild": "Grandchild",
+    "other": "Other"
+  },
+  "noMembers": "No family members added yet",
+  "addFirstMember": "Add your first family member to start tracking their health records",
+  "messages": {
+    "memberAdded": "Family member added successfully",
+    "memberUpdated": "Family member updated successfully",
+    "memberDeleted": "Family member deleted successfully",
+    "confirmDelete": "Are you sure you want to delete this family member?"
+  }
+}

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Dialog,
   DialogContent,
@@ -28,6 +29,7 @@ interface FamilyMembersDialogProps {
 }
 
 export function FamilyMembersDialog({ open, onOpenChange }: FamilyMembersDialogProps) {
+  const { t } = useTranslation(["family", "common"]);
   const { data: familyMembers, isLoading } = useFamilyMembers();
   const createLink = useCreateFamilyLink();
   const deleteLink = useDeleteFamilyLink();
@@ -57,14 +59,12 @@ export function FamilyMembersDialog({ open, onOpenChange }: FamilyMembersDialogP
 
     // Check if user exists in our database
     if (!searchResult) {
-      alert("Please search for the user first by clicking the search button.");
+      alert(t("family:dialog.searchFirst"));
       return;
     }
 
     if (!searchResult.exists) {
-      alert(
-        `${searchQuery} is not registered in Oregon Health yet. They must create an account before you can add them as a family member.`
-      );
+      alert(t("family:dialog.notRegisteredAlert", { email: searchQuery }));
       return;
     }
 
@@ -90,7 +90,7 @@ export function FamilyMembersDialog({ open, onOpenChange }: FamilyMembersDialogP
   };
 
   const handleDeleteMember = async (member: FamilyMember) => {
-    if (!confirm(`Are you sure you want to remove ${member.name}?`)) return;
+    if (!confirm(t("family:dialog.confirmDelete", { name: member.name }))) return;
 
     try {
       await deleteLink.mutateAsync(member.id);
@@ -105,23 +105,23 @@ export function FamilyMembersDialog({ open, onOpenChange }: FamilyMembersDialogP
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Users className="h-5 w-5" />
-            Family Members
+            {t("family:title")}
           </DialogTitle>
           <DialogDescription>
-            Manage your family members and their roles in your health vault.
+            {t("family:dialog.description")}
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-6">
-          {/* Current Family Members List */}
+          {/* Current {t("family:title")} List */}
           <div className="space-y-3">
             <h3 className="text-sm font-semibold text-muted-foreground">
-              Current Members ({familyMembers?.length || 0})
+              {t("family:dialog.currentMembers")} ({familyMembers?.length || 0})
             </h3>
             
             {isLoading ? (
               <div className="text-sm text-muted-foreground py-8 text-center">
-                Loading family members...
+                {t("family:dialog.loading")}
               </div>
             ) : familyMembers && familyMembers.length > 0 ? (
               <div className="space-y-2">
@@ -157,28 +157,28 @@ export function FamilyMembersDialog({ open, onOpenChange }: FamilyMembersDialogP
               </div>
             ) : (
               <div className="text-sm text-muted-foreground py-8 text-center border rounded-lg border-dashed">
-                No family members yet. Add your first member below.
+                {t("family:dialog.noMembers")}
               </div>
             )}
           </div>
 
-          {/* Add New Member Form */}
+          {/* {t("family:dialog.addNew")} Form */}
           <div className="space-y-4 pt-4 border-t">
             <h3 className="text-sm font-semibold text-muted-foreground flex items-center gap-2">
               <UserPlus className="h-4 w-4" />
-              Add New Member
+              {t("family:dialog.addNew")}
             </h3>
 
             <div className="space-y-3">
               <div className="space-y-2">
                 <label htmlFor="search-query" className="text-sm font-medium">
-                  Search by Email or Name
+                  {t("family:dialog.searchLabel")}
                 </label>
                 <div className="flex gap-2">
                   <Input
                     id="search-query"
                     type="text"
-                    placeholder="Enter email or name..."
+                    placeholder={t("family:dialog.searchPlaceholder")}
                     value={searchQuery}
                     onChange={(e) => {
                       setSearchQuery(e.target.value);
@@ -198,7 +198,7 @@ export function FamilyMembersDialog({ open, onOpenChange }: FamilyMembersDialogP
                     className="gap-2"
                   >
                     <Search className="h-4 w-4" />
-                    {searchUserMutation.isPending ? "Searching..." : "Search"}
+                    {searchUserMutation.isPending ? t("family:dialog.searching") : t("family:dialog.searchButton")}
                   </Button>
                 </div>
                 
@@ -212,7 +212,7 @@ export function FamilyMembersDialog({ open, onOpenChange }: FamilyMembersDialogP
                       <>
                         <CheckCircle2 className="h-4 w-4 mt-0.5 shrink-0" />
                         <div className="flex-1">
-                          <p className="font-medium">{searchResult.name || 'User found'}</p>
+                          <p className="font-medium">{searchResult.name || t("family:dialog.userFound")}</p>
                           <p className="text-xs opacity-90">{searchResult.email}</p>
                         </div>
                       </>
@@ -220,8 +220,8 @@ export function FamilyMembersDialog({ open, onOpenChange }: FamilyMembersDialogP
                       <>
                         <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" />
                         <div>
-                          <p className="font-medium">User not registered</p>
-                          <p className="text-xs opacity-90">They must create an Oregon Health account first.</p>
+                          <p className="font-medium">{t("family:dialog.userNotRegistered")}</p>
+                          <p className="text-xs opacity-90">{t("family:dialog.mustRegister")}</p>
                         </div>
                       </>
                     )}
@@ -231,11 +231,11 @@ export function FamilyMembersDialog({ open, onOpenChange }: FamilyMembersDialogP
 
               <div className="space-y-2">
                 <label htmlFor="member-role" className="text-sm font-medium">
-                  Relationship
+                  {t("family:fields.relationship")}
                 </label>
                 <Select value={selectedRole} onValueChange={(value: string) => setSelectedRole(value as FamilyRole)}>
                   <SelectTrigger id="member-role">
-                    <SelectValue placeholder="Select a relationship" />
+                    <SelectValue placeholder={t("family:dialog.selectRelationship")} />
                   </SelectTrigger>
                   <SelectContent>
                     {getAllFamilyRoles().map((role) => (
@@ -253,7 +253,7 @@ export function FamilyMembersDialog({ open, onOpenChange }: FamilyMembersDialogP
                 className="w-full gap-2"
               >
                 <UserPlus className="h-4 w-4" />
-                {isAdding ? "Adding..." : "Add Family Member"}
+                {isAdding ? t("family:dialog.adding") : t("family:addMember")}
               </Button>
             </div>
           </div>

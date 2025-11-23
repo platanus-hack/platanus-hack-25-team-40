@@ -1,0 +1,55 @@
+{
+  "title": "Miembros de la Familia",
+  "description": "Gestiona los miembros de tu familia y sus registros de salud",
+  "addMember": "Agregar Miembro de la Familia",
+  "editMember": "Editar Miembro de la Familia",
+  "dialog": {
+    "description": "Gestiona a los miembros de tu familia y sus roles en tu bóveda de salud.",
+    "currentMembers": "Miembros Actuales",
+    "loading": "Cargando miembros de la familia...",
+    "noMembers": "Aún no hay miembros de la familia. Agrega tu primer miembro a continuación.",
+    "addNew": "Agregar Nuevo Miembro",
+    "searchLabel": "Buscar por Correo o Nombre",
+    "searchPlaceholder": "Ingresa correo o nombre...",
+    "searchButton": "Buscar",
+    "searching": "Buscando...",
+    "adding": "Agregando...",
+    "userFound": "Usuario encontrado",
+    "userNotRegistered": "Usuario no registrado",
+    "mustRegister": "Primero deben crear una cuenta de Oregon Health.",
+    "selectRelationship": "Selecciona una relación",
+    "searchFirst": "Por favor busca al usuario primero haciendo clic en el botón de búsqueda.",
+    "notRegisteredAlert": "{{email}} no está registrado en Oregon Health todavía. Deben crear una cuenta antes de que puedas agregarlos como miembro familiar.",
+    "confirmDelete": "¿Estás seguro de que quieres eliminar a {{name}}?"
+  },
+  "fields": {
+    "name": "Nombre",
+    "relationship": "Parentesco",
+    "dateOfBirth": "Fecha de Nacimiento",
+    "biologicalSex": "Sexo Biológico",
+    "bloodType": "Tipo de Sangre"
+  },
+  "placeholders": {
+    "name": "Ingresar nombre",
+    "selectRelationship": "Seleccionar parentesco",
+    "selectSex": "Seleccionar sexo",
+    "selectBloodType": "Seleccionar tipo de sangre"
+  },
+  "relationships": {
+    "parent": "Padre/Madre",
+    "child": "Hijo/Hija",
+    "spouse": "Cónyuge",
+    "sibling": "Hermano/Hermana",
+    "grandparent": "Abuelo/Abuela",
+    "grandchild": "Nieto/Nieta",
+    "other": "Otro"
+  },
+  "noMembers": "Aún no se han agregado miembros de la familia",
+  "addFirstMember": "Agrega tu primer miembro de la familia para comenzar a rastrear sus registros de salud",
+  "messages": {
+    "memberAdded": "Miembro de la familia agregado exitosamente",
+    "memberUpdated": "Miembro de la familia actualizado exitosamente",
+    "memberDeleted": "Miembro de la familia eliminado exitosamente",
+    "confirmDelete": "¿Estás seguro de que deseas eliminar este miembro de la familia?"
+  }
+}

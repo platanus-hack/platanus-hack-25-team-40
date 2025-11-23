@@ -3,9 +3,11 @@ import { Button } from "@/shared/ui/button";
 import { LogOut, Settings } from "lucide-react";
 import { useRouter } from "@tanstack/react-router";
 import { useProfileQuery } from "@/modules/profile/hooks/use-profile-query";
+import { useTranslation } from "react-i18next";
 
 export function AppHeader() {
 	const router = useRouter();
+	const { t } = useTranslation("common");
 	const user = useUser();
 	const { data: profile } = useProfileQuery();
 
@@ -54,7 +56,7 @@ export function AppHeader() {
 							className="gap-2"
 						>
 							<LogOut className="h-4 w-4" />
-							<span className="hidden sm:inline">Sign Out</span>
+							<span className="hidden sm:inline">{t("actions.signOut")}</span>
 						</Button>
 					</div>
 				</div>

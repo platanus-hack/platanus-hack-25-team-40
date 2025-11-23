@@ -1,0 +1,26 @@
+{
+	"title": "Panel",
+	"welcome": "Bienvenido a Tu Bóveda de Salud Personal",
+	"description": "Gestiona tu información de salud y obtén conocimientos a partir de tu historial personal y los registros médicos compartidos por tu familia.",
+	"quickActions": "Acciones Rápidas",
+	"cards": {
+		"myProfile": {
+			"title": "Mi Perfil",
+			"description": "Ver y gestionar tu información de salud personal",
+			"button": "Ver Perfil",
+			"bloodType": "Tipo de Sangre"
+		},
+		"uploadRecords": {
+			"title": "Subir Registros",
+			"description": "Arrastra PDFs, fotos o escaneos de documentos médicos",
+			"button": "Subir Archivos",
+			"badge": "Nuevo"
+		},
+		"viewTimeline": {
+			"title": "Ver Línea de Tiempo",
+			"description": "Explora tu historial de salud personal y familiar cronológicamente",
+			"button": "Abrir Línea de Tiempo"
+		}
+	},
+	"aiInsights": "Perspectivas de IA sobre Salud"
+}

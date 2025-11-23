@@ -1,6 +1,7 @@
 import { useAtomValue } from "jotai";
 import { useEffect, useMemo, useState } from "react";
 import { useSearch } from "@tanstack/react-router";
+import { useTranslation } from "react-i18next";
 import { healthRecordPublicUrlQueryAtom } from "@/modules/health-records/atoms/query-atoms";
 import { Button } from "@/shared/ui/button";
 import { Card } from "@/shared/ui/card";
@@ -10,16 +11,18 @@ import type { HealthRecord } from "@/modules/health-records/types";
 import { useHealthRecordsQuery } from "@/modules/health-records/hooks/use-health-records-query";
 import { ScrollArea } from "@/shared/ui/scroll-area";
 
-const typeLabels: Record<string, string> = {
-  lab_result: "Lab Result",
-  radiology_report: "Radiology Report",
-  prescription: "Prescription",
-  visit_note: "Visit Note",
-  referral: "Referral",
-  other: "Other",
-};
-
 export default function Documents() {
+  const { t } = useTranslation(["healthRecords", "common"]);
+  
+  const typeLabels: Record<string, string> = {
+    lab_result: t("documents.types.labResult"),
+    radiology_report: t("documents.types.radiologyReport"),
+    prescription: t("documents.types.prescription"),
+    visit_note: t("documents.types.visitNote"),
+    referral: t("documents.types.referral"),
+    other: t("documents.types.other"),
+  };
+  
   const { data: records = [] } = useHealthRecordsQuery();
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const { recordId } = useSearch({ from: "/documents" });
@@ -74,14 +77,14 @@ export default function Documents() {
       <div className="h-[calc(100vh-64px)] w-full mx-auto max-w-7xl px-4 py-6 flex gap-6 overflow-hidden">
         {/* Left: List */}
         <Card className="w-80 flex flex-col overflow-hidden h-full">
-          <div className="p-4 border-b font-semibold">Your Documents</div>
+          <div className="p-4 border-b font-semibold">{t("documents.yourDocuments")}</div>
 
           {/* ScrollArea used to make the list scroll within the available height */}
           <ScrollArea className="flex-1">
             <div className="p-0">
               <div className="divide-y">
                 {documentRecords.length === 0 && (
-                  <div className="p-4 text-sm text-muted-foreground">No documents uploaded yet.</div>
+                  <div className="p-4 text-sm text-muted-foreground">{t("documents.noDocuments")}</div>
                 )}
                 {documentRecords.map((rec: HealthRecord) => (
                   <button
@@ -98,7 +101,7 @@ export default function Documents() {
                         {typeLabels[rec.type] || rec.type}
                       </Badge>
                     </div>
-                    <span className="text-xs text-muted-foreground line-clamp-2">{rec.description || "No description"}</span>
+                    <span className="text-xs text-muted-foreground line-clamp-2">{rec.description || t("documents.noDescription")}</span>
                   </button>
                 ))}
               </div>
@@ -109,7 +112,7 @@ export default function Documents() {
         {/* Right: Details */}
         <Card className="flex-1 p-6 flex flex-col overflow-hidden h-full">
           {!selectedRecord && (
-            <div className="text-sm text-muted-foreground">Select a document to view its details.</div>
+            <div className="text-sm text-muted-foreground">{t("documents.selectDocument")}</div>
           )}
           {selectedRecord && (
             <>
@@ -131,7 +134,7 @@ export default function Documents() {
                       if (publicUrl) window.open(publicUrl, "_blank");
                     }}
                   >
-                    Open Document
+                    {t("documents.openDocument")}
                   </Button>
                 </div>
               </div>
@@ -140,23 +143,23 @@ export default function Documents() {
               <ScrollArea className="flex-1">
                 <div className="space-y-2 text-sm pt-4">
                   <p className="whitespace-pre-wrap leading-relaxed">
-                    {selectedRecord.description || "No description available."}
+                    {selectedRecord.description || t("documents.noDescriptionAvailable")}
                   </p>
                   {selectedRecord.aiInterpretation && (
                     <div className="mt-4">
-                      <h3 className="text-lg font-semibold mb-3">AI Interpretation</h3>
+                      <h3 className="text-lg font-semibold mb-3">{t("documents.aiInterpretation")}</h3>
                       <div className="space-y-6">
                         {/* Summary */}
                         <div>
-                          <h4 className="text-sm font-medium text-muted-foreground mb-1">Summary</h4>
+                          <h4 className="text-sm font-medium text-muted-foreground mb-1">{t("documents.summary")}</h4>
                           <p className="text-sm leading-relaxed">
-                            {selectedRecord.aiInterpretation.summary || "No summary available."}
+                            {selectedRecord.aiInterpretation.summary || t("documents.noSummary")}
                           </p>
                         </div>
 
                         {/* Detected Conditions */}
                         <div>
-                          <h4 className="text-sm font-medium text-muted-foreground mb-2">Detected Conditions</h4>
+                          <h4 className="text-sm font-medium text-muted-foreground mb-2">{t("documents.detectedConditions")}</h4>
                           {selectedRecord.aiInterpretation.detectedConditions.length > 0 ? (
                             <div className="flex flex-wrap gap-2">
                               {selectedRecord.aiInterpretation.detectedConditions.map((cond: string, i: number) => (
@@ -166,23 +169,23 @@ export default function Documents() {
                               ))}
                             </div>
                           ) : (
-                            <p className="text-xs text-muted-foreground">None detected.</p>
+                            <p className="text-xs text-muted-foreground">{t("documents.noneDetected")}</p>
                           )}
                         </div>
 
                         {/* Biomarkers */}
                         <div>
-                          <h4 className="text-sm font-medium text-muted-foreground mb-2">Biomarkers</h4>
+                          <h4 className="text-sm font-medium text-muted-foreground mb-2">{t("documents.biomarkers")}</h4>
                           {selectedRecord.aiInterpretation.biomarkers.length > 0 ? (
                             <div className="overflow-x-auto border rounded-md">
                               <table className="w-full text-xs">
                                 <thead className="bg-muted">
                                   <tr className="text-left">
-                                    <th className="p-2 font-medium">Name</th>
-                                    <th className="p-2 font-medium">Value</th>
-                                    <th className="p-2 font-medium">Status</th>
-                                    <th className="p-2 font-medium">Reference Range</th>
-                                    <th className="p-2 font-medium">Risk</th>
+                                    <th className="p-2 font-medium">{t("documents.table.name")}</th>
+                                    <th className="p-2 font-medium">{t("documents.table.value")}</th>
+                                    <th className="p-2 font-medium">{t("documents.table.status")}</th>
+                                    <th className="p-2 font-medium">{t("documents.table.referenceRange")}</th>
+                                    <th className="p-2 font-medium">{t("documents.table.risk")}</th>
                                   </tr>
                                 </thead>
                                 <tbody>
@@ -221,13 +224,13 @@ export default function Documents() {
                               </table>
                             </div>
                           ) : (
-                            <p className="text-xs text-muted-foreground">No biomarkers found.</p>
+                            <p className="text-xs text-muted-foreground">{t("documents.noBiomarkers")}</p>
                           )}
                         </div>
 
                         {/* Medications Found */}
                         <div>
-                          <h4 className="text-sm font-medium text-muted-foreground mb-2">Medications Found</h4>
+                          <h4 className="text-sm font-medium text-muted-foreground mb-2">{t("documents.medicationsFound")}</h4>
                           {selectedRecord.aiInterpretation.medicationsFound.length > 0 ? (
                             <ul className="list-disc list-inside space-y-1 text-xs">
                               {selectedRecord.aiInterpretation.medicationsFound.map((m: string, i: number) => (
@@ -235,13 +238,13 @@ export default function Documents() {
                               ))}
                             </ul>
                           ) : (
-                            <p className="text-xs text-muted-foreground">No medications mentioned.</p>
+                            <p className="text-xs text-muted-foreground">{t("documents.noMedications")}</p>
                           )}
                         </div>
 
                         {/* Suggested Actions */}
                         <div>
-                          <h4 className="text-sm font-medium text-muted-foreground mb-2">Suggested Actions</h4>
+                          <h4 className="text-sm font-medium text-muted-foreground mb-2">{t("documents.suggestedActions")}</h4>
                           {selectedRecord.aiInterpretation.suggestedActions.length > 0 ? (
                             <div className="space-y-2">
                               {selectedRecord.aiInterpretation.suggestedActions.map((a: any, i: number) => {
@@ -259,14 +262,14 @@ export default function Documents() {
                                       </span>
                                     </div>
                                     <p className="text-muted-foreground leading-relaxed">
-                                      {a.reason || "No reason provided."}
+                                      {a.reason || t("documents.noReason")}
                                     </p>
                                     <div className="flex flex-wrap gap-2">
                                       <Badge variant="outline" className="text-[10px]">
-                                        Category: {a.category || "n/a"}
+                                        {t("documents.category")}: {a.category || "n/a"}
                                       </Badge>
                                       <Badge variant="outline" className="text-[10px]">
-                                        Type: {a.actionType || "n/a"}
+                                        {t("documents.type")}: {a.actionType || "n/a"}
                                       </Badge>
                                     </div>
                                   </div>
@@ -274,7 +277,7 @@ export default function Documents() {
                               })}
                             </div>
                           ) : (
-                            <p className="text-xs text-muted-foreground">No suggested actions.</p>
+                            <p className="text-xs text-muted-foreground">{t("documents.noSuggestedActions")}</p>
                           )}
                         </div>
                       </div>

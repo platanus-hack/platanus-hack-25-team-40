@@ -1,0 +1,27 @@
+{
+	"title": "Perspectivas Oregon",
+	"description": "Sugerencias personalizadas basadas en tus registros de salud e historial familiar",
+	"noSuggestions": "Aún no hay sugerencias",
+	"noSuggestionsDescription": "Las sugerencias aparecerán aquí a medida que agregues registros de salud y miembros de la familia. Nuestra IA analiza tus datos para proporcionar conocimientos personalizados de salud.",
+	"showAll": "Mostrar todas",
+	"showFewer": "Mostrar menos",
+	"loading": "Cargando sugerencias...",
+	"priority": {
+		"critical": "🚨 Prioridad Crítica",
+		"high": "⚠️ Prioridad Alta",
+		"medium": "📋 Prioridad Media",
+		"low": "💡 Prioridad Baja",
+		"other": "Otras Sugerencias"
+	},
+	"categories": {
+		"preventive": "Cuidado Preventivo",
+		"lifestyle": "Estilo de Vida",
+		"medication": "Medicación",
+		"screening": "Detección",
+		"followup": "Seguimiento",
+		"general": "General"
+	},
+	"generatedBy": "Generado por IA",
+	"basedOn": "Basado en",
+	"records": "registros de salud"
+}

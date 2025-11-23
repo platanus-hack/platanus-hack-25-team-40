@@ -9,6 +9,7 @@ import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/shared/utils/supabase";
 import { useQueryClient } from "@tanstack/react-query";
 import { useUser } from "@/shared/hooks/useAuth";
+import { useTranslation } from "react-i18next";
 
 const urgencyOrder: Array<NonNullable<Suggestion["urgencyLevel"]>> = ["critical", "high", "medium", "low"];
 const visibleCap = 6;
@@ -55,6 +56,7 @@ function prioritizeSuggestions(suggestions: Suggestion[]) {
 }
 
 export function SuggestionsSection() {
+  const { t } = useTranslation("suggestions");
   const suggestionsQuery = useSuggestionsQuery();
   const suggestions = suggestionsQuery.data || [];
   const queryClient = useQueryClient();
@@ -100,10 +102,10 @@ export function SuggestionsSection() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Brain className="h-5 w-5" />
-            Oregon Insights
+            {t("title")}
           </CardTitle>
           <CardDescription>
-            Personalized suggestions based on your health records and family history
+            {t("description")}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -121,19 +123,18 @@ export function SuggestionsSection() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Brain className="h-5 w-5" />
-            Oregon Insights
+            {t("title")}
           </CardTitle>
           <CardDescription>
-            Personalized suggestions based on your health records and family history
+            {t("description")}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex flex-col items-center justify-center py-12 text-center">
             <Brain className="h-12 w-12 text-muted-foreground mb-4" />
-            <h3 className="font-semibold mb-2">No suggestions yet</h3>
+            <h3 className="font-semibold mb-2">{t("noSuggestions")}</h3>
             <p className="text-sm text-muted-foreground max-w-sm">
-              Suggestions will appear here as you add health records and family members.
-              Our AI analyzes your data to provide personalized health insights.
+              {t("noSuggestionsDescription")}
             </p>
           </div>
         </CardContent>
@@ -149,11 +150,10 @@ export function SuggestionsSection() {
           <div className="flex-1">
             <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
               <Brain className="h-5 w-5 shrink-0" />
-              Oregon Insights
+              {t("title")}
             </CardTitle>
             <CardDescription className="mt-2 text-sm">
-            Personalized suggestion based on your health records and family history
-              {suggestions.length !== 1 ? "s" : ""}
+            {t("description")}
             </CardDescription>
           </div>
           {suggestions.length > visibleCap && (
@@ -163,7 +163,7 @@ export function SuggestionsSection() {
               onClick={() => setShowAll((prev) => !prev)}
               className="shrink-0 self-start w-full sm:w-auto"
             >
-              {showAll ? "Show fewer" : "Show all"}
+              {showAll ? t("showFewer") : t("showAll")}
             </Button>
           )}
         </div>
@@ -177,10 +177,7 @@ export function SuggestionsSection() {
             return (
               <div key={level} className="space-y-2.5 sm:space-y-3">
                 <h3 className="text-xs sm:text-sm font-semibold text-muted-foreground uppercase tracking-wide">
-                  {level === "critical" && "🚨 Critical Priority"}
-                  {level === "high" && "⚠️ High Priority"}
-                  {level === "medium" && "📋 Medium Priority"}
-                  {level === "low" && "💡 Low Priority"}
+                  {t(`priority.${level}`)}
                 </h3>
                 <div className="space-y-2.5 sm:space-y-3">
                   {levelSuggestions.map((suggestion: Suggestion) => (
@@ -200,7 +197,7 @@ export function SuggestionsSection() {
           {grouped.unknown.length > 0 && (
             <div className="space-y-2.5 sm:space-y-3">
               <h3 className="text-xs sm:text-sm font-semibold text-muted-foreground uppercase tracking-wide">
-                Other Suggestions
+                {t("priority.other")}
               </h3>
               <div className="space-y-2.5 sm:space-y-3">
                 {grouped.unknown.map((suggestion: Suggestion) => (

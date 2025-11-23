@@ -5,6 +5,8 @@ import { Button } from "@/shared/ui/button";
 import { Card } from "@/shared/ui/card";
 import { Trash2, AlertTriangle, ArrowLeft } from "lucide-react";
 import { AppHeader } from "@/shared/components/app-header";
+import { LanguageSwitcher } from "@/shared/components/language-switcher";
+import { useTranslation } from "react-i18next";
 import {
 	Dialog,
 	DialogContent,
@@ -16,6 +18,7 @@ import {
 
 export default function Settings() {
 	const router = useRouter();
+	const { t } = useTranslation(["settings", "common"]);
 	const [loading, setLoading] = useState(false);
 	const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 	const [confirmText, setConfirmText] = useState("");
@@ -87,7 +90,7 @@ export default function Settings() {
 
 			// Note: Supabase auth users cannot be deleted via client SDK
 			// This would need to be done via a server-side function or manually by an admin
-			alert("Your account data has been deleted. Please contact support to fully remove your account from the authentication system.");
+			alert(t("deleteDialog.successMessage"));
 			
 			router.navigate({ to: "/login" });
 		} catch (err) {
@@ -112,35 +115,40 @@ export default function Settings() {
 						className="mb-4 gap-2"
 					>
 						<ArrowLeft className="h-4 w-4" />
-						Back to Dashboard
+						{t("common:navigation.backToDashboard")}
 					</Button>
-					<h1 className="text-3xl font-bold tracking-tight">Settings</h1>
+					<h1 className="text-3xl font-bold tracking-tight">{t("title")}</h1>
 					<p className="text-muted-foreground mt-1">
-						Manage your account settings and preferences
+						{t("description")}
 					</p>
 				</div>
 
 				{/* Account Information */}
-				<Card className="p-6 space-y-6">
+				<Card className="p-6 space-y-6 mb-6">
 					<div>
-						<h2 className="text-xl font-semibold mb-4">Account Information</h2>
+						<h2 className="text-xl font-semibold mb-4">{t("sections.accountInfo.title")}</h2>
 						<div className="space-y-2">
 							<div className="flex justify-between items-center py-2">
-								<span className="text-sm text-muted-foreground">Email</span>
+								<span className="text-sm text-muted-foreground">{t("sections.accountInfo.email")}</span>
 								<span className="text-sm font-medium">{userEmail}</span>
 							</div>
 						</div>
 					</div>
 				</Card>
 
+				{/* Language Settings */}
+				<Card className="p-6 mb-6">
+					<LanguageSwitcher />
+				</Card>
+
 				{/* Danger Zone */}
 				<Card className="p-6 border-destructive/50">
 					<h2 className="text-xl font-semibold mb-2 text-destructive flex items-center gap-2">
 						<AlertTriangle className="h-5 w-5" />
-						Danger Zone
+						{t("sections.dangerZone.title")}
 					</h2>
 					<p className="text-sm text-muted-foreground mb-4">
-						Once you delete your account, there is no going back. This will permanently delete all your health records, family connections, and personal data.
+						{t("sections.dangerZone.description")}
 					</p>
 					<Button
 						variant="destructive"
@@ -148,7 +156,7 @@ export default function Settings() {
 						className="w-full sm:w-auto"
 					>
 						<Trash2 className="h-4 w-4 mr-2" />
-						Delete Account
+						{t("sections.dangerZone.button")}
 					</Button>
 				</Card>
 			</main>
@@ -159,26 +167,26 @@ export default function Settings() {
 					<DialogHeader>
 						<DialogTitle className="flex items-center gap-2 text-destructive">
 							<AlertTriangle className="h-5 w-5" />
-							Delete Account
+							{t("deleteDialog.title")}
 						</DialogTitle>
 						<DialogDescription className="space-y-4">
 							<p>
-								This action <strong>cannot be undone</strong>. This will permanently delete:
+								{t("deleteDialog.description")}
 							</p>
 							<ul className="list-disc list-inside space-y-1 text-sm">
-								<li>Your patient profile and personal information</li>
-								<li>All health records and medical documents</li>
-								<li>Family connections and shared data</li>
-								<li>AI analyses and health suggestions</li>
+								<li>{t("deleteDialog.items.0")}</li>
+								<li>{t("deleteDialog.items.1")}</li>
+								<li>{t("deleteDialog.items.2")}</li>
+								<li>{t("deleteDialog.items.3")}</li>
 							</ul>
 							<p className="font-semibold">
-								Type <span className="text-destructive">DELETE</span> to confirm:
+								{t("deleteDialog.confirmPrompt")}
 							</p>
 							<input
 								type="text"
 								value={confirmText}
 								onChange={(e) => setConfirmText(e.target.value)}
-								placeholder="Type DELETE"
+								placeholder={t("deleteDialog.confirmPlaceholder")}
 								className="w-full rounded-lg border border-input bg-background px-4 py-2 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
 							/>
 						</DialogDescription>
@@ -192,14 +200,14 @@ export default function Settings() {
 							}}
 							disabled={loading}
 						>
-							Cancel
+							{t("common:actions.cancel")}
 						</Button>
 						<Button
 							variant="destructive"
 							onClick={handleDeleteAccount}
 							disabled={confirmText !== "DELETE" || loading}
 						>
-							{loading ? "Deleting..." : "Delete My Account"}
+							{loading ? t("common:actions.deleting") : t("deleteDialog.deleteButton")}
 						</Button>
 					</DialogFooter>
 				</DialogContent>

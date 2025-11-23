@@ -1,15 +1,17 @@
 import { useRouter } from "@tanstack/react-router";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/shared/ui/button";
 import { Card } from "@/shared/ui/card";
 import { Heart } from "lucide-react";
 import { useUpsertProfile } from "@/modules/profile/hooks/use-profile-mutations";
 
 export default function CompleteProfile() {
+	const { t } = useTranslation(["onboarding", "common"]);
 	const router = useRouter();
 	const { mutate: upsertProfile, isPending } = useUpsertProfile();
 	const [error, setError] = useState<string | null>(null);
-	
+
 	const [name, setName] = useState("");
 	const [lastName, setLastName] = useState("");
 	const [birthDate, setBirthDate] = useState("");
@@ -39,7 +41,9 @@ export default function CompleteProfile() {
 				},
 				onError: (err) => {
 					console.error("Profile upsert error:", err);
-					setError(err instanceof Error ? err.message : "An unexpected error occurred.");
+					setError(
+						err instanceof Error ? err.message : "An unexpected error occurred."
+					);
 				},
 			}
 		);
@@ -55,18 +59,17 @@ export default function CompleteProfile() {
 
 				<div className="space-y-2 text-center mb-8">
 					<h2 className="text-3xl font-bold tracking-tight">
-						Complete Your Profile
+						{t("onboarding.title")}
 					</h2>
-					<p className="text-muted-foreground">
-						Help us personalize your health experience with a few more details
-					</p>
+					<p className="text-muted-foreground">{t("onboarding.description")}</p>
 				</div>
 
 				<form onSubmit={handleSubmit} className="space-y-6">
 					<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 						<div className="space-y-2">
 							<label htmlFor="name" className="text-sm font-medium">
-								First Name <span className="text-destructive">*</span>
+								{t("onboarding.fields.firstName")}{" "}
+								<span className="text-destructive">*</span>
 							</label>
 							<input
 								id="name"
@@ -75,13 +78,14 @@ export default function CompleteProfile() {
 								onChange={(e) => setName(e.target.value)}
 								required
 								className="w-full rounded-lg border border-input bg-background px-4 py-2.5 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-								placeholder="John"
+								placeholder={t("onboarding.placeholders.firstName")}
 							/>
 						</div>
 
 						<div className="space-y-2">
 							<label htmlFor="lastName" className="text-sm font-medium">
-								Last Name <span className="text-destructive">*</span>
+								{t("onboarding.fields.lastName")}{" "}
+								<span className="text-destructive">*</span>
 							</label>
 							<input
 								id="lastName"
@@ -90,13 +94,14 @@ export default function CompleteProfile() {
 								onChange={(e) => setLastName(e.target.value)}
 								required
 								className="w-full rounded-lg border border-input bg-background px-4 py-2.5 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-								placeholder="Doe"
+								placeholder={t("onboarding.placeholders.lastName")}
 							/>
 						</div>
 
 						<div className="space-y-2">
 							<label htmlFor="birthDate" className="text-sm font-medium">
-								Date of Birth <span className="text-destructive">*</span>
+								{t("onboarding.fields.dateOfBirth")}{" "}
+								<span className="text-destructive">*</span>
 							</label>
 							<input
 								id="birthDate"
@@ -104,14 +109,15 @@ export default function CompleteProfile() {
 								value={birthDate}
 								onChange={(e) => setBirthDate(e.target.value)}
 								required
-								max={new Date().toISOString().split('T')[0]}
+								max={new Date().toISOString().split("T")[0]}
 								className="w-full rounded-lg border border-input bg-background px-4 py-2.5 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
 							/>
 						</div>
 
 						<div className="space-y-2">
 							<label htmlFor="biologicalSex" className="text-sm font-medium">
-								Biological Sex <span className="text-destructive">*</span>
+								{t("onboarding.fields.biologicalSex")}{" "}
+								<span className="text-destructive">*</span>
 							</label>
 							<select
 								id="biologicalSex"
@@ -120,16 +126,22 @@ export default function CompleteProfile() {
 								required
 								className="w-full rounded-lg border border-input bg-background px-4 py-2.5 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
 							>
-								<option value="">Select...</option>
-								<option value="male">Male</option>
-								<option value="female">Female</option>
-								<option value="other">Other</option>
+								<option value="">{t("onboarding.selectOptions.select")}</option>
+								<option value="male">
+									{t("onboarding.selectOptions.male")}
+								</option>
+								<option value="female">
+									{t("onboarding.selectOptions.female")}
+								</option>
+								<option value="other">
+									{t("onboarding.selectOptions.other")}
+								</option>
 							</select>
 						</div>
 
 						<div className="space-y-2">
 							<label htmlFor="bloodType" className="text-sm font-medium">
-								Blood Type
+								{t("onboarding.fields.bloodType")}
 							</label>
 							<select
 								id="bloodType"
@@ -137,7 +149,7 @@ export default function CompleteProfile() {
 								onChange={(e) => setBloodType(e.target.value)}
 								className="w-full rounded-lg border border-input bg-background px-4 py-2.5 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
 							>
-								<option value="">Select...</option>
+								<option value="">{t("onboarding.selectOptions.select")}</option>
 								<option value="A+">A+</option>
 								<option value="A-">A-</option>
 								<option value="B+">B+</option>
@@ -151,7 +163,7 @@ export default function CompleteProfile() {
 
 						<div className="space-y-2">
 							<label htmlFor="heightCm" className="text-sm font-medium">
-								Height (cm)
+								{t("onboarding.fields.height")}
 							</label>
 							<input
 								id="heightCm"
@@ -161,13 +173,13 @@ export default function CompleteProfile() {
 								min="50"
 								max="300"
 								className="w-full rounded-lg border border-input bg-background px-4 py-2.5 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-								placeholder="170"
+								placeholder={t("onboarding.placeholders.height")}
 							/>
 						</div>
 
 						<div className="space-y-2 md:col-span-2">
 							<label htmlFor="weightKg" className="text-sm font-medium">
-								Weight (kg)
+								{t("onboarding.fields.weight")}
 							</label>
 							<input
 								id="weightKg"
@@ -178,7 +190,7 @@ export default function CompleteProfile() {
 								max="500"
 								step="0.1"
 								className="w-full rounded-lg border border-input bg-background px-4 py-2.5 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-								placeholder="70.5"
+								placeholder={t("onboarding.placeholders.weight")}
 							/>
 						</div>
 					</div>
@@ -196,12 +208,12 @@ export default function CompleteProfile() {
 							size="lg"
 							disabled={isPending}
 						>
-							{isPending ? "Saving..." : "Complete Profile"}
+							{isPending ? t("common.actions.saving") : t("onboarding.button")}
 						</Button>
 					</div>
 
 					<p className="text-center text-xs text-muted-foreground">
-						Fields marked with <span className="text-destructive">*</span> are required
+						{t("onboarding.requiredNote")}
 					</p>
 				</form>
 			</Card>

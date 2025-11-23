@@ -1,0 +1,34 @@
+{
+  "title": "Configuración",
+  "description": "Gestiona la configuración y preferencias de tu cuenta",
+  "sections": {
+    "accountInfo": {
+      "title": "Información de la Cuenta",
+      "email": "Correo Electrónico"
+    },
+    "language": {
+      "title": "Idioma",
+      "description": "Selecciona tu idioma preferido",
+      "select": "Seleccionar idioma"
+    },
+    "dangerZone": {
+      "title": "Zona de Peligro",
+      "description": "Una vez que elimines tu cuenta, no hay vuelta atrás. Esto eliminará permanentemente todos tus registros de salud, conexiones familiares y datos personales.",
+      "button": "Eliminar Cuenta"
+    }
+  },
+  "deleteDialog": {
+    "title": "Eliminar Cuenta",
+    "description": "Esta acción no se puede deshacer. Esto eliminará permanentemente:",
+    "items": [
+      "Tu perfil de paciente e información personal",
+      "Todos los registros de salud y documentos médicos",
+      "Conexiones familiares y datos compartidos",
+      "Análisis de IA y sugerencias de salud"
+    ],
+    "confirmPrompt": "Escribe DELETE para confirmar:",
+    "confirmPlaceholder": "Escribe DELETE",
+    "deleteButton": "Eliminar Mi Cuenta",
+    "successMessage": "Los datos de tu cuenta han sido eliminados. Por favor, contacta al soporte para eliminar completamente tu cuenta del sistema de autenticación."
+  }
+}

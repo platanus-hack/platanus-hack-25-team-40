@@ -17,11 +17,40 @@ import {
 	Heart,
 	Database,
 	Zap,
+	Languages,
 } from "lucide-react";
+import { useAtom, useAtomValue } from "jotai";
+import { languageAtom, availableLanguagesAtom } from "@/shared/atoms/language-atom";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/shared/ui/select";
 
 function App() {
+	const [language, setLanguage] = useAtom(languageAtom);
+	const availableLanguages = useAtomValue(availableLanguagesAtom);
+	
 	return (
 		<div className="min-h-screen bg-background">
+			{/* Language Selector - Top Right */}
+			<div className="absolute top-4 right-4 z-10">
+				<Select value={language} onValueChange={(value) => setLanguage(value as "en" | "es" | "system")}>
+					<SelectTrigger className="w-[140px] bg-background/95 backdrop-blur">
+						<Languages className="h-4 w-4 mr-2" />
+						<SelectValue />
+					</SelectTrigger>
+					<SelectContent>
+						{availableLanguages.map((lang) => (
+							<SelectItem key={lang.code} value={lang.code}>
+								{lang.nativeName}
+							</SelectItem>
+						))}
+					</SelectContent>
+				</Select>
+			</div>
 			{/* Hero Section */}
 			<section className="relative overflow-hidden border-b">
 				<div className="absolute inset-0 bg-linear-to-br from-primary/5 via-background to-accent/5" />

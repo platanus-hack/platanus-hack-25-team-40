@@ -1,0 +1,57 @@
+{
+  "app": {
+		"name": "Oregon Health",
+		"tagline": "Your Personal Health Vault, Powered by Family"
+	},
+  "navigation": {
+    "dashboard": "Dashboard",
+    "profile": "Profile",
+    "documents": "Documents",
+    "settings": "Settings",
+    "backToDashboard": "Back to Dashboard"
+  },
+  "actions": {
+    "create": "Create",
+    "edit": "Edit",
+    "delete": "Delete",
+    "cancel": "Cancel",
+    "save": "Save",
+    "close": "Close",
+    "upload": "Upload",
+    "signOut": "Sign Out",
+    "signIn": "Sign In",
+    "back": "Back",
+    "hide": "Hide",
+    "loading": "Loading...",
+    "saving": "Saving...",
+    "deleting": "Deleting...",
+    "viewProfile": "View Profile",
+    "addMembers": "Add Members",
+    "manage": "Manage",
+    "open": "Open",
+    "saveChanges": "Save Changes"
+  },
+  "common": {
+    "yes": "Yes",
+    "no": "No",
+    "total": "Total",
+    "email": "Email",
+    "password": "Password",
+    "required": "Required",
+    "optional": "Optional",
+    "system": "System"
+  },
+  "errors": {
+    "general": "Something went wrong. Please try again.",
+    "networkError": "Network error. Please check your connection.",
+    "unauthorized": "Unauthorized. Please log in again.",
+    "loadingProfile": "Error loading profile",
+    "requiredField": "This field is required"
+  },
+  "messages": {
+    "success": "Success!",
+    "saved": "Changes saved successfully.",
+    "deleted": "Deleted successfully.",
+    "noData": "No data available"
+  }
+}
