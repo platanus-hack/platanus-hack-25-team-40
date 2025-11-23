@@ -84,15 +84,8 @@
 			}
 		}
 	},
-	"cta": {
-		"title": "Comienza a Construir tu Bóveda de Salud",
-		"description": "Toma control de tus datos de salud. Gratis para comenzar. No se requiere tarjeta de crédito.",
-		"buttons": {
-			"start": "Comenzar Gratis",
-			"contact": "Habla con Nosotros"
-		}
-	},
+	
 	"footer": {
-		"subtitle": "Tu bóveda personal de salud, potenciada por información familiar"
+		"subtitle": "Construido para Platanus Hack 25 🍌"
 	}
 }

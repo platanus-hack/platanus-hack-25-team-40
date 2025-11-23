@@ -138,7 +138,7 @@ export default function Login() {
 					<div className="relative flex flex-col justify-between p-12 w-full">
 						<div>
 							<div className="flex items-center gap-2 mb-8">
-								<Heart className="h-8 w-8 text-primary" />
+								<img src="/oregon.svg" alt="Oregon Health" className="h-10 w-10 text-primary" />
 								<span className="text-2xl font-bold">{t("common:app.name")}</span>
 							</div>
 
@@ -149,7 +149,7 @@ export default function Login() {
 							<h1 className="text-4xl font-bold tracking-tight mb-4">
 								{t("heroTitle")}
 								<br />
-								<span className="bg-linear-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+								<span className="bg-gradient-to-b from-[#E6A85C] via-[#D9803F] to-[#D06B36] bg-clip-text text-transparent">
 									{t("heroSubtitle")}
 								</span>
 							</h1>
@@ -186,7 +186,11 @@ export default function Login() {
 									<Users className="h-5 w-5 text-primary" />
 								</div>
 								<div>
-									<h3 className="font-semibold mb-1">{t("features.family.title")}</h3>
+									<h3 className="font-semibold mb-1">
+										<span className="bg-gradient-to-b from-[#E6A85C] via-[#D9803F] to-[#D06B36] bg-clip-text text-transparent">
+											{t("features.family.title")}
+										</span>
+									</h3>
 									<p className="text-sm text-muted-foreground">
 										{t("features.family.description")}
 									</p>

@@ -6,7 +6,7 @@
 		"description": "Store, understand, and gain insights from your medical records and your family's shared health information—all powered by AI.",
 		"cta": {
 			"start": "Start Your Health Vault",
-			"demo": "Watch Demo"
+			"demo": "Watch 🍌 Demo"
 		}
 	},
 	"problem": {
@@ -84,15 +84,7 @@
 			}
 		}
 	},
-	"cta": {
-		"title": "Start Building Your Health Vault",
-		"description": "Take control of your health data. Free to start. No credit card required.",
-		"buttons": {
-			"start": "Get Started Free",
-			"contact": "Talk to Us"
-		}
-	},
 	"footer": {
-		"subtitle": "Your personal health vault, enhanced by family insights"
+		"subtitle": "Built for Platanus Hack 25 🍌"
 	}
 }

@@ -31,7 +31,7 @@ const getRecordTypeColor = (type: string) => {
     other: "bg-gray-100 text-gray-800 border-gray-200",
     // Legacy types
     checkup: "bg-blue-100 text-blue-800 border-blue-200",
-    diagnosis: "bg-red-100 text-red-800 border-red-200",
+    diagnosis: "bg-orange-100 text-orange-800 border-orange-200",
   };
   return colors[type] || "bg-gray-100 text-gray-800 border-gray-200";
 };

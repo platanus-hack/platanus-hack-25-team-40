@@ -36,7 +36,7 @@ export function AppHeader() {
 						<img
 							src="/oregon.svg"
 							alt="Oregon Health"
-							className="h-14 w-14 text-primary"
+							className="h-10 w-10 text-primary"
 						/>
 						<span className="text-xl font-bold">Oregon Health</span>
 					</div>

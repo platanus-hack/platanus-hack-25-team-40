@@ -18,6 +18,10 @@ import {
 	Database,
 	Zap,
 	Languages,
+	HeartIcon,
+	Stars,
+	Image,
+	FileTextIcon,
 } from "lucide-react";
 import { useAtom, useAtomValue } from "jotai";
 import { languageAtom, availableLanguagesAtom } from "@/shared/atoms/language-atom";
@@ -48,6 +52,13 @@ function App() {
 
 	return (
 		<div className="min-h-screen bg-background">
+			{/* Oregon Icon - Top Left */}
+			<div className="absolute top-4 left-4 z-4">
+				<img src="/oregon.svg" alt="Oregon Health" className="h-14 w-14" />
+			</div>
+
+
+
 			{/* Language Selector - Top Right */}
 			<div className="absolute top-4 right-4 z-10">
 				<Select
@@ -81,7 +92,7 @@ function App() {
 						<h1 className="mb-6 text-5xl font-bold tracking-tight sm:text-6xl lg:text-7xl">
 							{t("landing:hero.title")}
 							<br />
-							<span className="bg-linear-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+							<span className="bg-gradient-to-b from-[#E6A85C] via-[#D9803F] to-[#D06B36] bg-clip-text text-transparent">
 								{t("landing:hero.subtitle")}
 							</span>
 						</h1>
@@ -106,7 +117,7 @@ function App() {
 			{/* The Problem */}
 			<section className="mx-auto max-w-7xl px-4 py-24 sm:px-6 lg:px-8">
 				<div className="text-center mb-16">
-					<Badge variant="destructive" className="mb-4">
+					<Badge className="mb-4 bg-[#D06B36] hover:bg-[#D06B36]/90 border-transparent text-white">
 						{t("landing:problem.badge")}
 					</Badge>
 					<h2 className="text-4xl font-bold tracking-tight mb-4">
@@ -118,9 +129,9 @@ function App() {
 				</div>
 
 				<div className="grid gap-8 md:grid-cols-3">
-					<Card className="border-destructive/20">
+					<Card className="border-[#D06B36]/20">
 						<CardHeader>
-							<FileText className="h-10 w-10 text-destructive mb-2" />
+							<FileText className="h-10 w-10 text-[#D06B36] mb-2" />
 							<CardTitle>
 								{t("landing:problem.cards.fragmented.title")}
 							</CardTitle>
@@ -132,9 +143,9 @@ function App() {
 						</CardContent>
 					</Card>
 
-					<Card className="border-destructive/20">
+					<Card className="border-[#D06B36]/20">
 						<CardHeader>
-							<Shield className="h-10 w-10 text-destructive mb-2" />
+							<Shield className="h-10 w-10 text-[#D06B36] mb-2" />
 							<CardTitle>{t("landing:problem.cards.jargon.title")}</CardTitle>
 						</CardHeader>
 						<CardContent>
@@ -144,9 +155,9 @@ function App() {
 						</CardContent>
 					</Card>
 
-					<Card className="border-destructive/20">
+					<Card className="border-[#D06B36]/20">
 						<CardHeader>
-							<Users className="h-10 w-10 text-destructive mb-2" />
+							<Users className="h-10 w-10 text-[#D06B36] mb-2" />
 							<CardTitle>{t("landing:problem.cards.context.title")}</CardTitle>
 						</CardHeader>
 						<CardContent>
@@ -207,7 +218,9 @@ function App() {
 								</div>
 								<div>
 									<h3 className="font-semibold mb-2">
-										{t("landing:solution.steps.insights.title")}
+										<span className="bg-gradient-to-b from-[#E6A85C] via-[#D9803F] to-[#D06B36] bg-clip-text text-transparent">
+											{t("landing:solution.steps.insights.title")}
+										</span>
 									</h3>
 									<p className="text-muted-foreground">
 										{t("landing:solution.steps.insights.description")}
@@ -230,23 +243,26 @@ function App() {
 							</CardHeader>
 							<CardContent className="space-y-4">
 								<div className="rounded-lg border p-4 bg-muted/50">
-									<p className="text-sm text-muted-foreground line-through">
-										Scan_001.pdf
+									<p className="text-sm text-muted-foreground line-through flex items-center gap-2">
+										<FileText className="h-4 w-4" />
+										<span>Scan_001.pdf</span>
 									</p>
-									<p className="text-sm text-muted-foreground line-through">
-										IMG_4523.jpg
+									<p className="text-sm text-muted-foreground line-through flex items-center gap-2">
+										<Image className="h-4 w-4" />
+										<span>IMG_4523.jpg</span>
 									</p>
-									<p className="text-sm text-muted-foreground line-through">
-										WhatsApp Image 2024.pdf
+									<p className="text-sm text-muted-foreground line-through flex items-center gap-2">
+										<FileText className="h-4 w-4" />
+										<span>WhatsApp Image 2024.pdf</span>
 									</p>
 								</div>
-								<Zap className="h-6 w-6 mx-auto text-primary" />
+								<Stars className="h-5 w-5 mx-auto text-primary" />
 								<div className="rounded-lg border p-4 bg-primary/5">
 									<div className="space-y-2">
 										<div className="flex items-center gap-2">
-											<Badge variant="secondary" className="text-xs">
+											<HeartIcon className="text-xs w-4 h-4">
 												Cardiology
-											</Badge>
+											</HeartIcon>
 											<span className="text-sm font-medium">
 												Checkup • Dr. House
 											</span>
@@ -361,32 +377,6 @@ function App() {
 				</div>
 			</section>
 
-			{/* CTA Section */}
-			<section className="border-t bg-primary text-primary-foreground">
-				<div className="mx-auto max-w-7xl px-4 py-24 text-center sm:px-6 lg:px-8">
-					<h2 className="mb-6 text-4xl font-bold tracking-tight sm:text-5xl">
-						{t("landing:cta.title")}
-					</h2>
-					<p className="mx-auto mb-8 max-w-2xl text-lg opacity-90">
-						{t("landing:cta.description")}
-					</p>
-					<div className="flex flex-wrap justify-center gap-4">
-						<Link to="/login">
-							<Button size="lg" variant="secondary" className="gap-2">
-								{t("landing:cta.buttons.start")}{" "}
-								<ArrowRight className="h-4 w-4" />
-							</Button>
-						</Link>
-						<Button
-							size="lg"
-							variant="outline"
-							className="border-primary-foreground/20 bg-primary-foreground/10 hover:bg-primary-foreground/20"
-						>
-							{t("landing:cta.buttons.contact")}
-						</Button>
-					</div>
-				</div>
-			</section>
 
 			{/* Footer */}
 			<footer className="border-t">
