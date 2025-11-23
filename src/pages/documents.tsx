@@ -162,9 +162,9 @@ export default function Documents() {
                           <h4 className="text-sm font-medium text-muted-foreground mb-2">{t("documents.detectedConditions")}</h4>
                           {selectedRecord.aiInterpretation.detectedConditions.length > 0 ? (
                             <div className="flex flex-wrap gap-2">
-                              {selectedRecord.aiInterpretation.detectedConditions.map((cond: string, i: number) => (
+                              {selectedRecord.aiInterpretation.detectedConditions.map((cond: any, i: number) => (
                                 <Badge key={i} variant="outline" className="text-xs">
-                                  {cond}
+                                  {typeof cond === 'string' ? cond : (cond?.name || JSON.stringify(cond))}
                                 </Badge>
                               ))}
                             </div>
@@ -233,9 +233,24 @@ export default function Documents() {
                           <h4 className="text-sm font-medium text-muted-foreground mb-2">{t("documents.medicationsFound")}</h4>
                           {selectedRecord.aiInterpretation.medicationsFound.length > 0 ? (
                             <ul className="list-disc list-inside space-y-1 text-xs">
-                              {selectedRecord.aiInterpretation.medicationsFound.map((m: string, i: number) => (
-                                <li key={i}>{m}</li>
-                              ))}
+                              {selectedRecord.aiInterpretation.medicationsFound.map((m: any, i: number) => {
+                                // Handle string format
+                                if (typeof m === 'string') {
+                                  return <li key={i}>{m}</li>;
+                                }
+                                // Handle object format
+                                if (m && typeof m === 'object') {
+                                  return (
+                                    <li key={i}>
+                                      <strong>{m.name || 'Unknown medication'}</strong>
+                                      {m.dosage && ` - ${m.dosage}`}
+                                      {m.frequency && ` (${m.frequency})`}
+                                    </li>
+                                  );
+                                }
+                                // Fallback
+                                return <li key={i}>Unknown medication format</li>;
+                              })}
                             </ul>
                           ) : (
                             <p className="text-xs text-muted-foreground">{t("documents.noMedications")}</p>
