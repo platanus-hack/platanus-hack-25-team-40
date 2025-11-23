@@ -1,12 +1,14 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/ui/card";
+import { Card, CardHeader, CardTitle } from "@/shared/ui/card";
 import { Badge, type BadgeProps } from "@/shared/ui/badge";
 import { Button } from "@/shared/ui/button";
-import { X, Calendar, AlertCircle, Check } from "lucide-react";
+import { X, FileText, Stethoscope, Pill, Heart, Calendar } from "lucide-react";
 import type { Suggestion } from "../types";
-import { useAcknowledgeSuggestion, useDismissSuggestion } from "../hooks/use-suggestions-mutations";
+import { useDismissSuggestion } from "../hooks/use-suggestions-mutations";
+import type { LucideIcon } from "lucide-react";
 
 interface SuggestionCardProps {
   suggestion: Suggestion;
+  onClick: () => void;
 }
 
 const urgencyColors: Record<
@@ -33,129 +35,96 @@ const categoryLabels = {
   follow_up: "Follow-up",
 } as const;
 
-export function SuggestionCard({ suggestion }: SuggestionCardProps) {
-  const { mutate: dismissSuggestion, isPending } = useDismissSuggestion();
-  const { mutate: acknowledgeSuggestion, isPending: isAcknowledging } = useAcknowledgeSuggestion();
+const categoryIcons: Record<
+  NonNullable<Suggestion["category"]>,
+  LucideIcon
+> = {
+  screening: Stethoscope,
+  medication: Pill,
+  lifestyle: Heart,
+  follow_up: Calendar,
+};
 
-  const handleDismiss = () => {
+export function SuggestionCard({ suggestion, onClick }: SuggestionCardProps) {
+  const { mutate: dismissSuggestion, isPending } = useDismissSuggestion();
+
+  const handleDismiss = (e: React.MouseEvent) => {
+    e.stopPropagation();
     dismissSuggestion({
       id: suggestion.id,
       isDismissed: true,
     });
   };
 
-  const handleAcknowledge = () => {
-    acknowledgeSuggestion({
-      id: suggestion.id,
-      acknowledgedAt: new Date().toISOString(),
-    });
-  };
-
-  const handleSchedulePlaceholder = () => {
-    if (typeof window !== "undefined") {
-      window.alert("Calendar scheduling is coming soon.");
-    }
-  };
-
   const urgencyLevel = suggestion.urgencyLevel || "medium";
   const urgencyColor = urgencyColors[urgencyLevel] || "default";
 
   return (
-    <Card className="relative">
-      <CardHeader className="pb-3">
-        <div className="flex items-start justify-between gap-2">
-          <div className="flex-1">
-            <div className="flex items-center gap-2 mb-2">
-              <CardTitle className="text-lg">{suggestion.title}</CardTitle>
+    <Card
+      className="relative cursor-pointer hover:shadow-md transition-shadow active:scale-[0.98]"
+      onClick={onClick}
+    >
+      <CardHeader className="pb-3 sm:pb-4 px-4 sm:px-6 pt-4 sm:pt-6">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-3">
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center flex-wrap gap-1.5 sm:gap-2 mb-2">
               {suggestion.urgencyLevel && (
-                <Badge variant={urgencyColor}>
+                <Badge variant={urgencyColor} className="shrink-0 text-xs">
                   {urgencyLabels[suggestion.urgencyLevel]}
                 </Badge>
               )}
               {suggestion.category && (
-                <Badge variant="outline">
+                <Badge variant="outline" className="shrink-0 text-xs">
                   {categoryLabels[suggestion.category]}
                 </Badge>
               )}
               {suggestion.acknowledgedAt && (
-                <Badge variant="secondary" className="text-xs">
+                <Badge variant="secondary" className="text-xs shrink-0">
                   Acknowledged
                 </Badge>
               )}
             </div>
-            {suggestion.reason && (
-              <CardDescription className="text-sm mt-1">
-                {suggestion.reason}
-              </CardDescription>
-            )}
+            <CardTitle className="text-sm sm:text-base leading-snug mb-2 flex items-center gap-2">
+              {suggestion.category && (() => {
+                const Icon = categoryIcons[suggestion.category];
+                return Icon ? (
+                  <Icon className="h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground shrink-0" />
+                ) : null;
+              })()}
+              <span>{suggestion.title}</span>
+            </CardTitle>
             {suggestion.sourceRecords.length > 0 && (
-              <div className="flex flex-wrap gap-2 mt-3">
-                {suggestion.sourceRecords.map((source) => (
-                  <Badge key={`${suggestion.id}-${source.recordId ?? source.label}`} variant="secondary">
+              <div className="flex flex-wrap gap-1.5 mt-2">
+                {suggestion.sourceRecords.slice(0, 2).map((source) => (
+                  <Badge
+                    key={`${suggestion.id}-${source.recordId ?? source.label}`}
+                    variant="secondary"
+                    className="text-xs flex items-center gap-1"
+                  >
+                    <FileText className="h-3 w-3" />
                     {source.label}
                   </Badge>
                 ))}
+                {suggestion.sourceRecords.length > 2 && (
+                  <Badge variant="secondary" className="text-xs">
+                    +{suggestion.sourceRecords.length - 2} more
+                  </Badge>
+                )}
               </div>
             )}
           </div>
           <Button
             variant="ghost"
             size="icon"
-            className="h-8 w-8 shrink-0"
+            className="h-7 w-7 shrink-0 self-end sm:self-start sm:-mt-1"
             onClick={handleDismiss}
             disabled={isPending}
             aria-label="Dismiss suggestion"
           >
-            <X className="h-4 w-4" />
+            <X className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
           </Button>
         </div>
       </CardHeader>
-      <CardContent>
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
-            {suggestion.validityEndDate && (
-              <div className="flex items-center gap-1">
-                <Calendar className="h-4 w-4" />
-                <span>
-                  Valid until {new Date(suggestion.validityEndDate).toLocaleDateString()}
-                </span>
-              </div>
-            )}
-            {suggestion.actionType && (
-              <div className="flex items-center gap-1">
-                <AlertCircle className="h-4 w-4" />
-                <span className="capitalize">
-                  {suggestion.actionType.replace(/_/g, " ")}
-                </span>
-              </div>
-            )}
-          </div>
-          <div className="flex flex-wrap items-center justify-end gap-2">
-            {!suggestion.acknowledgedAt && (
-              <Button
-                size="sm"
-                onClick={handleAcknowledge}
-                disabled={isAcknowledging}
-                className="flex items-center gap-1"
-              >
-                <Check className="h-4 w-4" />
-                Acknowledge
-              </Button>
-            )}
-            {suggestion.validityEndDate && (
-              <Button
-                size="sm"
-                variant="secondary"
-                onClick={handleSchedulePlaceholder}
-                className="flex items-center gap-1"
-              >
-                <Calendar className="h-4 w-4" />
-                Schedule
-              </Button>
-            )}
-          </div>
-        </div>
-      </CardContent>
     </Card>
   );
 }

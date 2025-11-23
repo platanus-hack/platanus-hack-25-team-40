@@ -2,10 +2,10 @@ import { Button } from "@/shared/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/ui/card";
 import { Badge } from "@/shared/ui/badge";
 
-import { FileText, Plus, Upload, UserCircle } from "lucide-react";
+import { Plus, Upload, UserCircle, Activity } from "lucide-react";
 import { UploadHealthRecordDialog } from "@/modules/health-records/components/upload-health-record-dialog";
 import { FamilyMembersDialog } from "@/modules/family-members/components/family-members-dialog";
-import { TimelineSheet } from "@/modules/health-records/components/timeline-sheet";
+import { TimelineView } from "@/modules/health-records/components/timeline-view";
 import { SuggestionsSection } from "@/modules/suggestions/components/suggestions-section";
 import { useState } from "react";
 import { useRouter } from "@tanstack/react-router";
@@ -16,7 +16,6 @@ export default function Dashboard() {
 	const router = useRouter();
 	const [isFamilyDialogOpen, setIsFamilyDialogOpen] = useState(false);
 	const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
-	const [isTimelineOpen, setIsTimelineOpen] = useState(false);
 	const { data: profile } = useProfileQuery();
 
 	return (
@@ -24,19 +23,19 @@ export default function Dashboard() {
 			<AppHeader />
 
 			{/* Main Content */}
-			<main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+			<main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
 				{/* Welcome Section */}
-				<div className="mb-8">
-					<h1 className="text-3xl font-bold tracking-tight mb-2">
+				<div className="mb-6 sm:mb-8">
+					<h1 className="text-2xl sm:text-3xl font-bold tracking-tight mb-2">
 						Welcome to Your Family Health Vault
 					</h1>
-					<p className="text-muted-foreground">
+					<p className="text-sm sm:text-base text-muted-foreground">
 						Manage, organize, and understand your family's medical records in
 						one secure place.
 					</p>
 				</div>
 				{/* Quick Actions */}
-				<div className="grid gap-4 md:grid-cols-3 mb-8">
+				<div className="grid gap-6 sm:grid-cols-2 mb-6 sm:mb-8">
 					<Card
 						className="cursor-pointer hover:border-primary transition-colors"
 						onClick={() => router.navigate({ to: "/profile" })}
@@ -51,19 +50,8 @@ export default function Dashboard() {
 							</CardDescription>
 						</CardHeader>
 						<CardContent>
-							<div className="space-y-2">
-								{profile && (
-									<div className="text-sm">
-										<p className="font-medium">
-											{profile.name} {profile.last_name}
-										</p>
-										{profile.blood_type && (
-											<p className="text-muted-foreground">
-												Blood Type: {profile.blood_type}
-											</p>
-										)}
-									</div>
-								)}
+							<div className="space-y-4">
+								
 								<Button variant="outline" className="w-full">
 									View Profile
 								</Button>
@@ -74,7 +62,6 @@ export default function Dashboard() {
 						<CardHeader className="flex-1">
 							<div className="flex items-center justify-between">
 								<Upload className="h-8 w-8 text-primary" />
-								<Badge variant="secondary">New</Badge>
 							</div>
 							<CardTitle className="mt-4">Upload Records</CardTitle>
 							<CardDescription>
@@ -91,32 +78,31 @@ export default function Dashboard() {
 							</Button>
 						</CardContent>
 					</Card>
+				</div>
 
-					<Card className="cursor-pointer hover:border-primary transition-colors flex flex-col">
-						<CardHeader className="flex-1">
-							<FileText className="h-8 w-8 text-primary" />
-							<CardTitle className="mt-4">View Timeline</CardTitle>
-							<CardDescription>
-								Browse your family's health history chronologically
+				{/* Health Timeline and Oregon Insights */}
+				<div className="grid gap-6 lg:grid-cols-2 mb-6 sm:mb-8">
+					{/* Health Timeline */}
+					<Card className="flex flex-col min-h-[400px] lg:h-full w-full max-w-2xl mx-auto lg:max-w-full lg:mx-0">
+						<CardHeader className="pb-4 px-4 sm:px-6">
+							<CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+								<Activity className="h-5 w-5" />
+								Health Timeline
+							</CardTitle>
+							<CardDescription className="text-sm">
+								Chronological view of all health records
 							</CardDescription>
 						</CardHeader>
-						<CardContent>
-							<Button
-								variant="outline"
-								className="w-full"
-								onClick={() => setIsTimelineOpen(true)}
-							>
-								Open Timeline
-							</Button>
+						<CardContent className="flex-1 min-h-0 pb-6 px-4 sm:px-6">
+							<TimelineView />
 						</CardContent>
 					</Card>
-				</div>{" "}
-	
-				{/* AI Health Insights */}
-				<div className="mb-8">
-					<SuggestionsSection />
+
+					{/* Oregon Insights */}
+					<div className="min-h-[400px] w-full max-w-2xl mx-auto lg:max-w-full lg:mx-0">
+						<SuggestionsSection />
+					</div>
 				</div>
-				
 			</main>
 
 			{/* Family Members Dialog */}
@@ -128,9 +114,6 @@ export default function Dashboard() {
 				open={isUploadDialogOpen}
 				onOpenChange={setIsUploadDialogOpen}
 			/>
-
-			{/* Timeline Sheet */}
-			<TimelineSheet open={isTimelineOpen} onOpenChange={setIsTimelineOpen} />
 		</div>
 	);
 }

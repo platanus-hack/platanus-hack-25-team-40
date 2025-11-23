@@ -108,6 +108,48 @@ export class HealthRecordsGateway {
 		}
 	}
 
+	/**
+	 * Generate a signed URL for a stored health record file.
+	 * Accepts a fileUrl fragment that may optionally include the bucket prefix.
+	 */
+	async getSignedUrl(fileUrlFragment: string, expiresInSeconds = 3600): Promise<string | null> {
+		if (!fileUrlFragment) return null;
+		// Normalize path: remove leading bucket prefix if present.
+		const normalized = fileUrlFragment.startsWith("health_records/")
+			? fileUrlFragment.replace(/^health_records\//, "")
+			: fileUrlFragment.replace(/^\//, "");
+		try {
+			const { data, error } = await supabase.storage
+				.from("health_records")
+				.createSignedUrl(normalized, expiresInSeconds);
+			if (error || !data?.signedUrl) {
+				console.error("Failed to create signed URL", error);
+				return null;
+			}
+			return data.signedUrl;
+		} catch (e) {
+			console.error("Unexpected error generating signed URL", e);
+			return null;
+		}
+	}
+
+	/**
+	 * Get a public URL for a file in the health_records bucket (bucket must be public).
+	 */
+	getPublicUrl(fileUrlFragment: string | null | undefined): string | null {
+		if (!fileUrlFragment) return null;
+		const normalized = fileUrlFragment.startsWith("health_records/")
+			? fileUrlFragment.replace(/^health_records\//, "")
+			: fileUrlFragment.replace(/^\//, "");
+		try {
+			const { data } = supabase.storage.from("health_records").getPublicUrl(normalized);
+			return data?.publicUrl || null;
+		} catch (e) {
+			console.error("Error building public URL", e);
+			return null;
+		}
+	}
+
 	private mapRowToDomain(row: {
 		id: string;
 		user_id: string;
