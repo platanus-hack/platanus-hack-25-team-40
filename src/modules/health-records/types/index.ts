@@ -1,4 +1,16 @@
-export type HealthRecordType = "checkup" | "diagnosis" | "prescription" | "lab-result";
+export type HealthRecordType = 
+  | "lab-result" 
+  | "imaging" 
+  | "consultation" 
+  | "prescription" 
+  | "emergency-report" 
+  | "hospitalization" 
+  | "surgery-report" 
+  | "vaccination" 
+  | "medical-certificate" 
+  | "other"
+  | "checkup" 
+  | "diagnosis"; // Legacy types for backward compatibility
 export type HealthRecordStatus = "active" | "archived";
 
 // Structured AI interpretation model derived from edge function response

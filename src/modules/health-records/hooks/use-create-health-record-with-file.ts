@@ -3,11 +3,12 @@ import { useCreateHealthRecord } from "./use-health-records-mutations";
 import { useUploadHealthRecordFile } from "./use-upload-health-record-file";
 import { useUser } from "@/shared/hooks/useAuth";
 import { triggerSuggestionsGeneration } from "@/modules/suggestions/utils/trigger-suggestions";
+import type { HealthRecordType } from "../types";
 
 interface CreateHealthRecordFormInput {
   title: string;
   date: string; // ISO yyyy-mm-dd
-  type: "checkup" | "diagnosis" | "prescription" | "lab-result";
+  type: HealthRecordType;
   notes: string; // maps to description
   specialty?: string; // maps directly to DB specialty
 }
