@@ -74,6 +74,7 @@ RESPONDE ÚNICAMENTE CON ESTE JSON:
 export const MEDICAL_ANALYSIS_USER_PROMPT = `Analiza este documento médico y extrae la información estructurada siguiendo el formato JSON especificado. 
 
 Recuerda:
+- Responde en el mismo idioma que el documento.
 - Si no encuentras una fecha exacta, estima basándote en el contexto o usa la fecha más probable
 - Sé preciso con los valores numéricos y sus unidades
 - Identifica TODAS las métricas que estén fuera de rango normal

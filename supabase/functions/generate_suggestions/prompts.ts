@@ -65,6 +65,7 @@ Return a clean JSON array of suggestion objects. Each suggestion must follow thi
 ]
 
 IMPORTANT:
+- Respond in the same language as the user's profile and health records. This is usually Spanish.
 - Be specific in the "reason" field - reference actual family members and their conditions
 - Use "critical" urgency only for immediate health risks
 - Use "high" for time-sensitive screenings or abnormal values
