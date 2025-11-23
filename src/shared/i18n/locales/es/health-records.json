@@ -1,0 +1,32 @@
+{
+  "title": "Registros de Salud",
+  "uploadDialog": {
+    "title": "Subir Registro de Salud",
+    "description": "Sube documentos médicos, resultados de laboratorio, recetas o cualquier archivo relacionado con la salud",
+    "selectMember": "Seleccionar Miembro de la Familia",
+    "selectMemberPlaceholder": "Elige a quién pertenece este registro",
+    "dragDrop": "Arrastra y suelta archivos aquí, o haz clic para seleccionar",
+    "uploading": "Subiendo...",
+    "analyzing": "Analizando con IA...",
+    "button": "Subir y Analizar"
+  },
+  "timeline": {
+    "title": "Línea de Tiempo de Salud",
+    "description": "Ver todos los registros de salud cronológicamente",
+    "filterByMember": "Filtrar por Miembro de la Familia",
+    "all": "Todos los Miembros",
+    "noRecords": "No se encontraron registros de salud",
+    "uploadFirst": "Sube tu primer registro de salud para comenzar",
+    "recordDate": "Fecha del Registro",
+    "uploadedBy": "Subido por",
+    "viewDetails": "Ver Detalles"
+  },
+  "recordModal": {
+    "title": "Detalles del Registro de Salud",
+    "analysis": "Análisis de IA",
+    "originalDocument": "Documento Original",
+    "memberInfo": "Miembro de la Familia",
+    "uploadDate": "Fecha de Subida",
+    "noAnalysis": "No hay análisis disponible todavía"
+  }
+}

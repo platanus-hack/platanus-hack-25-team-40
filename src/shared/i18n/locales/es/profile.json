@@ -1,0 +1,72 @@
+{
+  "title": "Información del Paciente",
+  "subtitle": "Registro Médico",
+  "sections": {
+    "demographics": {
+      "title": "Datos Demográficos",
+      "fields": {
+        "fullName": "Nombre Completo",
+        "firstName": "Nombre",
+        "lastName": "Apellido",
+        "dateOfBirth": "Fecha de Nacimiento",
+        "sex": "Sexo",
+        "bloodType": "Tipo de Sangre",
+        "age": "años"
+      },
+      "sexOptions": {
+        "male": "Masculino",
+        "female": "Femenino",
+        "intersex": "Intersexual",
+        "other": "Otro"
+      },
+      "bloodTypes": {
+        "select": "Seleccionar tipo de sangre"
+      }
+    },
+    "vitals": {
+      "title": "Signos Vitales y Métricas",
+      "fields": {
+        "height": "Altura",
+        "weight": "Peso",
+        "bmi": "IMC",
+        "heightCm": "Altura (cm)",
+        "weightKg": "Peso (kg)",
+        "heightPlaceholder": "ej., 170",
+        "weightPlaceholder": "ej., 70"
+      },
+      "bmiCategories": {
+        "underweight": "Bajo Peso",
+        "normal": "Normal",
+        "overweight": "Sobrepeso",
+        "obese": "Obeso"
+      }
+    },
+    "clinical": {
+      "title": "Información Clínica",
+      "fields": {
+        "allergies": "Alergias",
+        "medications": "Medicamentos Actuales",
+        "chronicConditions": "Condiciones Crónicas",
+        "familyHistory": "Historial Médico Familiar"
+      },
+      "placeholders": {
+        "allergies": "ej., Penicilina, Cacahuates, Látex",
+        "medications": "ej., Metformina 500mg dos veces al día",
+        "chronicConditions": "ej., Diabetes Tipo 2, Hipertensión",
+        "familyHistory": "ej., Padre: Enfermedad Cardíaca, Madre: Diabetes"
+      },
+      "noData": "No hay información clínica registrada",
+      "addInfo": "Agregar Información",
+      "noneReported": "Ninguno reportado"
+    },
+    "familyMembers": {
+      "title": "Miembros de la Familia",
+      "noMembers": "No se han agregado miembros de la familia"
+    }
+  },
+  "messages": {
+    "profileNotFound": "Perfil no encontrado.",
+    "createProfile": "Crear Perfil",
+    "loadingProfile": "Cargando perfil..."
+  }
+}

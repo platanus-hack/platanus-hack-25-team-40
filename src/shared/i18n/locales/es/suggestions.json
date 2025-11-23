@@ -1,0 +1,22 @@
+{
+  "title": "Sugerencias de Salud",
+  "description": "Perspectivas impulsadas por IA basadas en tus registros de salud",
+  "noSuggestions": "Aún no hay sugerencias de salud disponibles",
+  "uploadRecords": "Sube registros de salud para obtener perspectivas personalizadas de IA",
+  "categories": {
+    "preventive": "Cuidado Preventivo",
+    "lifestyle": "Estilo de Vida",
+    "medication": "Medicación",
+    "screening": "Detección",
+    "followup": "Seguimiento",
+    "general": "General"
+  },
+  "priority": {
+    "high": "Prioridad Alta",
+    "medium": "Prioridad Media",
+    "low": "Prioridad Baja"
+  },
+  "generatedBy": "Generado por IA",
+  "basedOn": "Basado en",
+  "records": "registros de salud"
+}

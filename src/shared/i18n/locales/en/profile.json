@@ -1,0 +1,72 @@
+{
+  "title": "Patient Information",
+  "subtitle": "Medical Record",
+  "sections": {
+    "demographics": {
+      "title": "Demographics",
+      "fields": {
+        "fullName": "Full Name",
+        "firstName": "First Name",
+        "lastName": "Last Name",
+        "dateOfBirth": "Date of Birth",
+        "sex": "Sex",
+        "bloodType": "Blood Type",
+        "age": "years old"
+      },
+      "sexOptions": {
+        "male": "Male",
+        "female": "Female",
+        "intersex": "Intersex",
+        "other": "Other"
+      },
+      "bloodTypes": {
+        "select": "Select blood type"
+      }
+    },
+    "vitals": {
+      "title": "Vital Signs & Metrics",
+      "fields": {
+        "height": "Height",
+        "weight": "Weight",
+        "bmi": "BMI",
+        "heightCm": "Height (cm)",
+        "weightKg": "Weight (kg)",
+        "heightPlaceholder": "e.g., 170",
+        "weightPlaceholder": "e.g., 70"
+      },
+      "bmiCategories": {
+        "underweight": "Underweight",
+        "normal": "Normal",
+        "overweight": "Overweight",
+        "obese": "Obese"
+      }
+    },
+    "clinical": {
+      "title": "Clinical Information",
+      "fields": {
+        "allergies": "Allergies",
+        "medications": "Current Medications",
+        "chronicConditions": "Chronic Conditions",
+        "familyHistory": "Family Medical History"
+      },
+      "placeholders": {
+        "allergies": "e.g., Penicillin, Peanuts, Latex",
+        "medications": "e.g., Metformin 500mg twice daily",
+        "chronicConditions": "e.g., Type 2 Diabetes, Hypertension",
+        "familyHistory": "e.g., Father: Heart Disease, Mother: Diabetes"
+      },
+      "noData": "No clinical information on file",
+      "addInfo": "Add Information",
+      "noneReported": "None reported"
+    },
+    "familyMembers": {
+      "title": "Family Members",
+      "noMembers": "No family members added"
+    }
+  },
+  "messages": {
+    "profileNotFound": "Profile not found.",
+    "createProfile": "Create Profile",
+    "loadingProfile": "Loading profile..."
+  }
+}

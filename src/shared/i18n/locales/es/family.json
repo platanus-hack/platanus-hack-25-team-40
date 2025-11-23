@@ -1,0 +1,36 @@
+{
+  "title": "Miembros de la Familia",
+  "description": "Gestiona los miembros de tu familia y sus registros de salud",
+  "addMember": "Agregar Miembro de la Familia",
+  "editMember": "Editar Miembro de la Familia",
+  "fields": {
+    "name": "Nombre",
+    "relationship": "Parentesco",
+    "dateOfBirth": "Fecha de Nacimiento",
+    "biologicalSex": "Sexo Biológico",
+    "bloodType": "Tipo de Sangre"
+  },
+  "placeholders": {
+    "name": "Ingresar nombre",
+    "selectRelationship": "Seleccionar parentesco",
+    "selectSex": "Seleccionar sexo",
+    "selectBloodType": "Seleccionar tipo de sangre"
+  },
+  "relationships": {
+    "parent": "Padre/Madre",
+    "child": "Hijo/Hija",
+    "spouse": "Cónyuge",
+    "sibling": "Hermano/Hermana",
+    "grandparent": "Abuelo/Abuela",
+    "grandchild": "Nieto/Nieta",
+    "other": "Otro"
+  },
+  "noMembers": "Aún no se han agregado miembros de la familia",
+  "addFirstMember": "Agrega tu primer miembro de la familia para comenzar a rastrear sus registros de salud",
+  "messages": {
+    "memberAdded": "Miembro de la familia agregado exitosamente",
+    "memberUpdated": "Miembro de la familia actualizado exitosamente",
+    "memberDeleted": "Miembro de la familia eliminado exitosamente",
+    "confirmDelete": "¿Estás seguro de que deseas eliminar este miembro de la familia?"
+  }
+}

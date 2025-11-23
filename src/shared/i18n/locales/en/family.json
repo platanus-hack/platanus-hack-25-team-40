@@ -1,0 +1,36 @@
+{
+  "title": "Family Members",
+  "description": "Manage your family members and their health records",
+  "addMember": "Add Family Member",
+  "editMember": "Edit Family Member",
+  "fields": {
+    "name": "Name",
+    "relationship": "Relationship",
+    "dateOfBirth": "Date of Birth",
+    "biologicalSex": "Biological Sex",
+    "bloodType": "Blood Type"
+  },
+  "placeholders": {
+    "name": "Enter name",
+    "selectRelationship": "Select relationship",
+    "selectSex": "Select sex",
+    "selectBloodType": "Select blood type"
+  },
+  "relationships": {
+    "parent": "Parent",
+    "child": "Child",
+    "spouse": "Spouse",
+    "sibling": "Sibling",
+    "grandparent": "Grandparent",
+    "grandchild": "Grandchild",
+    "other": "Other"
+  },
+  "noMembers": "No family members added yet",
+  "addFirstMember": "Add your first family member to start tracking their health records",
+  "messages": {
+    "memberAdded": "Family member added successfully",
+    "memberUpdated": "Family member updated successfully",
+    "memberDeleted": "Family member deleted successfully",
+    "confirmDelete": "Are you sure you want to delete this family member?"
+  }
+}

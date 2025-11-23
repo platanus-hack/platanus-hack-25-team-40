@@ -1,0 +1,32 @@
+{
+  "title": "Health Records",
+  "uploadDialog": {
+    "title": "Upload Health Record",
+    "description": "Upload medical documents, lab results, prescriptions, or any health-related files",
+    "selectMember": "Select Family Member",
+    "selectMemberPlaceholder": "Choose who this record belongs to",
+    "dragDrop": "Drag & drop files here, or click to select",
+    "uploading": "Uploading...",
+    "analyzing": "Analyzing with AI...",
+    "button": "Upload & Analyze"
+  },
+  "timeline": {
+    "title": "Health Timeline",
+    "description": "View all health records chronologically",
+    "filterByMember": "Filter by Family Member",
+    "all": "All Members",
+    "noRecords": "No health records found",
+    "uploadFirst": "Upload your first health record to get started",
+    "recordDate": "Record Date",
+    "uploadedBy": "Uploaded by",
+    "viewDetails": "View Details"
+  },
+  "recordModal": {
+    "title": "Health Record Details",
+    "analysis": "AI Analysis",
+    "originalDocument": "Original Document",
+    "memberInfo": "Family Member",
+    "uploadDate": "Upload Date",
+    "noAnalysis": "No analysis available yet"
+  }
+}

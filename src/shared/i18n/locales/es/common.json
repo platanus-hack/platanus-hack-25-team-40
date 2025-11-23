@@ -1,0 +1,56 @@
+{
+  "app": {
+    "name": "Oregon Health",
+    "tagline": "La Salud de Tu Familia En Un Solo Lugar"
+  },
+  "navigation": {
+    "dashboard": "Panel",
+    "profile": "Perfil",
+    "documents": "Documentos",
+    "settings": "Configuración",
+    "backToDashboard": "Volver al Panel"
+  },
+  "actions": {
+    "create": "Crear",
+    "edit": "Editar",
+    "delete": "Eliminar",
+    "cancel": "Cancelar",
+    "save": "Guardar",
+    "close": "Cerrar",
+    "upload": "Subir",
+    "signOut": "Cerrar Sesión",
+    "signIn": "Iniciar Sesión",
+    "back": "Volver",
+    "loading": "Cargando...",
+    "saving": "Guardando...",
+    "deleting": "Eliminando...",
+    "viewProfile": "Ver Perfil",
+    "addMembers": "Agregar Miembros",
+    "manage": "Gestionar",
+    "open": "Abrir",
+    "saveChanges": "Guardar Cambios"
+  },
+  "common": {
+    "yes": "Sí",
+    "no": "No",
+    "total": "Total",
+    "email": "Correo Electrónico",
+    "password": "Contraseña",
+    "required": "Requerido",
+    "optional": "Opcional",
+    "system": "Sistema"
+  },
+  "errors": {
+    "general": "Algo salió mal. Por favor, inténtalo de nuevo.",
+    "networkError": "Error de red. Por favor, verifica tu conexión.",
+    "unauthorized": "No autorizado. Por favor, inicia sesión de nuevo.",
+    "loadingProfile": "Error al cargar el perfil",
+    "requiredField": "Este campo es requerido"
+  },
+  "messages": {
+    "success": "¡Éxito!",
+    "saved": "Cambios guardados exitosamente.",
+    "deleted": "Eliminado exitosamente.",
+    "noData": "No hay datos disponibles"
+  }
+}

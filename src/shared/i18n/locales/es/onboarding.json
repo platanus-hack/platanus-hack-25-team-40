@@ -1,0 +1,27 @@
+{
+  "title": "Completa Tu Perfil",
+  "description": "Ayúdanos a personalizar tu experiencia de salud con algunos detalles más",
+  "fields": {
+    "firstName": "Nombre",
+    "lastName": "Apellido",
+    "dateOfBirth": "Fecha de Nacimiento",
+    "biologicalSex": "Sexo Biológico",
+    "bloodType": "Tipo de Sangre",
+    "height": "Altura (cm)",
+    "weight": "Peso (kg)"
+  },
+  "placeholders": {
+    "firstName": "Juan",
+    "lastName": "Pérez",
+    "height": "170",
+    "weight": "70.5"
+  },
+  "selectOptions": {
+    "select": "Seleccionar...",
+    "male": "Masculino",
+    "female": "Femenino",
+    "other": "Otro"
+  },
+  "button": "Completar Perfil",
+  "requiredNote": "Los campos marcados con * son requeridos"
+}
