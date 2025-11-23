@@ -2,6 +2,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/sha
 import { Button } from "@/shared/ui/button";
 import { useSuggestionsQuery } from "../hooks/use-suggestions-query";
 import { SuggestionCard } from "./suggestion-card";
+import { SuggestionDetailModal } from "./suggestion-detail-modal";
 import { Brain, Loader2 } from "lucide-react";
 import type { Suggestion } from "../types";
 import { useEffect, useMemo, useState } from "react";
@@ -59,6 +60,8 @@ export function SuggestionsSection() {
   const queryClient = useQueryClient();
   const user = useUser();
   const [showAll, setShowAll] = useState(false);
+  const [selectedSuggestion, setSelectedSuggestion] = useState<Suggestion | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Subscribe to realtime updates for all suggestion changes
   useEffect(() => {
@@ -97,7 +100,7 @@ export function SuggestionsSection() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Brain className="h-5 w-5" />
-            AI Health Insights
+            Oregon Insights
           </CardTitle>
           <CardDescription>
             Personalized suggestions based on your health records and family history
@@ -118,7 +121,7 @@ export function SuggestionsSection() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Brain className="h-5 w-5" />
-            AI Health Insights
+            Oregon Insights
           </CardTitle>
           <CardDescription>
             Personalized suggestions based on your health records and family history
@@ -140,62 +143,86 @@ export function SuggestionsSection() {
 
 
   return (
-    <Card>
-      <CardHeader>
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <CardTitle className="flex items-center gap-2">
-              <Brain className="h-5 w-5" />
-              AI Health Insights
+  <Card className="h-full">
+      <CardHeader className="pb-4 px-4 sm:px-6">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div className="flex-1">
+            <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+              <Brain className="h-5 w-5 shrink-0" />
+              Oregon Insights
             </CardTitle>
-            <CardDescription>
-              Showing {visibleSuggestions.length} of {suggestions.length} personalized suggestion
-              {suggestions.length !== 1 ? "s" : ""} based on your health records and family history
+            <CardDescription className="mt-2 text-sm">
+            Personalized suggestion based on your health records and family history
+              {suggestions.length !== 1 ? "s" : ""}
             </CardDescription>
           </div>
           {suggestions.length > visibleCap && (
-            <Button variant="outline" size="sm" onClick={() => setShowAll((prev) => !prev)}>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => setShowAll((prev) => !prev)}
+              className="shrink-0 self-start w-full sm:w-auto"
+            >
               {showAll ? "Show fewer" : "Show all"}
             </Button>
           )}
         </div>
       </CardHeader>
-      <CardContent>
-        <div className="space-y-6">
+      <CardContent className="pb-5 sm:pb-6 px-4 sm:px-6">
+        <div className="space-y-4 sm:space-y-6">
           {urgencyOrder.map((level) => {
             const levelSuggestions = grouped[level];
             if (levelSuggestions.length === 0) return null;
 
             return (
-              <div key={level} className="space-y-3">
-                <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+              <div key={level} className="space-y-2.5 sm:space-y-3">
+                <h3 className="text-xs sm:text-sm font-semibold text-muted-foreground uppercase tracking-wide">
                   {level === "critical" && "🚨 Critical Priority"}
                   {level === "high" && "⚠️ High Priority"}
                   {level === "medium" && "📋 Medium Priority"}
                   {level === "low" && "💡 Low Priority"}
                 </h3>
-                <div className="space-y-3">
+                <div className="space-y-2.5 sm:space-y-3">
                   {levelSuggestions.map((suggestion: Suggestion) => (
-                    <SuggestionCard key={suggestion.id} suggestion={suggestion} />
+                    <SuggestionCard
+                      key={suggestion.id}
+                      suggestion={suggestion}
+                      onClick={() => {
+                        setSelectedSuggestion(suggestion);
+                        setIsModalOpen(true);
+                      }}
+                    />
                   ))}
                 </div>
               </div>
             );
           })}
           {grouped.unknown.length > 0 && (
-            <div className="space-y-3">
-              <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+            <div className="space-y-2.5 sm:space-y-3">
+              <h3 className="text-xs sm:text-sm font-semibold text-muted-foreground uppercase tracking-wide">
                 Other Suggestions
               </h3>
-              <div className="space-y-3">
+              <div className="space-y-2.5 sm:space-y-3">
                 {grouped.unknown.map((suggestion: Suggestion) => (
-                  <SuggestionCard key={suggestion.id} suggestion={suggestion} />
+                  <SuggestionCard
+                    key={suggestion.id}
+                    suggestion={suggestion}
+                    onClick={() => {
+                      setSelectedSuggestion(suggestion);
+                      setIsModalOpen(true);
+                    }}
+                  />
                 ))}
               </div>
             </div>
           )}
         </div>
       </CardContent>
+      <SuggestionDetailModal
+        suggestion={selectedSuggestion}
+        open={isModalOpen}
+        onOpenChange={setIsModalOpen}
+      />
     </Card>
   );
 }

@@ -7,7 +7,7 @@ import {
 } from "@/shared/ui/dialog";
 import { Badge } from "@/shared/ui/badge";
 import { Button } from "@/shared/ui/button";
-import { Calendar, ExternalLink, AlertCircle } from "lucide-react";
+import { Calendar, AlertCircle } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
 import type { HealthRecord } from "../types";
 
