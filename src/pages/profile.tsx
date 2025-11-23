@@ -26,6 +26,7 @@ import {
 	AlertCircle,
 	History,
 	Settings,
+	Vault,
 } from "lucide-react";
 import { useProfileQuery } from "@/modules/profile/hooks/use-profile-query";
 import { useFamilyMembers } from "@/modules/family-members/hooks/use-family-members-query";
@@ -781,7 +782,7 @@ export default function Profile() {
 					</div>
 
 					{/* Right Column - Family Members Sidebar */}
-					<div className="lg:col-span-1">
+					<div className="lg:col-span-1 space-y-6">
 						<Card>
 							<div className="border-b px-6 py-4 flex items-center justify-between">
 								<h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground flex items-center gap-2">
@@ -841,6 +842,23 @@ export default function Profile() {
 										</Button>
 									</div>
 								)}
+							</div>
+						</Card>
+						<Card>
+							<div className="border-b px-6 py-4 flex items-center justify-between">
+								<h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground flex items-center gap-2">
+									<Vault className="h-4 w-4" />
+									Vault
+								</h2>
+								<Button
+									variant="ghost"
+									size="sm"
+									onClick={() => router.navigate({ to: "/documents" })}
+									className="gap-2 h-8"
+								>
+									<Settings className="h-3.5 w-3.5" />
+									Manage documents
+								</Button>
 							</div>
 						</Card>
 					</div>
