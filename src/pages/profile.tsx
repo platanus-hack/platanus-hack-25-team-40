@@ -35,8 +35,10 @@ import { LoadingSpinner } from "@/shared/components/loading-spinner";
 import { FamilyMembersDialog } from "@/modules/family-members/components/family-members-dialog";
 import { useState } from "react";
 import { useUpsertProfile } from "@/modules/profile/hooks/use-profile-mutations";
+import { useTranslation } from "react-i18next";
 
 export default function Profile() {
+	const { t } = useTranslation("profile");
 	const router = useRouter();
 	const queryResult = useProfileQuery();
 	const { data: familyMembers, isLoading: familyMembersLoading } =
@@ -189,7 +191,7 @@ export default function Profile() {
 		return (
 			<div className="min-h-screen bg-background">
 				<AppHeader />
-				<LoadingSpinner message="Loading profile..." />
+				<LoadingSpinner message={t("messages.loadingProfile")} />
 			</div>
 		);
 	}
@@ -200,9 +202,9 @@ export default function Profile() {
 				<AppHeader />
 				<div className="flex items-center justify-center py-20 px-4">
 					<Card className="w-full max-w-2xl p-8 text-center">
-						<p className="text-destructive mb-4">Error loading profile</p>
+						<p className="text-destructive mb-4">{t("messages.errorLoading")}</p>
 						<Button onClick={() => router.navigate({ to: "/dashboard" })}>
-							Back to Dashboard
+							{t("messages.backToDashboard")}
 						</Button>
 					</Card>
 				</div>
@@ -216,11 +218,11 @@ export default function Profile() {
 				<AppHeader />
 				<div className="flex items-center justify-center py-20 px-4">
 					<Card className="w-full max-w-2xl p-8 text-center">
-						<p className="text-muted-foreground mb-4">Profile not found.</p>
+						<p className="text-muted-foreground mb-4">{t("messages.profileNotFound")}</p>
 						<Button
 							onClick={() => router.navigate({ to: "/complete-profile" })}
 						>
-							Create Profile
+							{t("messages.createProfile")}
 						</Button>
 					</Card>
 				</div>
@@ -282,17 +284,17 @@ export default function Profile() {
 						className="mb-3 gap-2 text-muted-foreground hover:text-foreground"
 					>
 						<ArrowLeft className="h-4 w-4" />
-						Back
+						{t("actions.back")}
 					</Button>
 					<div>
 						<h1 className="text-2xl font-semibold tracking-tight">
-							Patient Information
+							{t("title")}
 						</h1>
 						<p className="text-sm text-muted-foreground mt-1">
-							Medical Record ·{" "}
+							{t("subtitle")} ·{" "}
 							{profile.name && profile.last_name
 								? `${profile.name} ${profile.last_name}`
-								: "Patient Profile"}
+								: t("title")}
 						</p>
 					</div>
 				</div>

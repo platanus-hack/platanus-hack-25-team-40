@@ -1,6 +1,11 @@
 import { Button } from "@/shared/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/ui/card";
-import { Badge } from "@/shared/ui/badge";
+import {
+	Card,
+	CardContent,
+	CardDescription,
+	CardHeader,
+	CardTitle,
+} from "@/shared/ui/card";
 
 import { Plus, Upload, UserCircle, Activity } from "lucide-react";
 import { UploadHealthRecordDialog } from "@/modules/health-records/components/upload-health-record-dialog";
@@ -10,13 +15,13 @@ import { SuggestionsSection } from "@/modules/suggestions/components/suggestions
 import { useState } from "react";
 import { useRouter } from "@tanstack/react-router";
 import { AppHeader } from "@/shared/components/app-header";
-import { useProfileQuery } from "@/modules/profile/hooks/use-profile-query";
+import { useTranslation } from "react-i18next";
 
 export default function Dashboard() {
 	const router = useRouter();
+	const { t } = useTranslation(["dashboard", "common", "healthRecords"]);
 	const [isFamilyDialogOpen, setIsFamilyDialogOpen] = useState(false);
 	const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
-	const { data: profile } = useProfileQuery();
 
 	return (
 		<div className="min-h-screen bg-background">
@@ -27,11 +32,10 @@ export default function Dashboard() {
 				{/* Welcome Section */}
 				<div className="mb-6 sm:mb-8">
 					<h1 className="text-2xl sm:text-3xl font-bold tracking-tight mb-2">
-						Welcome to Your Family Health Vault
+						{t("welcome")}
 					</h1>
 					<p className="text-sm sm:text-base text-muted-foreground">
-						Manage, organize, and understand your family's medical records in
-						one secure place.
+						{t("description")}
 					</p>
 				</div>
 				{/* Quick Actions */}
@@ -44,16 +48,17 @@ export default function Dashboard() {
 							<div className="flex items-center justify-between">
 								<UserCircle className="h-8 w-8 text-primary" />
 							</div>
-							<CardTitle className="mt-4">My Profile</CardTitle>
+							<CardTitle className="mt-4">
+								{t("cards.myProfile.title")}
+							</CardTitle>
 							<CardDescription>
-								View and manage your personal health information
+								{t("cards.myProfile.description")}
 							</CardDescription>
 						</CardHeader>
 						<CardContent>
 							<div className="space-y-4">
-								
 								<Button variant="outline" className="w-full">
-									View Profile
+									{t("cards.myProfile.button")}
 								</Button>
 							</div>
 						</CardContent>
@@ -63,9 +68,11 @@ export default function Dashboard() {
 							<div className="flex items-center justify-between">
 								<Upload className="h-8 w-8 text-primary" />
 							</div>
-							<CardTitle className="mt-4">Upload Records</CardTitle>
+							<CardTitle className="mt-4">
+								{t("cards.uploadRecords.title")}
+							</CardTitle>
 							<CardDescription>
-								Drop PDFs, photos, or scans of medical documents
+								{t("cards.uploadRecords.description")}
 							</CardDescription>
 						</CardHeader>
 						<CardContent>
@@ -74,7 +81,7 @@ export default function Dashboard() {
 								onClick={() => setIsUploadDialogOpen(true)}
 							>
 								<Plus className="h-4 w-4" />
-								Upload Files
+								{t("cards.uploadRecords.button")}
 							</Button>
 						</CardContent>
 					</Card>
@@ -87,10 +94,10 @@ export default function Dashboard() {
 						<CardHeader className="pb-4 px-4 sm:px-6">
 							<CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
 								<Activity className="h-5 w-5" />
-								Health Timeline
+								{t("healthRecords:timeline.title")}
 							</CardTitle>
 							<CardDescription className="text-sm">
-								Chronological view of all health records
+								{t("healthRecords:timeline.description")}
 							</CardDescription>
 						</CardHeader>
 						<CardContent className="flex-1 min-h-0 pb-6 px-4 sm:px-6">

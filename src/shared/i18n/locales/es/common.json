@@ -1,8 +1,8 @@
 {
   "app": {
-    "name": "Oregon Health",
-    "tagline": "La Salud de Tu Familia En Un Solo Lugar"
-  },
+		"name": "Oregon Health",
+		"tagline": "Tu Bóveda de Salud Personal, Potenciada por Tu Familia"
+	},
   "navigation": {
     "dashboard": "Panel",
     "profile": "Perfil",

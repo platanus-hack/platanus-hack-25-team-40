@@ -6,6 +6,7 @@ import { useHealthRecordsQuery } from "../hooks/use-health-records-query";
 import { TimelineRecordModal } from "./timeline-record-modal";
 import type { HealthRecord } from "../types";
 import { FileText, Calendar } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface GroupedRecords {
   [year: string]: {
@@ -14,6 +15,7 @@ interface GroupedRecords {
 }
 
 export function TimelineView() {
+  const { t } = useTranslation("healthRecords");
   const { data: records, isLoading } = useHealthRecordsQuery();
   const [selectedRecord, setSelectedRecord] = useState<HealthRecord | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -66,14 +68,13 @@ export function TimelineView() {
     <>
       <div className="h-full overflow-y-auto">
         {isLoading ? (
-          <LoadingSpinner message="Loading records..." />
+          <LoadingSpinner message={t("timeline.loading")} />
         ) : !records || records.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-12 text-center">
             <FileText className="h-12 w-12 text-muted-foreground mb-4" />
-            <h3 className="font-semibold mb-2">No health records yet</h3>
+            <h3 className="font-semibold mb-2">{t("timeline.noRecords")}</h3>
             <p className="text-sm text-muted-foreground max-w-sm">
-              Start by uploading your first medical document. Our AI will
-              automatically organize and explain it for you.
+              {t("timeline.uploadFirst")}
             </p>
           </div>
         ) : (

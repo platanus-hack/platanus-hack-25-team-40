@@ -1,8 +1,8 @@
 {
   "app": {
-    "name": "Oregon Health",
-    "tagline": "Your Family's Health In One Place"
-  },
+		"name": "Oregon Health",
+		"tagline": "Your Personal Health Vault, Powered by Family"
+	},
   "navigation": {
     "dashboard": "Dashboard",
     "profile": "Profile",

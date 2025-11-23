@@ -15,8 +15,9 @@
     "description": "Ver todos los registros de salud cronológicamente",
     "filterByMember": "Filtrar por Miembro de la Familia",
     "all": "Todos los Miembros",
-    "noRecords": "No se encontraron registros de salud",
-    "uploadFirst": "Sube tu primer registro de salud para comenzar",
+    "noRecords": "Aún no hay registros de salud",
+    "uploadFirst": "Comienza subiendo tu primer documento médico. Nuestra IA lo organizará y explicará automáticamente por ti.",
+    "loading": "Cargando registros...",
     "recordDate": "Fecha del Registro",
     "uploadedBy": "Subido por",
     "viewDetails": "Ver Detalles"

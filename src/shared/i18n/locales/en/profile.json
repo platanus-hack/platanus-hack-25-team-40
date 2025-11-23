@@ -67,6 +67,21 @@
   "messages": {
     "profileNotFound": "Profile not found.",
     "createProfile": "Create Profile",
-    "loadingProfile": "Loading profile..."
+    "loadingProfile": "Loading profile...",
+    "errorLoading": "Error loading profile",
+    "backToDashboard": "Back to Dashboard"
+  },
+  "actions": {
+    "back": "Back",
+    "edit": "Edit",
+    "save": "Save Changes",
+    "cancel": "Cancel",
+    "saving": "Saving...",
+    "manage": "Manage",
+    "addMembers": "Add Members",
+    "manageDocuments": "Manage documents"
+  },
+  "vault": {
+    "title": "Vault"
   }
 }

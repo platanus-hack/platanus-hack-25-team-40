@@ -4,8 +4,10 @@ import { useEffect, useState, useCallback } from "react";
 import { Heart, FileText, Shield, Users } from "lucide-react";
 import { Button } from "@/shared/ui/button";
 import { Badge } from "@/shared/ui/badge";
+import { useTranslation } from "react-i18next";
 
 export default function Login() {
+	const { t } = useTranslation(["auth", "common"]);
 	const router = useRouter();
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
@@ -100,24 +102,22 @@ export default function Login() {
 						<div>
 							<div className="flex items-center gap-2 mb-8">
 								<Heart className="h-8 w-8 text-primary" />
-								<span className="text-2xl font-bold">Oregon Health</span>
+								<span className="text-2xl font-bold">{t("common:app.name")}</span>
 							</div>
 
 							<Badge variant="secondary" className="mb-6">
-								The First Family Health OS
+								{t("badge")}
 							</Badge>
 
 							<h1 className="text-4xl font-bold tracking-tight mb-4">
-								Your Family's Health
+								{t("heroTitle")}
 								<br />
 								<span className="bg-linear-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-									In One Place
+									{t("heroSubtitle")}
 								</span>
 							</h1>
 							<p className="text-lg text-muted-foreground max-w-md">
-								Transform fragmented medical records into an intelligent family
-								health timeline—powered by AI that understands, translates, and
-								protects.
+								{t("heroDescription")}
 							</p>
 						</div>
 
@@ -127,10 +127,9 @@ export default function Login() {
 									<FileText className="h-5 w-5 text-primary" />
 								</div>
 								<div>
-									<h3 className="font-semibold mb-1">Smart Organization</h3>
+									<h3 className="font-semibold mb-1">{t("features.organization.title")}</h3>
 									<p className="text-sm text-muted-foreground">
-										AI automatically categorizes and structures all medical
-										records
+										{t("features.organization.description")}
 									</p>
 								</div>
 							</div>
@@ -139,9 +138,9 @@ export default function Login() {
 									<Shield className="h-5 w-5 text-primary" />
 								</div>
 								<div>
-									<h3 className="font-semibold mb-1">Privacy First</h3>
+									<h3 className="font-semibold mb-1">{t("features.privacy.title")}</h3>
 									<p className="text-sm text-muted-foreground">
-										End-to-end encryption with HIPAA compliance
+										{t("features.privacy.description")}
 									</p>
 								</div>
 							</div>
@@ -150,9 +149,9 @@ export default function Login() {
 									<Users className="h-5 w-5 text-primary" />
 								</div>
 								<div>
-									<h3 className="font-semibold mb-1">Family Intelligence</h3>
+									<h3 className="font-semibold mb-1">{t("features.family.title")}</h3>
 									<p className="text-sm text-muted-foreground">
-										Track hereditary patterns across your family tree
+										{t("features.family.description")}
 									</p>
 								</div>
 							</div>
@@ -165,17 +164,17 @@ export default function Login() {
 					<div className="w-full max-w-md space-y-8">
 						<div className="flex lg:hidden items-center justify-center gap-2 mb-8">
 							<Heart className="h-8 w-8 text-primary" />
-							<span className="text-2xl font-bold">Oregon Health</span>
+							<span className="text-2xl font-bold">{t("common:app.name")}</span>
 						</div>
 
 						<div className="space-y-2 text-center lg:text-left">
 							<h2 className="text-3xl font-bold tracking-tight">
-								{isSignUp ? "Create your account" : "Welcome back"}
+								{isSignUp ? t("signUpTitle") : t("signInTitle")}
 							</h2>
 							<p className="text-muted-foreground">
 								{isSignUp
-									? "Start building your family health vault"
-									: "Sign in to access your family health records"}
+									? t("signUpDescription")
+									: t("signInDescription")}
 							</p>
 						</div>
 
@@ -202,14 +201,14 @@ export default function Login() {
 										</div>
 										<div>
 											<h3 className="text-lg font-semibold mb-2">
-												Check your email
+												{t("emailConfirmation.title")}
 											</h3>
 											<p className="text-sm text-muted-foreground">
-												We've sent a confirmation link to{" "}
+												{t("emailConfirmation.sentTo")}{" "}
 												<strong>{email}</strong>
 											</p>
 											<p className="text-sm text-muted-foreground mt-2">
-												Click the link in the email to activate your account.
+												{t("emailConfirmation.instructions")}
 											</p>
 										</div>
 									</div>
@@ -223,7 +222,7 @@ export default function Login() {
 											setPassword("");
 										}}
 									>
-										Back to sign up
+										{t("emailConfirmation.backToSignUp")}
 									</Button>
 								</div>
 							) : (
@@ -231,7 +230,7 @@ export default function Login() {
 									<div className="space-y-4">
 										<div className="space-y-2">
 											<label htmlFor="email" className="text-sm font-medium">
-												Email
+												{t("email")}
 											</label>
 											<input
 												id="email"
@@ -240,12 +239,12 @@ export default function Login() {
 												onChange={(e) => setEmail(e.target.value)}
 												required
 												className="w-full rounded-lg border border-input bg-background px-4 py-2.5 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring placeholder:text-muted-foreground"
-												placeholder="you@example.com"
+												placeholder={t("emailPlaceholder")}
 											/>
 										</div>
 										<div className="space-y-2">
 											<label htmlFor="password" className="text-sm font-medium">
-												Password
+												{t("password")}
 											</label>
 											<input
 												id="password"
@@ -273,10 +272,10 @@ export default function Login() {
 										disabled={loading}
 									>
 										{loading
-											? "Loading..."
+											? t("loading")
 											: isSignUp
-											? "Create Account"
-											: "Sign In"}
+											? t("createAccount")
+											: t("signIn")}
 									</Button>
 
 									<div className="text-center">
@@ -289,8 +288,8 @@ export default function Login() {
 											className="text-sm text-muted-foreground hover:text-primary transition-colors"
 										>
 											{isSignUp
-												? "Already have an account? Sign in"
-												: "Don't have an account? Sign up"}
+												? t("alreadyHaveAccount")
+												: t("noAccount")}
 										</button>
 									</div>
 								</>
@@ -298,19 +297,19 @@ export default function Login() {
 						</form>
 
 						<p className="text-center text-xs text-muted-foreground pt-4">
-							By continuing, you agree to our{" "}
+							{t("terms.agreement")}{" "}
 							<a
 								href="#"
 								className="text-primary hover:underline underline-offset-4"
 							>
-								Terms of Service
+								{t("terms.service")}
 							</a>{" "}
-							and{" "}
+							{t("terms.and")}{" "}
 							<a
 								href="#"
 								className="text-primary hover:underline underline-offset-4"
 							>
-								Privacy Policy
+								{t("terms.privacy")}
 							</a>
 						</p>
 					</div>

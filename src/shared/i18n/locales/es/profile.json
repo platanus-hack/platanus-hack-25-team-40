@@ -67,6 +67,21 @@
   "messages": {
     "profileNotFound": "Perfil no encontrado.",
     "createProfile": "Crear Perfil",
-    "loadingProfile": "Cargando perfil..."
+    "loadingProfile": "Cargando perfil...",
+    "errorLoading": "Error al cargar el perfil",
+    "backToDashboard": "Volver al Panel"
+  },
+  "actions": {
+    "back": "Volver",
+    "edit": "Editar",
+    "save": "Guardar Cambios",
+    "cancel": "Cancelar",
+    "saving": "Guardando...",
+    "manage": "Gestionar",
+    "addMembers": "Agregar Miembros",
+    "manageDocuments": "Gestionar documentos"
+  },
+  "vault": {
+    "title": "Bóveda"
   }
 }

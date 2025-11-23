@@ -15,8 +15,9 @@
     "description": "View all health records chronologically",
     "filterByMember": "Filter by Family Member",
     "all": "All Members",
-    "noRecords": "No health records found",
-    "uploadFirst": "Upload your first health record to get started",
+    "noRecords": "No health records yet",
+    "uploadFirst": "Start by uploading your first medical document. Our AI will automatically organize and explain it for you.",
+    "loading": "Loading records...",
     "recordDate": "Record Date",
     "uploadedBy": "Uploaded by",
     "viewDetails": "View Details"
