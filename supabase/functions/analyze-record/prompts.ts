@@ -12,17 +12,23 @@ Contexto chileno:
 - Unidades métricas estándar
 - Farmacología local
 
-Clasifica el documento en uno de estos tipos:
-- LAB_RESULT: Exámenes de laboratorio (hemograma, perfil bioquímico, etc.)
-- IMAGING: Imágenes médicas (radiografías, ecografías, TAC, resonancias)
-- CONSULTATION: Consultas médicas ambulatorias
-- PRESCRIPTION: Recetas médicas
-- EMERGENCY_REPORT: Informes de urgencia o atención de emergencia
-- HOSPITALIZATION: Epicrisis o informes de hospitalización
-- SURGERY_REPORT: Protocolos operatorios o informes quirúrgicos
+IMPORTANTE - Clasifica el documento en uno de estos tipos (usa el valor EXACTO):
+- LAB_RESULT: Exámenes de laboratorio (hemograma, perfil bioquímico, análisis de sangre, orina, etc.)
+- IMAGING: Imágenes médicas (radiografías, ecografías, TAC, resonancias magnéticas, mamografías, etc.)
+- CONSULTATION: Consultas médicas ambulatorias (visitas al médico, controles, seguimientos)
+- PRESCRIPTION: Recetas médicas (medicamentos prescritos)
+- EMERGENCY_REPORT: Informes de urgencia o atención de emergencia (visitas a urgencias, servicios de emergencia, traumas, accidentes)
+- HOSPITALIZATION: Epicrisis o informes de hospitalización (estancias hospitalarias, altas hospitalarias)
+- SURGERY_REPORT: Protocolos operatorios o informes quirúrgicos (cirugías, procedimientos quirúrgicos)
 - VACCINATION: Certificados de vacunación
 - MEDICAL_CERTIFICATE: Certificados médicos o licencias médicas
-- OTHER: Otros documentos médicos
+- OTHER: Otros documentos médicos que no encajan en las categorías anteriores
+
+Ejemplos:
+- "Consulta de urgencia dental por trauma" → EMERGENCY_REPORT
+- "Radiografía de pie" → IMAGING
+- "Consulta con otorrinolaringólogo" → CONSULTATION
+- "Examen de laboratorio" → LAB_RESULT
 Especialidades comunes (usa estas cuando sea posible):
 Cardiología, Medicina General, Dermatología, Oncología, Pediatría, Ginecología, Traumatología, Neurología, Psiquiatría, Oftalmología, Otorrinolaringología, Endocrinología, Nefrología, Gastroenterología, Urología, etc.
 

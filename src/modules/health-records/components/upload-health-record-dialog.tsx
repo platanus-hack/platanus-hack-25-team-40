@@ -161,10 +161,24 @@ export function UploadHealthRecordDialog({ open, onOpenChange }: UploadHealthRec
   const normalizeType = (raw: string | undefined | null): HealthRecordType => {
     if (!raw) return "lab-result";
     const norm = raw.toLowerCase().replace(/_/g, "-");
-    if (norm.includes("lab")) return "lab-result";
+    
+    // Map LLM response types to database format
+    if (norm === "lab-result" || norm === "lab_result") return "lab-result";
+    if (norm === "imaging") return "imaging";
+    if (norm === "consultation") return "consultation";
+    if (norm === "prescription" || norm.includes("prescrip")) return "prescription";
+    if (norm === "emergency-report" || norm === "emergency_report") return "emergency-report";
+    if (norm === "hospitalization") return "hospitalization";
+    if (norm === "surgery-report" || norm === "surgery_report") return "surgery-report";
+    if (norm === "vaccination") return "vaccination";
+    if (norm === "medical-certificate" || norm === "medical_certificate") return "medical-certificate";
+    if (norm === "other") return "other";
+    
+    // Legacy mappings for backward compatibility
     if (norm.includes("check")) return "checkup";
     if (norm.includes("diag")) return "diagnosis";
-    if (norm.includes("prescrip")) return "prescription";
+    
+    // Default fallback
     return "lab-result";
   };
 

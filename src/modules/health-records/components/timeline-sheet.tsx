@@ -67,12 +67,19 @@ export function TimelineSheet({ open, onOpenChange }: TimelineSheetProps) {
 
   const getRecordTypeColor = (type: string) => {
     const colors: Record<string, string> = {
-      checkup: "bg-blue-100 text-blue-800 border-blue-200",
-      diagnosis: "bg-red-100 text-red-800 border-red-200",
-      prescription: "bg-green-100 text-green-800 border-green-200",
       "lab-result": "bg-purple-100 text-purple-800 border-purple-200",
       imaging: "bg-orange-100 text-orange-800 border-orange-200",
+      consultation: "bg-blue-100 text-blue-800 border-blue-200",
+      prescription: "bg-green-100 text-green-800 border-green-200",
+      "emergency-report": "bg-red-100 text-red-800 border-red-200",
+      hospitalization: "bg-pink-100 text-pink-800 border-pink-200",
+      "surgery-report": "bg-indigo-100 text-indigo-800 border-indigo-200",
       vaccination: "bg-teal-100 text-teal-800 border-teal-200",
+      "medical-certificate": "bg-yellow-100 text-yellow-800 border-yellow-200",
+      other: "bg-gray-100 text-gray-800 border-gray-200",
+      // Legacy types
+      checkup: "bg-blue-100 text-blue-800 border-blue-200",
+      diagnosis: "bg-red-100 text-red-800 border-red-200",
     };
     return colors[type] || "bg-gray-100 text-gray-800 border-gray-200";
   };
