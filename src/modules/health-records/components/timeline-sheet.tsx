@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "@tanstack/react-router";
 import {
   Sheet,
   SheetContent,
@@ -34,6 +35,7 @@ interface GroupedRecords {
 export function TimelineSheet({ open, onOpenChange }: TimelineSheetProps) {
   const { data: records, isLoading } = useHealthRecordsQuery();
   const [expandedMonths, setExpandedMonths] = useState<Set<string>>(new Set());
+	const navigate = useNavigate();
 
   // Group records by year and month
   const groupedRecords: GroupedRecords = (records || []).reduce((acc, record) => {
@@ -261,10 +263,7 @@ export function TimelineSheet({ open, onOpenChange }: TimelineSheetProps) {
 																							size="sm"
 																							className="gap-2"
 																							onClick={() =>
-																								window.open(
-																									record.fileUrl!,
-																									"_blank"
-																								)
+																								navigate({ to: "/documents", search: { recordId: record.id } })
 																							}
 																						>
 																							<ExternalLink className="h-3 w-3" />
