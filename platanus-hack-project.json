@@ -1,4 +1,7 @@
 {
-  "project-name": "<FILL THIS>",
-  "project-description-spanish": "<FILL THIS>"
+  "project-name": "Oregon Health",
+  "project-description-spanish": "Oregon es una bóveda personal de salud impulsada por IA que transforma documentos médicos heredados—papeles, fotos y PDFs—en una línea de tiempo clara, entendible y accionable.
+Digitaliza tus registros, explica la jerga médica en lenguaje simple y te entrega recomendaciones personalizadas basadas en tu propia historia y patrones familiares.
+Todo seguro, organizado y fácil de usar.",
+  "deploy-url": "https://health-oregon.com"
 }
