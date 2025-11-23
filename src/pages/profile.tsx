@@ -261,10 +261,10 @@ export default function Profile() {
 	};
 
 	const getBMICategory = (bmi: number) => {
-		if (bmi < 18.5) return { label: "Underweight", color: "text-blue-600" };
-		if (bmi < 25) return { label: "Normal", color: "text-green-600" };
-		if (bmi < 30) return { label: "Overweight", color: "text-orange-600" };
-		return { label: "Obese", color: "text-red-600" };
+		if (bmi < 18.5) return { label: t("sections.vitals.bmiCategories.underweight"), color: "text-blue-600" };
+		if (bmi < 25) return { label: t("sections.vitals.bmiCategories.normal"), color: "text-green-600" };
+		if (bmi < 30) return { label: t("sections.vitals.bmiCategories.overweight"), color: "text-orange-600" };
+		return { label: t("sections.vitals.bmiCategories.obese"), color: "text-red-600" };
 	};
 
 	const bmi = calculateBMI();
@@ -308,7 +308,7 @@ export default function Profile() {
 							<div className="border-b px-6 py-4 flex items-center justify-between">
 								<h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground flex items-center gap-2">
 									<User className="h-4 w-4" />
-									Demographics
+									{t("sections.demographics.title")}
 								</h2>
 								{!isEditingDemographics && (
 									<Button
@@ -318,7 +318,7 @@ export default function Profile() {
 										className="gap-2 h-8"
 									>
 										<Edit className="h-3.5 w-3.5" />
-										Edit
+										{t("actions.edit")}
 									</Button>
 								)}
 							</div>
@@ -328,27 +328,27 @@ export default function Profile() {
 										<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 											<div className="space-y-2">
 												<label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-													First Name
+													{t("sections.demographics.fields.firstName")}
 												</label>
 												<Input
 													value={name}
 													onChange={(e) => setName(e.target.value)}
-													placeholder="First name"
+													placeholder={t("sections.demographics.fields.firstName")}
 												/>
 											</div>
 											<div className="space-y-2">
 												<label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-													Last Name
+													{t("sections.demographics.fields.lastName")}
 												</label>
 												<Input
 													value={lastName}
 													onChange={(e) => setLastName(e.target.value)}
-													placeholder="Last name"
+													placeholder={t("sections.demographics.fields.lastName")}
 												/>
 											</div>
 											<div className="space-y-2">
 												<label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-													Date of Birth
+													{t("sections.demographics.fields.dateOfBirth")}
 												</label>
 												<Input
 													type="date"
@@ -358,30 +358,30 @@ export default function Profile() {
 											</div>
 											<div className="space-y-2">
 												<label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-													Sex
+													{t("sections.demographics.fields.sex")}
 												</label>
 												<Select
 													value={biologicalSex}
 													onValueChange={setBiologicalSex}
 												>
 													<SelectTrigger>
-														<SelectValue placeholder="Select sex" />
+														<SelectValue placeholder={t("sections.demographics.fields.sex")} />
 													</SelectTrigger>
 													<SelectContent>
-														<SelectItem value="male">Male</SelectItem>
-														<SelectItem value="female">Female</SelectItem>
-														<SelectItem value="intersex">Intersex</SelectItem>
+														<SelectItem value="male">{t("sections.demographics.sexOptions.male")}</SelectItem>
+														<SelectItem value="female">{t("sections.demographics.sexOptions.female")}</SelectItem>
+														<SelectItem value="intersex">{t("sections.demographics.sexOptions.intersex")}</SelectItem>
 													</SelectContent>
 												</Select>
 											</div>
 										</div>
 										<div className="space-y-2">
 											<label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-												Blood Type
+												{t("sections.demographics.fields.bloodType")}
 											</label>
 											<Select value={bloodType} onValueChange={setBloodType}>
 												<SelectTrigger className="w-full md:w-48">
-													<SelectValue placeholder="Select blood type" />
+													<SelectValue placeholder={t("sections.demographics.bloodTypes.select")} />
 												</SelectTrigger>
 												<SelectContent>
 													<SelectItem value="A+">A+</SelectItem>
@@ -403,7 +403,7 @@ export default function Profile() {
 												className="gap-2"
 											>
 												<Save className="h-3.5 w-3.5" />
-												{isPending ? "Saving..." : "Save Changes"}
+												{isPending ? t("actions.saving") : t("actions.save")}
 											</Button>
 											<Button
 												variant="outline"
@@ -413,52 +413,52 @@ export default function Profile() {
 												className="gap-2"
 											>
 												<X className="h-3.5 w-3.5" />
-												Cancel
+												{t("actions.cancel")}
 											</Button>
 										</div>
 									</div>
 								) : (
-									<div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-										<div>
+									<div className="grid grid-cols-1 md:grid-cols-4 gap-6 items-start">
+										<div className="flex flex-col gap-1">
 											<label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
 												Full Name
 											</label>
-											<p className="text-base font-medium mt-1">
+											<p className="text-base font-medium">
 												{profile.name && profile.last_name
 													? `${profile.name} ${profile.last_name}`
 													: "—"}
 											</p>
 										</div>
-										<div>
+										<div className="flex flex-col gap-1">
 											<label className="text-xs font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-1">
 												<Calendar className="h-3 w-3" />
 												Date of Birth
 											</label>
-											<p className="text-base font-medium mt-1">
+											<p className="text-base font-medium">
 												{profile.birth_date
 													? formatDate(profile.birth_date)
 													: "—"}
 											</p>
 											{profile.birth_date && (
 												<p className="text-xs text-muted-foreground mt-0.5">
-													{calculateAge(profile.birth_date)} years old
+													{calculateAge(profile.birth_date)} {t("sections.demographics.fields.age")}
 												</p>
 											)}
 										</div>
-										<div>
+										<div className="flex flex-col gap-1">
 											<label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
 												Sex
 											</label>
-											<p className="text-base font-medium mt-1 capitalize">
+											<p className="text-base font-medium capitalize">
 												{profile.biological_sex?.replace("_", " ") || "—"}
 											</p>
 										</div>
-										<div>
+										<div className="flex flex-col gap-1">
 											<label className="text-xs font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-1">
 												<Droplet className="h-3 w-3" />
 												Blood Type
 											</label>
-											<p className="text-base font-medium mt-1">
+											<p className="text-base font-medium">
 												{profile.blood_type || "—"}
 											</p>
 										</div>
@@ -472,7 +472,7 @@ export default function Profile() {
 							<div className="border-b px-6 py-4 flex items-center justify-between">
 								<h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground flex items-center gap-2">
 									<Activity className="h-4 w-4" />
-									Vital Signs & Metrics
+									{t("sections.vitals.title")}
 								</h2>
 								{!isEditingVitals && (
 									<Button
@@ -493,25 +493,25 @@ export default function Profile() {
 											<div className="space-y-2">
 												<label className="text-xs font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-1.5">
 													<Ruler className="h-3.5 w-3.5" />
-													Height (cm)
+													{t("sections.vitals.fields.heightCm")}
 												</label>
 												<Input
 													type="number"
 													value={height}
 													onChange={(e) => setHeight(e.target.value)}
-													placeholder="e.g., 170"
+													placeholder={t("sections.vitals.fields.heightPlaceholder")}
 												/>
 											</div>
 											<div className="space-y-2">
 												<label className="text-xs font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-1.5">
 													<Weight className="h-3.5 w-3.5" />
-													Weight (kg)
+													{t("sections.vitals.fields.weightKg")}
 												</label>
 												<Input
 													type="number"
 													value={weight}
 													onChange={(e) => setWeight(e.target.value)}
-													placeholder="e.g., 70"
+													placeholder={t("sections.vitals.fields.weightPlaceholder")}
 												/>
 											</div>
 										</div>
@@ -523,7 +523,7 @@ export default function Profile() {
 												className="gap-2"
 											>
 												<Save className="h-3.5 w-3.5" />
-												{isPending ? "Saving..." : "Save Changes"}
+												{isPending ? t("actions.saving") : t("actions.save")}
 											</Button>
 											<Button
 												variant="outline"
@@ -532,9 +532,7 @@ export default function Profile() {
 												size="sm"
 												className="gap-2"
 											>
-												<X className="h-3.5 w-3.5" />
-												Cancel
-											</Button>
+												<X className="h-3.5 w-3.5" />{t("actions.cancel")}</Button>
 										</div>
 									</div>
 								) : (
@@ -545,7 +543,7 @@ export default function Profile() {
 											</div>
 											<div>
 												<label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-													Height
+													{t("sections.vitals.fields.height")}
 												</label>
 												<p className="text-base font-medium mt-1">
 													{profile.height_cm ? `${profile.height_cm} cm` : "—"}
@@ -563,7 +561,7 @@ export default function Profile() {
 											</div>
 											<div>
 												<label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-													Weight
+													{t("sections.vitals.fields.weight")}
 												</label>
 												<p className="text-base font-medium mt-1">
 													{profile.weight_kg ? `${profile.weight_kg} kg` : "—"}
@@ -581,7 +579,7 @@ export default function Profile() {
 											</div>
 											<div>
 												<label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-													BMI
+													{t("sections.vitals.fields.bmi")}
 												</label>
 												<p className="text-base font-medium mt-1">
 													{bmi || "—"}
@@ -600,12 +598,12 @@ export default function Profile() {
 							</div>
 						</Card>
 
-						{/* Clinical Information Card */}
+						{/* {t("sections.clinical.title")} Card */}
 						<Card className="mb-6">
 							<div className="border-b px-6 py-4 flex items-center justify-between">
 								<h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground flex items-center gap-2">
 									<FileText className="h-4 w-4" />
-									Clinical Information
+									{t("sections.clinical.title")}
 								</h2>
 								{!isEditingMedical && (
 									<Button
@@ -628,7 +626,7 @@ export default function Profile() {
 												className="text-xs font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-1.5"
 											>
 												<AlertCircle className="h-3.5 w-3.5" />
-												Allergies
+												{t("sections.clinical.fields.allergies")}
 											</label>
 											<textarea
 												id="allergies"
@@ -636,7 +634,7 @@ export default function Profile() {
 												onChange={(e) => setAllergies(e.target.value)}
 												rows={2}
 												className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring resize-none"
-												placeholder="e.g., Penicillin, Peanuts, Latex"
+												placeholder={t("sections.clinical.placeholders.allergies")}
 											/>
 										</div>
 
@@ -646,7 +644,7 @@ export default function Profile() {
 												className="text-xs font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-1.5"
 											>
 												<FileText className="h-3.5 w-3.5" />
-												Current Medications
+												{t("sections.clinical.fields.medications")}
 											</label>
 											<textarea
 												id="medications"
@@ -654,7 +652,7 @@ export default function Profile() {
 												onChange={(e) => setMedications(e.target.value)}
 												rows={2}
 												className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring resize-none"
-												placeholder="e.g., Metformin 500mg twice daily"
+												placeholder={t("sections.clinical.placeholders.medications")}
 											/>
 										</div>
 
@@ -664,7 +662,7 @@ export default function Profile() {
 												className="text-xs font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-1.5"
 											>
 												<Heart className="h-3.5 w-3.5" />
-												Chronic Conditions
+												{t("sections.clinical.fields.chronicDiseases")}
 											</label>
 											<textarea
 												id="chronicDiseases"
@@ -672,7 +670,7 @@ export default function Profile() {
 												onChange={(e) => setChronicDiseases(e.target.value)}
 												rows={2}
 												className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring resize-none"
-												placeholder="e.g., Type 2 Diabetes, Hypertension"
+												placeholder={t("sections.clinical.placeholders.chronicConditions")}
 											/>
 										</div>
 
@@ -682,7 +680,7 @@ export default function Profile() {
 												className="text-xs font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-1.5"
 											>
 												<History className="h-3.5 w-3.5" />
-												Family Medical History
+												{t("sections.clinical.fields.familyHistory")}
 											</label>
 											<textarea
 												id="familyHistory"
@@ -690,7 +688,7 @@ export default function Profile() {
 												onChange={(e) => setFamilyHistory(e.target.value)}
 												rows={2}
 												className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring resize-none"
-												placeholder="e.g., Father: Heart Disease, Mother: Diabetes"
+												placeholder={t("sections.clinical.placeholders.familyHistory")}
 											/>
 										</div>
 
@@ -702,7 +700,7 @@ export default function Profile() {
 												className="gap-2"
 											>
 												<Save className="h-3.5 w-3.5" />
-												{isPending ? "Saving..." : "Save Changes"}
+												{isPending ? t("actions.saving") : t("actions.save")}
 											</Button>
 											<Button
 												variant="outline"
@@ -711,9 +709,7 @@ export default function Profile() {
 												size="sm"
 												className="gap-2"
 											>
-												<X className="h-3.5 w-3.5" />
-												Cancel
-											</Button>
+												<X className="h-3.5 w-3.5" />{t("actions.cancel")}</Button>
 										</div>
 									</div>
 								) : (
@@ -726,55 +722,55 @@ export default function Profile() {
 												<div>
 													<label className="text-xs font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-1.5 mb-2">
 														<AlertCircle className="h-3.5 w-3.5" />
-														Allergies
+														{t("sections.clinical.fields.allergies")}
 													</label>
-													<p className="text-sm">
-														{profile.allergies || "None reported"}
-													</p>
+														<p className="text-sm">
+															{profile.allergies || t("sections.clinical.noneReported")}
+														</p>
 												</div>
 												<div>
 													<label className="text-xs font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-1.5 mb-2">
 														<FileText className="h-3.5 w-3.5" />
-														Current Medications
+														{t("sections.clinical.fields.medications")}
 													</label>
-													<p className="text-sm">
-														{profile.medications || "None reported"}
-													</p>
+														<p className="text-sm">
+															{profile.medications || t("sections.clinical.noneReported")}
+														</p>
 												</div>
 												<div>
 													<label className="text-xs font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-1.5 mb-2">
 														<Heart className="h-3.5 w-3.5" />
-														Chronic Conditions
+														{t("sections.clinical.fields.chronicDiseases")}
 													</label>
-													<p className="text-sm">
-														{profile.chronic_diseases || "None reported"}
-													</p>
+														<p className="text-sm">
+															{profile.chronic_diseases || t("sections.clinical.noneReported")}
+														</p>
 												</div>
 												<div>
 													<label className="text-xs font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-1.5 mb-2">
 														<History className="h-3.5 w-3.5" />
-														Family Medical History
+														{t("sections.clinical.fields.familyHistory")}
 													</label>
-													<p className="text-sm">
-														{profile.family_history || "None reported"}
-													</p>
+														<p className="text-sm">
+															{profile.family_history || t("sections.clinical.noneReported")}
+														</p>
 												</div>
 											</>
 										) : (
 											<div className="col-span-2 text-center py-8">
 												<FileText className="h-8 w-8 text-muted-foreground/50 mx-auto mb-3" />
 												<p className="text-sm text-muted-foreground mb-3">
-													No clinical information on file
+													{t("sections.clinical.noData")}
 												</p>
-												<Button
-													variant="outline"
-													size="sm"
-													onClick={handleEditMedical}
-													className="gap-2"
-												>
-													<Edit className="h-3.5 w-3.5" />
-													Add Information
-												</Button>
+											<Button
+												variant="outline"
+												size="sm"
+												onClick={handleEditMedical}
+												className="gap-2"
+											>
+												<Edit className="h-3.5 w-3.5" />
+												{t("sections.clinical.addInformation")}
+											</Button>
 											</div>
 										)}
 									</div>
@@ -783,13 +779,13 @@ export default function Profile() {
 						</Card>
 					</div>
 
-					{/* Right Column - Family Members Sidebar */}
+					{/* Right Column - {t("sections.familyMembers.title")} Sidebar */}
 					<div className="lg:col-span-1 space-y-6">
 						<Card>
 							<div className="border-b px-6 py-4 flex items-center justify-between">
 								<h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground flex items-center gap-2">
 									<Users className="h-4 w-4" />
-									Family Members
+									{t("sections.familyMembers.title")}
 								</h2>
 								<Button
 									variant="ghost"
@@ -797,9 +793,7 @@ export default function Profile() {
 									onClick={() => setIsFamilyDialogOpen(true)}
 									className="gap-2 h-8"
 								>
-									<Settings className="h-3.5 w-3.5" />
-									Manage
-								</Button>
+									<Settings className="h-3.5 w-3.5" />{t("actions.manage")}</Button>
 							</div>
 							<div className="p-6">
 								{familyMembersLoading ? (
@@ -829,10 +823,10 @@ export default function Profile() {
 									</div>
 								) : (
 									<div className="text-center py-8">
-										<Users className="h-8 w-8 text-muted-foreground/50 mx-auto mb-3" />
-										<p className="text-sm text-muted-foreground mb-3">
-											No family members added
-										</p>
+									<Users className="h-8 w-8 text-muted-foreground/50 mx-auto mb-3" />
+									<p className="text-sm text-muted-foreground mb-3">
+										{t("sections.familyMembers.noMembers")}
+									</p>
 										<Button
 											variant="outline"
 											size="sm"
@@ -840,7 +834,7 @@ export default function Profile() {
 											className="gap-2"
 										>
 											<Settings className="h-3.5 w-3.5" />
-											Add Members
+											{t("actions.addMembers")}
 										</Button>
 									</div>
 								)}
@@ -849,9 +843,7 @@ export default function Profile() {
 						<Card>
 							<div className="border-b px-6 py-4 flex items-center justify-between">
 								<h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground flex items-center gap-2">
-									<Vault className="h-4 w-4" />
-									Vault
-								</h2>
+									<Vault className="h-4 w-4" />{t("vault.title")}</h2>
 								<Button
 									variant="ghost"
 									size="sm"
@@ -859,7 +851,7 @@ export default function Profile() {
 									className="gap-2 h-8"
 								>
 									<Settings className="h-3.5 w-3.5" />
-									Manage documents
+									{t("actions.manageDocuments")}
 								</Button>
 							</div>
 						</Card>
@@ -867,7 +859,7 @@ export default function Profile() {
 				</div>
 			</main>
 
-			{/* Family Members Dialog */}
+			{/* {t("sections.familyMembers.title")} Dialog */}
 			<FamilyMembersDialog
 				open={isFamilyDialogOpen}
 				onOpenChange={setIsFamilyDialogOpen}

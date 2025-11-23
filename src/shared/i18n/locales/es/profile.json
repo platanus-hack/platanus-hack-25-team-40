@@ -46,18 +46,20 @@
       "fields": {
         "allergies": "Alergias",
         "medications": "Medicamentos Actuales",
+        "chronicDiseases": "Condiciones Crónicas",
         "chronicConditions": "Condiciones Crónicas",
         "familyHistory": "Historial Médico Familiar"
       },
       "placeholders": {
-        "allergies": "ej., Penicilina, Cacahuates, Látex",
+        "allergies": "ej., Penicilina, Maní, Látex",
         "medications": "ej., Metformina 500mg dos veces al día",
         "chronicConditions": "ej., Diabetes Tipo 2, Hipertensión",
         "familyHistory": "ej., Padre: Enfermedad Cardíaca, Madre: Diabetes"
       },
       "noData": "No hay información clínica registrada",
+      "addInformation": "Agregar Información",
       "addInfo": "Agregar Información",
-      "noneReported": "Ninguno reportado"
+      "noneReported": "Ninguna reportada"
     },
     "familyMembers": {
       "title": "Miembros de la Familia",

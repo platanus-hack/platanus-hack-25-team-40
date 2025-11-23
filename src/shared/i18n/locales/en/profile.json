@@ -46,6 +46,7 @@
       "fields": {
         "allergies": "Allergies",
         "medications": "Current Medications",
+        "chronicDiseases": "Chronic Conditions",
         "chronicConditions": "Chronic Conditions",
         "familyHistory": "Family Medical History"
       },
@@ -56,6 +57,7 @@
         "familyHistory": "e.g., Father: Heart Disease, Mother: Diabetes"
       },
       "noData": "No clinical information on file",
+      "addInformation": "Add Information",
       "addInfo": "Add Information",
       "noneReported": "None reported"
     },
